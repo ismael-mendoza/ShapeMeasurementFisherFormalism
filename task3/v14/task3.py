@@ -2,8 +2,11 @@
 
 import sys
 import os
+import inspect
+import subprocess
 import math
 import galsim
+import subprocess
 from lmfit import minimize, Parameters, Parameter, fit_report
 import numpy as np
 import matplotlib.cm as cm
@@ -163,7 +166,24 @@ def main(argv):
             figure1.suptitle('Initial Galaxy', fontsize = 20)
             drawPlot(subplt, gal_image.array)
 
-            figure1.show()
+            #os to save and preview pdf.
+            if not os.path.isdir('plots'):
+                    os.mkdir('plots')
+
+            file_name = os.path.join('plots', 'figure1.pdf') #puts slashes in between things.
+            figure1.savefig(file_name, bbox_inches='tight')
+
+            os.system("open " + file_name)
+
+            # path_to_pdf = os.path.abspath(file_name) #retuns the absolute path of where the file is.
+
+            # path_to_preview= os.path.abspath('/Applications/Preview.app') 
+
+            # process = subprocess.Popen([path_to_preview, path_to_pdf], shell = True, stdout = subprocess.PIPE)
+            # process.wait()
+                    #logger.info('Wrote image to %r' % file_name)  # using %r adds quotes around filename for us
+            
+            #subprocess.Popen(['figure1.pdf'],shell=True)
 
 
         #figure with derivatives.
