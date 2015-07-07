@@ -22,14 +22,17 @@ def variance(paramFunc, params, param_names, CovM):
 
 
 def a1_func(params):
-    if('q' and 'gal_sigma' in params.keys()):
+    if('q' and 'beta' in params.keys()):
         return a2(params) / params['q']
+        
+    elif('e1' and 'e2' in params.keys()):
+        pass
 
 def amplitude_func(params): 
-    return params['gal_flux']/(math.sqrt(a1(params)*a2(params)))
+    return (params['gal_flux']/(math.sqrt(a1(params)*a2(params))))
 
 def a2_func(params):
-    if('q' and 'gal_sigma' in params.keys()):
+    if('q' and 'beta' in params.keys()):
         return math.sqrt(params['q']*(params['gal_sigma']**2))
 
 def SaveFigureToPdfAndOpen(figure,file_name): 
