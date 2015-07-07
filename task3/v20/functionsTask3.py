@@ -12,6 +12,26 @@ from copy import deepcopy #useful to not change both variables when one is copie
 import gc  
 
 
+
+def variance(paramFunc, params, param_names, CovM):
+    var = 0 
+    for k in range(num_params):
+        for l in range(num_params):
+            var += partialDifferentiate(paramFunc, param_names[k], params, step[param_names[k]])(params) * partialDifferentiate(a2, param_names[l], params, step[param_names[l]])(params) * CovM[param_names[k],param_names[l]]
+    return var
+
+
+def a1_func(params):
+    if('q' and 'gal_sigma' in params.keys()):
+        return a2(params) / params['q']
+
+def amplitude_func(params): 
+    return params['gal_flux']/(math.sqrt(a1(params)*a2(params)))
+
+def a2_func(params):
+    if('q' and 'gal_sigma' in params.keys()):
+        return math.sqrt(params['q']*(params['gal_sigma']**2))
+
 def SaveFigureToPdfAndOpen(figure,file_name): 
 
      #os to save and preview pdf.
@@ -74,7 +94,10 @@ def drawGalaxy(params):
     gal = galsim.Gaussian(flux=params['gal_flux'], sigma=params['gal_sigma'])
 
     #set shear, if desired. note that shear generates a new sheared galaxy, should not try to change attribute of the galaxy directly
-    gal = gal.shear(e1=params['e1'], e2 = params['e2'])
+    if('e1' and 'e2' in params.keys()): 
+        gal = gal.shear(e1=params['e1'], e2 = params['e2'])
+    elif('q' and 'beta' in params.keys()):
+        gal = gal.shear(q=params['q'], beta = params['beta'] * galsim.radians) ##galsim.radians is only useful when you draw it (sheart it) do not need it anywhereelse.
 
     #shift galaxy if desired. be careful to do shear and shift in this order, because otherwise might act weirdly (takes center as the original for shear)
     gal = gal.shift(params['x0'],params['y0'])

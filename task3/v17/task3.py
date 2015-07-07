@@ -1,4 +1,4 @@
-"""We want to draw a fisher matrix for a resulting galaxy and its parameters. We do everything with a Gaussian in this case."""
+"""We want to draw a fisher matrix for a resulting galaxy and its parameters. We do everything with a 6 paramater-Gaussian in this case."""
 
 import sys
 import os
@@ -19,15 +19,6 @@ from functionsTask3 import *
 
 
 def main(argv):
-    """
-    First draw a galaxy with the following characteristics, 
-      - Use a circular Gaussian profile for the galaxy.
-      - Convolve it by a circular Gaussian PSF.
-      - Add Gaussian noise to the image.
-      - It is sheared so that e1 != 0 and e2!= 0  and shifted. 
-
-      Then we change a parameter and obtain a new image for each parameter that is slightly changed so we can calculate a derivative.
-    """
 
     if(len(argv) == 1): 
         argv.append('')
@@ -39,8 +30,8 @@ def main(argv):
     #initialize dictionary (for ease of use) with parameters.
 
     orig_params = dict()
-    orig_params['gal_sigma'] =  3.  #0; arcsec
     orig_params['gal_flux'] = 100.  #1 ; total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
+    orig_params['gal_sigma'] =  3.  #0; arcsec
     orig_params['e1'] = .1          #2 ; ellipticity: e1 
     orig_params['e2'] = -.5         #3; ellipticity: e2
     orig_params['x0'] = 0.          #4;shift in x origin. 
@@ -54,8 +45,8 @@ def main(argv):
 
     #define the steps for derivatives of each individual parameter.
     steps = dict() 
-    steps['gal_sigma'] = orig_params['gal_sigma'] * .0001
     steps['gal_flux']  = orig_params['gal_flux'] * .0001
+    steps['gal_sigma'] = orig_params['gal_sigma'] * .0001
     steps['e1'] = 1*.0001
     steps['e2'] = 1*.0001
     steps['x0'] = nx* .0001
@@ -115,22 +106,27 @@ def main(argv):
     #print np.inner(FisherM,CovM)  ##they are inverses!! 
 
     #now we want bias of each parameter per pixel, so we can see how each parameter contributes. 
-
-    # bias_images = []
-
-    # for i in range(6):
-    #     sumation = 0 
-    #     for j in range(6):
-    #         for k in range(6):
-    #             for l in range(6):
-    #                 sumation += CovM[i][j]*CovM[k][l]*BiasM_images[j][k][l]
-
+    bias_images = []
+    for i in range(6):
+        sumation = 0 
+        for j in range(6):
+            for k in range(6):
+                for l in range(6):
+                    sumation += CovM[i][j]*CovM[k][l]*BiasM_images[j][k][l]
+        bias_images.append((-.5) *sumation)
 
 
+    biases = [image.sum() for image in bias_images]
+
+
+    print biases[0]
+    print CovM[0][0]
+    print (2 * biases[0] * orig_params['gal_flux'] / CovM[0][0])
 
 
 
-#     #want to check answers analitically with the formulas from the paper.
+    #use lmfit over a lot of noisy images. 
+    #want to check answers analitically with the formulas from the paper.
 
     
 
@@ -153,33 +149,17 @@ def main(argv):
 
     if(argv[1] == 'plot'):
 
-
         plt.rc('text', usetex=False)
-
         list_of_plots = np.array([int(n) for n in argv[2:]])
 
         #here we slice arg[2:] because we have to have a numpy array only with numbers for this to work and only the arguments after 'plot' are numbers.
         if((list_of_plots == 1).any()): 
-            #can draw multiple images at once separately by calling subplots multiple times.
-            #draws a plot of the galaxy.
             figure1, subplt= plt.subplots(1,1)
             figure1.suptitle('Initial Galaxy', fontsize = 20)
             drawPlot(subplt, gal_image.array)
-            SaveFigureToPdfAndOpen(figure1, 'figure1.png') #this will open for preview because it is the default defined in my mac.
-           
-
-            # path_to_pdf = os.path.abspath(file_name) #retuns the absolute path of where the file is.
-
-            # path_to_preview= os.path.abspath('/Applications/Preview.app') 
-
-            # process = subprocess.Popen([path_to_preview, path_to_pdf], shell = True, stdout = subprocess.PIPE)
-            # process.wait()
-                    #logger.info('Wrote image to %r' % file_name)  # using %r adds quotes around filename for us
-            
-            #subprocess.Popen(['figure1.pdf'],shell=True)
+            SaveFigureToPdfAndOpen(figure1, 'figure1.png') #this will open for preview because it is the default defined in my mac
 
 
-        #figure with derivatives.
         if((list_of_plots == 2).any()):  
             figure2 = plt.figure() 
             figure2.suptitle('Derivatives of model with respect to each parameter', fontsize = 20)
@@ -187,11 +167,10 @@ def main(argv):
                 ax = figure2.add_subplot(1,6,i+1)
                 drawPlot(ax, Ds_gal[i], title = 'D' + orig_params.keys()[i])
 
-            figure2.show()
+            SaveFigureToPdfAndOpen(figure2, 'figure2.png')
 
 
         if((list_of_plots == 3).any()):
-            #do in a triangular plot fashion like in the presentation to show plots and fisher matrix elements.
             figure3 = plt.figure()
             figure3.suptitle('Fisher matrix elements ', fontsize=14, fontweight='bold')
             for i in range(len(Ds_gal)): 
@@ -203,10 +182,9 @@ def main(argv):
                             ax.set_ylabel('D' + orig_params.keys()[i] )
                         if(i == len(Ds_gal) - 1):
                             ax.set_xlabel('D' + orig_params.keys()[j])
-            figure3.show()
+            SaveFigureToPdfAndOpen(figure3, 'figure3.png')
 
 
-        #now want with values of fisher matrix in the middle of the plot.
         if((list_of_plots == 4).any()):
             figure4 = plt.figure()
             figure4.suptitle('Fisher matrix elements with values ', fontsize=14, fontweight='bold')
@@ -220,7 +198,7 @@ def main(argv):
                         if(i == len(Ds_gal) - 1):
                             ax.set_xlabel('D' + orig_params.keys()[j])
                         ax.text(-20,0, str(round(FisherM[i][j],5)), fontweight='bold')
-            figure4.show()
+            SaveFigureToPdfAndOpen(figure4, 'figure4.png')
 
 
         if((list_of_plots == 5).any()):
@@ -237,7 +215,7 @@ def main(argv):
                             ax.set_xlabel('D' + orig_params.keys()[j])
                         ax.text(-20,0, str(round(FisherM_chi2[i][j],5)), fontweight='bold')
 
-            figure5.show()
+            SaveFigureToPdfAndOpen(figure5, 'figure5.png')
 
         if((list_of_plots == 6).any()):
             figure6 = plt.figure()
@@ -253,7 +231,7 @@ def main(argv):
                             ax.set_xlabel(orig_params.keys()[j])
                         ax.text(-20,0, str(round(CovM[i][j],5)), fontweight='bold')
 
-            figure6.show()
+            SaveFigureToPdfAndOpen(figure6, 'figure6.png')
 
         if((list_of_plots == 7).any()):
             figure7 = plt.figure()
@@ -268,10 +246,9 @@ def main(argv):
                         if(i == len(Ds_gal) - 1):
                             ax.set_xlabel('D' + orig_params.keys()[j])
 
-            figure7.show()
+            SaveFigureToPdfAndOpen(figure7, 'figure7.png')
 
         if((list_of_plots == 8).any()):
-
             figuresOfBiasMatrix = [] 
             for i in range(len(Ds_gal)):
                 figure = plt.figure()
@@ -287,8 +264,8 @@ def main(argv):
                                 ax.set_xlabel('D' + orig_params.keys()[k])
                 figuresOfBiasMatrix.append(figure)
 
-            for figure in figuresOfBiasMatrix: 
-                figure.show() 
+            for i, figure in enumerate(figuresOfBiasMatrix): 
+                SaveFigureToPdfAndOpen(figure, 'figure' + str(8) + '_' + str(i) + '.png') 
 
         if((list_of_plots == 9).any()):
             figuresOfBiasMatrixNumbers = []    
@@ -307,8 +284,28 @@ def main(argv):
                             ax.text(-20,0, str(round(BiasM[i][j][k],5)), fontweight='bold')
                 figuresOfBiasMatrixNumbers.append(figure)
 
-            for figure in figuresOfBiasMatrixNumbers:
-                figure.show() 
+            for i, figure in enumerate(figuresOfBiasMatrixNumbers): 
+                SaveFigureToPdfAndOpen(figure, 'figure' + str(9) + '_' + str(i) + '.png') 
+
+        if((list_of_plots == 10).any()):
+	    	figure10 = plt.figure() 
+	        figure10.suptitle('Contribution to Bias from each pixel by parameter', fontsize = 15)
+	        for i in range(len(Ds_gal)):
+	        	ax = figure10.add_subplot(1,6,i+1)
+	        	drawPlot(ax, bias_images[i], title = orig_params.keys()[i])
+
+	        SaveFigureToPdfAndOpen(figure10, 'figure10.png')
+
+        if((list_of_plots == 11).any()):
+	    	figure11 = plt.figure() 
+	        figure11.suptitle('Contribution to Bias from each pixel by parameter', fontsize = 14)
+	        for i in range(len(Ds_gal)):
+	        	ax = figure11.add_subplot(1,6,i+1)
+	        	drawPlot(ax, bias_images[i], title = orig_params.keys()[i])
+	        	ax.text(-20,0, str(round(biases[i],5)), fontweight='bold')
+
+	        SaveFigureToPdfAndOpen(figure11, 'figure11.png')
+
 
 
 if __name__ == "__main__":
