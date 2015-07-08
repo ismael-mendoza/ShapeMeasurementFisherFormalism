@@ -11,7 +11,16 @@ v18/19
 
 v20
 *new parameters from refrigier paper. 
-*made modifications to drawGalaxy function so that it can also take q,beta as parameters. 
+*made modifications to drawGalaxy function so that it can also take q,beta as parameters.
+*added variance function and way to calculate other parameters not used initially in the model 
+
+v21
+*change to initial parameters, as noticed that not necessary to use other ones. 
+*want to add a bias function which does the same as variance function. 
+
+v22 
+*so now results are consistent with refrigier's which means that my method is on its way to being correct. Need to average bias by residuals in different noisy images to be sure and compare. 
+*Also want to experiment convolving a galaxy with a psf and see how it behaves with the fisher formalism. 
 
 """
 
@@ -19,7 +28,6 @@ v20
 import sys
 import os
 import inspect
-import subprocess
 import math
 import galsim
 import subprocess
@@ -46,34 +54,44 @@ def main(argv):
     #initialize dictionary (for ease of use) with parameters.
 
     orig_params = dict()
-    orig_params['gal_flux'] = 100.                    #0 ; total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
-    orig_params['gal_sigma'] =  3.                    #1; arcsec
-    orig_params['q'] = .5                             #2 ; minor to major axis ration
-    orig_params['beta'] = 1.75 * np.pi                #3; angle
-    orig_params['x0'] = 0.                            #4;shift in x origin. 
-    orig_params['y0'] = 0.                            #5;shift in y
+    orig_params['gal_flux'] = 100.             #total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
+    orig_params['gal_sigma'] =  3.             #arcsec
+    orig_params['e1'] = .5                     #ellipticity: e1 
+    orig_params['e2'] = -.5                    #ellipticity: e2
+    orig_params['x0'] = 2.                     #shift in x origin. 
+    orig_params['y0'] = 2.                     #shift in y
+    #orig_params['q'] = .5                     #minor to major axis ration
+    #orig_params['beta'] = 1.75 * np.pi        #angle
+
+
+    #define psf parameters, 
+    psf_params = dict()
+    psf_params['flux'] = 1.
+    psf_params['sigma'] = 1.
 
     #names of parameters for dictionaries.
     param_names = orig_params.keys()
 
     #get image of the original galaxy
-    gal_image = drawGalaxy(orig_params)
+    gal_image = drawGalaxy(params = orig_params, psf_params = psf_params)
 
     #first we want only derivatives of the galaxy with respect to each parameter numerically so 6 plots in a row
 
     #define the steps for derivatives of each individual parameter.
     steps = dict() 
-    steps['gal_flux']  = orig_params['gal_flux'] * .0001
-    steps['gal_sigma'] = orig_params['gal_sigma'] * .0001
-    steps['q'] = orig_params['q']*.0001
-    steps['beta'] = orig_params['beta']*.0001
-    steps['x0'] = nx* .0001
-    steps['y0'] = ny* .0001
-    steps['a1'] = orig_params['gal_sigma'] * .0001
-    steps['a2'] = orig_params['gal_sigma'] * .0001
+    steps['gal_flux']  = orig_params['gal_flux'] * .01
+    steps['gal_sigma'] = .01
+    steps['e1'] = .01
+    steps['e2'] = .01
+    steps['x0'] = .01
+    steps['y0'] = .01
+    #steps['q'] = orig_params['q']*.01
+    #steps['beta'] = orig_params['beta']*.01
+
+
 
     #create a dictionary with the derivatives of the model with respect to each parameter.
-    Ds_gal = {param_names[i]:partialDifferentiate(func = drawGalaxy, parameter = param_names[i], step = steps[param_names[i]])(orig_params).array for i in range(num_params)}
+    Ds_gal = {param_names[i]:partialDifferentiate(func = drawGalaxy, parameter = param_names[i], step = steps[param_names[i]], psf_params = psf_params)(orig_params).array for i in range(num_params)}
 
     #Find fisher matrix. 
     #or with the general definition of fisher matrix integrating (.sum()) over all pixels and put them in a numpy array. 
@@ -97,7 +115,7 @@ def main(argv):
     FisherM_chi2 = {}
     for i in range(num_params): 
         for j in range(num_params): 
-            FisherM_chi2[param_names[i],param_names[j]] = .5 * secondPartialDifferentiate(chi2, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], sigma_n = sigma_n, gal_image = gal_image)(orig_params)
+            FisherM_chi2[param_names[i],param_names[j]] = .5 * secondPartialDifferentiate(chi2, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], sigma_n = sigma_n, gal_image = gal_image, psf_params = psf_params)(orig_params)
 
 
 
@@ -105,7 +123,7 @@ def main(argv):
     SecondDs_gal = {}
     for i in range(num_params): 
         for j in range(num_params):
-            SecondDs_gal[param_names[i],param_names[j]] = (secondPartialDifferentiate(drawGalaxy, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]])(orig_params).array)
+            SecondDs_gal[param_names[i],param_names[j]] = (secondPartialDifferentiate(drawGalaxy, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], psf_params = psf_params)(orig_params).array)
 
     #bias matrix.
     BiasM_images = {}
@@ -146,37 +164,20 @@ def main(argv):
     biases = {param_names[i]:image.sum() for i,image in enumerate(bias_images.values())}
 
 
-    #some sanity checks. 
-    #calculate a2
-    a2 = a2_func(orig_params)
-
-    #calculate variance of a2
-    a2_var = variance(a2_func, a2_func, orig_params, param_names, CovM, steps)
-
-    rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
-
-    print a2_var
-
-    print (math.sqrt(a2_var) / a2) *  rhoA
-
-    print (biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2
+    # #some sanity checks. 
+    # #want to check answers analitically with the formulas from the paper.
+    # rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
 
 
+    # print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
+    # print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
+    # print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
+    
 
 
+    #use lmfit over a lot of noisy images, combining parts from task2. 
 
-
-
-
-
-    # print biases['gal_sigma']
-    # print CovM['gal_flux','gal_flux']
-    # print (2 * biases['gal_flux'] * orig_params['gal_flux'] / CovM['gal_flux','gal_flux'])
-
-
-
-    #use lmfit over a lot of noisy images. 
-    #want to check answers analitically with the formulas from the paper.
+ 
 
     
 

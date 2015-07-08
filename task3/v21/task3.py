@@ -11,7 +11,14 @@ v18/19
 
 v20
 *new parameters from refrigier paper. 
-*made modifications to drawGalaxy function so that it can also take q,beta as parameters. 
+*made modifications to drawGalaxy function so that it can also take q,beta as parameters.
+*added variance function and way to calculate other parameters not used initially in the model 
+
+v21
+*change to initial parameters, as noticed that not necessary to use other ones. 
+*want to add a bias function which does the same as variance function. 
+
+
 
 """
 
@@ -48,8 +55,10 @@ def main(argv):
     orig_params = dict()
     orig_params['gal_flux'] = 100.                    #0 ; total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
     orig_params['gal_sigma'] =  3.                    #1; arcsec
-    orig_params['q'] = .5                             #2 ; minor to major axis ration
-    orig_params['beta'] = 1.75 * np.pi                #3; angle
+    #orig_params['q'] = .5                             #2 ; minor to major axis ration
+    #orig_params['beta'] = 1.75 * np.pi                #3; angle
+    orig_params['e1'] = .1                            #2 ; ellipticity: e1 
+    orig_params['e2'] = -.5                           #3; ellipticity: e2
     orig_params['x0'] = 0.                            #4;shift in x origin. 
     orig_params['y0'] = 0.                            #5;shift in y
 
@@ -63,14 +72,17 @@ def main(argv):
 
     #define the steps for derivatives of each individual parameter.
     steps = dict() 
-    steps['gal_flux']  = orig_params['gal_flux'] * .0001
-    steps['gal_sigma'] = orig_params['gal_sigma'] * .0001
-    steps['q'] = orig_params['q']*.0001
-    steps['beta'] = orig_params['beta']*.0001
-    steps['x0'] = nx* .0001
-    steps['y0'] = ny* .0001
-    steps['a1'] = orig_params['gal_sigma'] * .0001
-    steps['a2'] = orig_params['gal_sigma'] * .0001
+    steps['gal_flux']  = orig_params['gal_flux'] * .01
+    steps['gal_sigma'] = .01
+    steps['e1'] = .01
+    steps['e2'] = .01
+    #steps['q'] = orig_params['q']*.01
+    #steps['beta'] = orig_params['beta']*.01
+    #steps['a1'] = orig_params['gal_sigma'] * .0001
+    #steps['a2'] = orig_params['gal_sigma'] * .0001
+    steps['x0'] = .01
+    steps['y0'] = .01
+
 
     #create a dictionary with the derivatives of the model with respect to each parameter.
     Ds_gal = {param_names[i]:partialDifferentiate(func = drawGalaxy, parameter = param_names[i], step = steps[param_names[i]])(orig_params).array for i in range(num_params)}
@@ -147,36 +159,18 @@ def main(argv):
 
 
     #some sanity checks. 
-    #calculate a2
-    a2 = a2_func(orig_params)
-
-    #calculate variance of a2
-    a2_var = variance(a2_func, a2_func, orig_params, param_names, CovM, steps)
-
-    rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
-
-    print a2_var
-
-    print (math.sqrt(a2_var) / a2) *  rhoA
-
-    print (biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2
+    #want to check answers analitically with the formulas from the paper.
+        # rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
 
 
-
-
-
-
-
-
-
-    # print biases['gal_sigma']
-    # print CovM['gal_flux','gal_flux']
-    # print (2 * biases['gal_flux'] * orig_params['gal_flux'] / CovM['gal_flux','gal_flux'])
-
+        # print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
+        # print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
+        # print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
+        
 
 
     #use lmfit over a lot of noisy images. 
-    #want to check answers analitically with the formulas from the paper.
+ 
 
     
 

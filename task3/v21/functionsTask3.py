@@ -11,6 +11,8 @@ from constantsTask3 import *
 from copy import deepcopy #useful to not change both variables when one is copied.
 import gc  
 
+def bias(paramFunc, params, param_names, biases_of_params, steps):
+    pass
 
 
 def variance(paramFunc1, paramFunc2, params, param_names, CovM_of_params, steps):
@@ -21,31 +23,40 @@ def variance(paramFunc1, paramFunc2, params, param_names, CovM_of_params, steps)
             var += partialDifferentiate(paramFunc1, param_names[k], steps[param_names[k]])(params) * partialDifferentiate(paramFunc2, param_names[l], steps[param_names[l]])(params) * CovM_of_params[param_names[k],param_names[l]]
     return var
 
+def radiusMean_func(params):
+    return math.sqrt(a1_func(params)**2 + a2_func(params)**2)
+
+def q_func(params): 
+    if('q' in params.keys()): 
+        return params['q']
+
+    elif('e1' and 'e2' in params.keys()): 
+        return math.sqrt((1-math.sqrt(params['e1']**2 + params['e2']**2))/(1 + math.sqrt(params['e1']**2 + params['e2']**2)))
+
 def beta_func(params):
     """Calculates the galaxy parameter beta in terms of the other 6 initial known parameters"""
 
-    return .5 * math.atan(params['e2'] /params['e1']) #should be in radians. 
+    if('beta' in params.keys()):
+        return params['beta']
+
+    elif('e1' and 'e2' in params.keys()):
+        return .5 * math.atan(params['e2'] /params['e1']) #should be in radians. 
 
 def a1_func(params):
     """Calculates the galaxy parameter a1 in terms of the other 6 initial known parameters"""
-    if('q' and 'beta' in params.keys()):
-        return a2(params) / params['q']
+    return a2_func(params) / q_func(params)
 
-    elif('e1' and 'e2' in params.keys()):
-        return params['gal_sigma'] * math.sqrt((1+math.sqrt(e1**2 + e2**2))/(1 - math.sqrt(e1**2 + e2**2)))
+def a2_func(params):
+    """Calculates the galaxy parameter a2 in terms of the other 6 initial known parameters"""
+
+    return params['gal_sigma'] * math.sqrt(q_func(params))
 
 def amplitude_func(params): 
     """Calculates the galaxy parameter amplitude in terms of the other 6 initial known parameters"""
 
     return params['gal_flux']/params['gal_sigma']
 
-def a2_func(params):
-    """Calculates the galaxy parameter a2 in terms of the other 6 initial known parameters"""
 
-    if('q' and 'beta' in params.keys()):
-        return math.sqrt(params['q']*(params['gal_sigma']**2))
-    elif('e1' and 'e2' in params.keys()):
-        return params['gal_sigma'] * math.sqrt((1-math.sqrt(e1**2 + e2**2))/(1 + math.sqrt(e1**2 + e2**2)))
 
 def SaveFigureToPdfAndOpen(figure,file_name): 
 

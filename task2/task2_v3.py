@@ -106,9 +106,8 @@ def main(argv):
     #general configuration of the program. 
 
     AddNoise = True      #want to add noise to a galaxy. 
-    ProduceFile = False  #want to output image file, may take longer. 
+    ProduceFile = True  #want to output image file, may take longer. 
     chi_fit = False      #if want to minimize chi (take into account the noise bias)
-    addPSF 
 
     #first we want to set here the true values. Or the ones we want our galaxy to have.    
     #possible parameters for the galaxy formation. 
@@ -153,7 +152,7 @@ def main(argv):
 
     #this is the function that obtains the fit. 
     if(chi_fit == True):
-        minimize(objfuncDif, params, args=(target_image.array.ravel())
+        minimize(objfuncDif, params, args=(target_image.array.ravel()))
 
     else:
         minimize(objfuncChi, params, args=(target_image.array.ravel(), variance_noise))
