@@ -65,7 +65,7 @@ def drawGalaxy(Params):
     return image
 
 def outputImageFile(image): 
-    """Write the image to a file in the output directory (creates this directory if needed"""
+    """Write the image to a file in the output directory (creates this directory if needed)"""
     if not os.path.isdir('output'):
         os.mkdir('output')
     file_name = os.path.join('output', filename + '.fits')

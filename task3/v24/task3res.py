@@ -3,6 +3,10 @@ to calculate the bias from the residuals and compare to the bias given by fisher
 It appends the results from one fit (that includes the adjusted parameter and the corresponding stderr (StandardError) ) into a .csv file, need to do this a lot of times 
 then do the residual average. 
 
+
+v24 
+*have to separte values calculated 
+
 """
 
 import sys
@@ -27,7 +31,7 @@ def objfuncChi(params, data, variance_noise, psf_params):
 
 def csvIsEmpty(filename):
     #check if header is there so we do not write it again. File is not there if the file is empty. 
-    with open('fit.csv', 'r') as f:
+    with open(filename, 'r') as f:
         if(f.read() == ''):
             return True
         else:
@@ -35,7 +39,7 @@ def csvIsEmpty(filename):
 
 def main(argv):
     initial_data_filename = 'initial_data.csv'
-    results_filename = 'fit_values.csv'
+    results_filename = 'fit.csv'
 
     orig_params = Parameters()
     orig_params.add('gal_flux', value = 100.)  # total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
@@ -54,17 +58,16 @@ def main(argv):
     gal_image, variance_noise = drawGalaxy(orig_params.valuesdict(), psf_params = psf_params.valuesdict(), noiseSNR= noiseSNR)
 
     #write original parameters and other useful data to a file (only do it once)
-    if(not os.path.isfile(initial_data_filename)):
-        with open(initial_data_filename, 'w') as csvfile:
-            row_to_write= dict()
-            for parameter_name in orig_params.keys():
-                row_to_write[parameter_name] = orig_params[parameter_name].value
-            for psf_parameter_name in psf_params.keys():
-                row_to_write[parameter_name] = orig_params[parameter_name].value
-            row_to_write['variance_noise'] = variance_noise
-            writer = csv.DictWriter(csvfile, fieldnames=row_to_write.keys())
-            writer.writeheader()                
-            writer.writerow(row_to_write)
+    with open(initial_data_filename, 'w') as csvfile:
+        row_to_write= dict()
+        for parameter_name in orig_params.keys():
+            row_to_write[parameter_name] = orig_params[parameter_name].value
+        for psf_parameter_name in psf_params.keys():
+            row_to_write[parameter_name] = orig_params[parameter_name].value
+        row_to_write['variance_noise'] = variance_noise
+        writer = csv.DictWriter(csvfile, fieldnames=row_to_write.keys())
+        writer.writeheader()                
+        writer.writerow(row_to_write)
 
 
     # #draw resulting galaxy.
