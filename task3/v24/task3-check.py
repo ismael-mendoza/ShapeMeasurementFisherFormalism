@@ -53,41 +53,51 @@ from functionsTask3 import *
 
 def main(argv):
 
-    if(len(argv) == 1): 
-        argv.append('')
-    if(len(argv) == 2): 
-        argv.append('0')
+    if(True):
+    	pass
+	if(len(argv) == 1):
+		print('This file needs at least 2 arguments to run')
+		print('usage: ./task3.py,result_number') #result_number is the results folder you are looking at.
+		return -1
+	elif(len(argv) == 2):
+		results_number = argv[1]
+		argv.append('')
+	elif(len(argv) == 3): 
+		argv.append('0')
+
+
+	results_dir = results_folders + results_number
+
+    #read parameters from file and initialize dictionary with that.
+    with open(os.path.join(results_dir,'initial_data.csv')) as csvfile:
+        reader = csv.DictReader(csvfile)
+        init_params = dict() 
+        row = reader.next()
+        for parameter_name in row.keys():
+            init_params[parameter_name] = row[parameter_name]
 
     #first we want to set here the true values. Or the ones we want our galaxy to have.    
     #possible parameters for the galaxy formation. 
     #initialize dictionary (for ease of use) with parameters.
 
-    gal_params =  dict()
-    gal_params['flux'] = 100.             #total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
-    gal_params['hlr'] =  2.             #arcsec
-    gal_params['e1'] = .1                     #ellipticity: e1 
-    gal_params['e2'] = -.5                    #ellipticity: e2
-    gal_params['x0'] = 0.                     #shift in x origin. 
-    gal_params['y0'] = 0.                    #shift in y
-    #gal_params['q'] = .5                     #minor to major axis ration
-    #gal_params['beta'] = 1.75 * np.pi        #angle
+    gal_params = dict()
+    for gal_param_name in gal_param_names:
+    	gal_params[param_names] = float(init_params[param_name])
 
     #define psf parameters, 
-    # psf_params = dict()
-    # psf_params['flux'] = 1.
-    # psf_params['fwhm'] = .7
-    psf_params = {}
-
-
+    psf_params = dict()
+    for param_name in psf_param_names:
+    	psf_params[param_name] = float(init_params[param_name])
+ 
     #get image of the original galaxy
-    gal_image = drawGalaxy(gal_params = gal_params, psf_params = psf_params)
+    gal_image = drawGalaxy(params = gal_params, psf_params = psf_params)
 
     #first we want only derivatives of the galaxy with respect to each parameter numerically so 6 plots in a row
 
     #define the steps for derivatives of each individual parameter.
     steps = dict() 
-    steps['flux']  = gal_params['flux'] * .01
-    steps['hlr'] = gal_params['hlr'] *.01
+    steps['gal_flux']  = gal_params['gal_flux'] * .01
+    steps['gal_HLR'] = gal_params['gal_HLR'] *.01
     steps['e1'] = .01
     steps['e2'] = .01
     steps['x0'] = .01
@@ -107,8 +117,8 @@ def main(argv):
     #obtain fisher matrix eleemnts by multiplying derivatives.
 
     #this is the jiggle in one pixel due to the noise, we define it to be 1 for now, but we can rescale later, uniform for all pixels for now too.
-    #sigma_n  = math.sqrt(float(init_params['variance_noise']))
-    sigma_n = math.sqrt(.0224)
+    sigma_n  = math.sqrt(float(init_params['variance_noise']))
+    #sigma_n = 1.
 
     FisherM_images = {}
     for i in range(num_params): 
@@ -125,7 +135,7 @@ def main(argv):
     FisherM_chi2 = {}
     for i in range(num_params): 
         for j in range(num_params): 
-            FisherM_chi2[param_names[i],param_names[j]] = .5 * secondPartialDifferentiate(chi2, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], sigma_n = sigma_n, gal_image = gal_image, psf_params = psf_params)(gal_params)
+            FisherM_chi2[param_names[i],param_names[j]] = .5 * secondPartialDifferentiate(chi2, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], sigma_n = sigma_n, gal_image = gal_image, psf_params = psf_params)(orig_params)
 
 
 
@@ -133,7 +143,7 @@ def main(argv):
     SecondDs_gal = {}
     for i in range(num_params): 
         for j in range(num_params):
-            SecondDs_gal[param_names[i],param_names[j]] = (secondPartialDifferentiate(drawGalaxy, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], psf_params = psf_params)(gal_params).array)
+            SecondDs_gal[param_names[i],param_names[j]] = (secondPartialDifferentiate(drawGalaxy, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], psf_params = psf_params)(orig_params).array)
 
     #bias matrix.
     BiasM_images = {}
@@ -210,7 +220,7 @@ def main(argv):
 # 10 ##shows the bias contribution per pixel 
 # 11 ##shows the bias contribution per pixel and the sums over all pixels.   
 
-    if(argv[1] == 'plot'):
+    if(argv[2] == 'plot'):
 
         plt.rc('text', usetex=False)
         list_of_plots = np.array([int(n) for n in argv[2:]])
@@ -228,7 +238,7 @@ def main(argv):
             figure2.suptitle('Derivatives of model with respect to each parameter', fontsize = 20)
             for i in range(num_params):
                 ax = figure2.add_subplot(1,6,i+1)
-                drawPlot(ax, Ds_gal[param_names[i]], title = param_names[i])
+                drawPlot(ax, Ds_gal[param_names[i]], title = 'D' + param_names[i])
 
             SaveFigureToPdfAndOpen(figure2, 'figure2.png')
 
@@ -242,9 +252,9 @@ def main(argv):
                         ax = figure3.add_subplot(6,6, 6 * i + j + 1)
                         drawPlot(ax, FisherM_images[param_names[i],param_names[j]])
                         if(j == 0):
-                            ax.set_ylabel(param_names[i] )
+                            ax.set_ylabel('D' + param_names[i] )
                         if(i == len(Ds_gal) - 1):
-                            ax.set_xlabel(param_names[j])
+                            ax.set_xlabel('D' + param_names[j])
             SaveFigureToPdfAndOpen(figure3, 'figure3.png')
 
 
@@ -257,9 +267,9 @@ def main(argv):
                         ax = figure4.add_subplot(6,6, 6 * i + j + 1)
                         drawPlot(ax, FisherM_images[param_names[i],param_names[j]])
                         if(j == 0):
-                            ax.set_ylabel(param_names[i])
+                            ax.set_ylabel('D' + param_names[i])
                         if(i == len(Ds_gal) - 1):
-                            ax.set_xlabel(param_names[j])
+                            ax.set_xlabel('D' + param_names[j])
                         ax.text(-20,0, str(round(FisherM[param_names[i],param_names[j]],5)), fontweight='bold')
             SaveFigureToPdfAndOpen(figure4, 'figure4.png')
 
@@ -273,9 +283,9 @@ def main(argv):
                         ax = figure5.add_subplot(6,6, 6 * i + j + 1)
                         drawPlot(ax, FisherM_images[param_names[i],param_names[j]])
                         if(j == 0):
-                            ax.set_ylabel(param_names[i] )
+                            ax.set_ylabel('D' + param_names[i] )
                         if(i == len(Ds_gal) - 1):
-                            ax.set_xlabel(param_names[j])
+                            ax.set_xlabel('D' + param_names[j])
                         ax.text(-20,0, str(round(FisherM_chi2[param_names[i],param_names[j]],5)), fontweight='bold')
 
             SaveFigureToPdfAndOpen(figure5, 'figure5.png')
@@ -306,9 +316,9 @@ def main(argv):
                         drawPlot(ax, SecondDs_gal[param_names[i],param_names[j]])
                         ax.text(0,20, "std:" + str(SecondDs_gal[param_names[i],param_names[j]].std().round(4)), fontsize = 8, fontweight='bold') 
                         if(j == 0):
-                            ax.set_ylabel(param_names[i] )
+                            ax.set_ylabel('D' + param_names[i] )
                         if(i == len(Ds_gal) - 1):
-                            ax.set_xlabel(param_names[j])
+                            ax.set_xlabel('D' + param_names[j])
 
             SaveFigureToPdfAndOpen(figure7, 'figure7.png')
 
@@ -323,9 +333,9 @@ def main(argv):
                             ax = figure.add_subplot(6,6, 6 * j + k + 1)
                             drawPlot(ax, BiasM_images[param_names[i],param_names[j],param_names[k]]) 
                             if(k == 0):
-                                ax.set_ylabel(param_names[j])
+                                ax.set_ylabel('D' + param_names[j])
                             if(j == len(Ds_gal) - 1):
-                                ax.set_xlabel(param_names[k])
+                                ax.set_xlabel('D' + param_names[k])
                 figuresOfBiasMatrix.append(figure)
 
             for i, figure in enumerate(figuresOfBiasMatrix): 
@@ -342,9 +352,9 @@ def main(argv):
                             ax = figure.add_subplot(6,6, 6 * j + k + 1)
                             drawPlot(ax, BiasM_images[param_names[i],param_names[j],param_names[k]]) 
                             if(k == 0):
-                                ax.set_ylabel(param_names[j] )
+                                ax.set_ylabel('D' + param_names[j] )
                             if(j == len(Ds_gal) - 1):
-                                ax.set_xlabel(param_names[k])
+                                ax.set_xlabel('D' + param_names[k])
                             ax.text(-20,0, str(round(BiasM[param_names[i],param_names[j],param_names[k]],5)), fontweight='bold')
                 figuresOfBiasMatrixNumbers.append(figure)
 
@@ -366,7 +376,7 @@ def main(argv):
 	        for i in range(num_params):
 	        	ax = figure11.add_subplot(1,6,i+1)
 	        	drawPlot(ax, bias_images[param_names[i]], title = param_names[i])
-	        	ax.text(-20,0, str(round(biases[param_names[i]],5)), fontweight='bold')
+	        	ax.text(-20,0, str(round(biases[param_names[i]] /orig_params[param_names[i]],5)), fontweight='bold')
 
 	        SaveFigureToPdfAndOpen(figure11, 'figure11.png')
 

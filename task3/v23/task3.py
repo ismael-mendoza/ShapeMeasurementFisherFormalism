@@ -59,23 +59,24 @@ def main(argv):
     #initialize dictionary (for ease of use) with parameters.
 
     orig_params = dict()
+    orig_params['x0'] = 0.                   #shift in x origin. 
     orig_params['gal_flux'] = 100.             #total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
     orig_params['gal_sigma'] =  3.             #arcsec
-    orig_params['e1'] = .5                     #ellipticity: e1 
+    orig_params['e1'] = .1                   #ellipticity: e1 
     orig_params['e2'] = -.5                    #ellipticity: e2
-    orig_params['x0'] = 2.                     #shift in x origin. 
-    orig_params['y0'] = 2.                     #shift in y
+    orig_params['y0'] = 0.                   #shift in y
     #orig_params['q'] = .5                     #minor to major axis ration
     #orig_params['beta'] = 1.75 * np.pi        #angle
 
 
     #define psf parameters, 
     psf_params = dict()
-    psf_params['flux'] = 1.
-    psf_params['sigma'] = 1.
+    psf_params['psf_flux'] = 1.
+    psf_params['psf_sigma'] = 1.
 
     #names of parameters for dictionaries.
-    param_names = orig_params.keys()
+    param_names = ['x0', 'y0', 'gal_sigma', 'gal_flux', 'e1', 'e2' ]
+    print param_names
 
     #get image of the original galaxy
     gal_image = drawGalaxy(params = orig_params, psf_params = psf_params)
