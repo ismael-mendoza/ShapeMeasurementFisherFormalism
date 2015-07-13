@@ -52,19 +52,22 @@ from functionsTask3 import *
 
 
 def main(argv):
+    """Different commands to run the program."""
 
     if(len(argv) == 1): 
         argv.append('')
     if(len(argv) == 2): 
         argv.append('0')
 
+
+
     #first we want to set here the true values. Or the ones we want our galaxy to have.    
     #possible parameters for the galaxy formation. 
     #initialize dictionary (for ease of use) with parameters.
 
     gal_params =  dict()
-    gal_params['flux'] = 100.             #total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
-    gal_params['hlr'] =  2.             #arcsec
+    gal_params['flux'] = 1.             #total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
+    gal_params['hlr'] =  .7             #arcsec
     gal_params['e1'] = .1                     #ellipticity: e1 
     gal_params['e2'] = -.5                    #ellipticity: e2
     gal_params['x0'] = 0.                     #shift in x origin. 
@@ -73,10 +76,10 @@ def main(argv):
     #gal_params['beta'] = 1.75 * np.pi        #angle
 
     #define psf parameters, 
-    # psf_params = dict()
-    # psf_params['flux'] = 1.
-    # psf_params['fwhm'] = .7
-    psf_params = {}
+    psf_params = dict()
+    psf_params['flux'] = 1.              #by definition of a psf the flux is 1. if it is a star, specify SNR for the star too (usually higher than the galaxy one. )
+    psf_params['fwhm'] = .7
+    #psf_params = {}
 
 
     #get image of the original galaxy
