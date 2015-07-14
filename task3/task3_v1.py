@@ -91,19 +91,29 @@ def main(argv):
 
     #to change and calculate derivatives. 
     params = Parameters()
-    params.add('gal_sigma', value = 3.) # arcsec 
+    params.add('gal_sigma', value = 1.) # arcsec 
     params.add('gal_flux', value = 100.)  # total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
-    params.add('e1', value = .1) #ellipticity: e1 
-    params.add('e2', value = -.5)#ellipticity: e2
+    params.add('e1', value = 0) #ellipticity: e1 
+    params.add('e2', value = 0)#ellipticity: e2
     params.add('x0', value = 0.) #shift in x origin. 
     params.add('y0', value = 0.)     #shift in y
 
     #get image of the original galaxy
     gal_image = drawGalaxy(params)
 
+    params = Parameters()
+    params.add('gal_sigma', value = 3.) # arcsec 
+    params.add('gal_flux', value = 100.)  # total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
+    params.add('e1', value = .1) #ellipticity: e1 
+    params.add('e2', value = -.5)#ellipticity: e2
+    params.add('x0', value = 2.) #shift in x origin. 
+    params.add('y0', value = 2.)     #shift in y
+
+    gal_image2 = drawGalaxy(params)
+
     #can draw multiple images at once by calling subplots multiple times.
     f, subplt = plt.subplots(1,1)
-    drawPlot(subplt, gal_image.array, 'Initial Galaxy')
+    drawPlot(subplt,  (gal_image + gal_image+ gal_image2).array, 'Initial Galaxy')
 
   
     #first we want only derivatives of the galaxy with respect to each parameter numerically so 6 plots in a row
