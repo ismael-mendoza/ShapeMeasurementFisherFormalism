@@ -1,0 +1,3 @@
+id,model,x0,y0,flux,hlr,e1,e2,psf_flux,psf_fwhm
+1,gaussian,0.0,0.0,100.0,0.25,0.0,0.0,1.0,0.7
+2,gaussian,2.0,0.0,200.0,0.25,0.0,0.0,1.0,0.7
