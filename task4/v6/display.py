@@ -73,104 +73,25 @@ def main():
             pass
 
 
-    #this is the jiggle in one pixel due to the noise, uniform for all pixels for now too.
-    sigma_n = args.sigma_n
 
     #possible here create all possible galaxies with all params. 
     gal_image = drawGalaxy(params)
 
-    # #initialize steps to be used from defaults.py
-    # steps = defaults.steps(params).dct 
-
-    # #initialize name of the parameters that will be plotted and statistically analyzed.
-    # param_names = names.galaxy_parameters[params['model']]
-    # num_params = len(param_names)
-
-    #create a dictionary with the derivatives of the model with respect to each parameter.
-    Ds_gal = derivativesGalaxy(gal_image = gal_image, params = params)
-    # Ds_gal = {param_names[i]:partialDifferentiate(func = drawGalaxy, parameter = param_names[i], step = steps[param_names[i]])(params).array for i in range(num_params)}
+    fisher_analysis = fisher.fisher(params = params, gal_image = gal_image, sigma_n = args.sigma_n)
 
 
 
 
-    ##produce images for analysis.
-    FisherM_images = fisherMatrixImages(gal_image = gal_image, params = params)
-    # for i in range(num_params): 
-    #     for j in range(num_params): 
-    #         FisherM_images[param_names[i],param_names[j]] = (Ds_gal[param_names[i]] * Ds_gal[param_names[j]]) /(sigma_n**2)
-
-    FisherM = fisherMatrix(gal_image = gal_image, params = params)
-    # for i in range(num_params): 
-    #     for j in range(num_params): 
-    #         FisherM[param_names[i],param_names[j]] = FisherM_images[param_names[i],param_names[j]].sum() #sum over all pixels. 
-
-
-    #or with chi2
-    #but need to expected value (average over many galaxies with different noises)... although if the galaxy is noiseless, burchat argues it is the same or very close.
-    FisherM_chi2 = fisherMatrixChi2(gal_image,params)
-    # for i in range(num_params): 
-    #     for j in range(num_params): 
-    #         FisherM_chi2[param_names[i],param_names[j]] = .5 * secondPartialDifferentiate(chi2, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]], sigma_n = sigma_n, gal_image = gal_image)(params)
-
-    #do second derivatives of galaxies.
-    # SecondDs_gal = {}
-    # for i in range(num_params): 
-    #     for j in range(num_params):
-    #         SecondDs_gal[param_names[i],param_names[j]] = (secondPartialDifferentiate(drawGalaxy, param_names[i], param_names[j], steps[param_names[i]], steps[param_names[j]])(params).array)
-
-    #bias matrix.
-    BiasM_images = {}
-    for i in range(len(Ds_gal)): 
-        for j in range(len(Ds_gal)): 
-            for k in range(len(Ds_gal)): 
-                BiasM_images[param_names[i],param_names[j],param_names[k]] = (Ds_gal[param_names[i]] * SecondDs_gal[param_names[j],param_names[k]]) / (sigma_n**2)
-
-    #summing each element over all pixels get the numerical values of each element of the bias matrix. 
-    BiasM = {}
-
-    for i in range(num_params):
-        for  j in range(num_params):
-            for k in range(num_params):
-                BiasM[param_names[i],param_names[j],param_names[k]] = BiasM_images[param_names[i],param_names[j],param_names[k]].sum()
-
-
-    #Covariance matrix is inverse of Fisher Matrix: 
-    CovM = {}
-    FisherM_array = np.array([[FisherM[param_names[i],param_names[j]] for i in range(num_params)] for j in range(num_params)])#convert to numpy array because it can be useful.
-    CovM_array = np.linalg.inv(FisherM_array) #need to be an array to inverse.
-
-    for i in range(num_params):
-        for j in range(num_params):
-            CovM[param_names[i],param_names[j]] = CovM_array[i][j] #dictionary with covarianc matrix elements for completeness
-
-    #now we want bias of each parameter per pixel, so we can see how each parameter contributes. 
-    bias_images = {}
-    for i in range(num_params):
-        sumation = 0 
-        for j in range(num_params):
-            for k in range(num_params):
-                for l in range(num_params):
-                    sumation += CovM[param_names[i],param_names[j]]*CovM[param_names[k],param_names[l]]*BiasM_images[param_names[j],param_names[k],param_names[l]]
-        bias_images[param_names[i]] = (-.5) * sumation
-
-    biases = {param_names[i]:bias_images[param_names[i]].sum() for i in range(num_params)}
-
-
-    ##plotting.
-    plt.rc('text', usetex=False)
     if args.draw_galaxy:
-        figure1, subplt= plt.subplots(1,1)
-        figure1.suptitle('Initial Galaxy', fontsize = 20)
-        drawPlot(subplt, gal_image.array)
-        SaveFigureToPdf(figure1, 'figure1.png', args.wdir, args.plots_dir, hide = args.hide)
+
 
     if args.partials:
-        figure2 = plt.figure() 
-        figure2.suptitle('Derivatives of model with respect to each parameter', fontsize = 20)
-        for i in range(num_params):
-            ax = figure2.add_subplot(1,num_params,i+1)
-            drawPlot(ax, Ds_gal[param_names[i]], title = param_names[i])
-        SaveFigureToPdf(figure2, 'figure2.png', args.wdir, args.plots_dir, hide = args.hide)
+        # figure2 = plt.figure() 
+        # figure2.suptitle('Derivatives of model with respect to each parameter', fontsize = 20)
+        # for i in range(num_params):
+        #     ax = figure2.add_subplot(1,num_params,i+1)
+        #     drawPlot(ax, Ds_gal[param_names[i]], title = param_names[i])
+        # SaveFigureToPdf(figure2, 'figure2.png', args.wdir, args.plots_dir, hide = args.hide)
 
     if args.fisher and args.values:
         figure4 = plt.figure()
