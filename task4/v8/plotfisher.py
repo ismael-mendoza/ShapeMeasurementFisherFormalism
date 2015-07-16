@@ -1,11 +1,7 @@
-import argparse
-import defaults
-import os
 import matplotlib.pyplot as plt
-from functions import *
-import csv
-import math
-import numpy as np
+
+import functions as fns
+
 
 plt.rc('text', usetex=False) #ignore latex commands. 
 
@@ -24,16 +20,16 @@ class fisherplots:
     def galaxy(self):
         figure, subplt= plt.subplots(1,1)
         figure.suptitle('Initial Galaxy', fontsize = 20)
-        drawPlot(subplt, self.gal_image.array)
-        SaveFigureToPdf(figure, 'figure1.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.drawPlot(subplt, self.gal_image.array)
+        fns.SaveFigureToPdf(figure, 'figure1.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def derivatives(self):
         figure = plt.figure() 
         figure.suptitle('Derivatives of model with respect to each parameter', fontsize = 20)
         for i in range(self.num_params):
             ax = figure.add_subplot(1,self.num_params,i+1)
-            drawPlot(ax, self.fisher.derivatives_images[self.param_names[i]], title = self.param_names[i])
-        SaveFigureToPdf(figure, 'figure2.png', self.wdir, self.plots_dir, hide = self.hide)
+            fns.drawPlot(ax, self.fisher.derivatives_images[self.param_names[i]], title = self.param_names[i])
+        fns.SaveFigureToPdf(figure, 'figure2.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def fisherMatrix(self):
         figure = plt.figure()
@@ -42,12 +38,12 @@ class fisherplots:
                 for j in range(self.num_params):
                     if(i >= j):
                         ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                        drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
+                        fns.drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
                         if(j == 0):
                             ax.set_ylabel(self.param_names[i] )
-                        if(i == num_params - 1):
+                        if(i == self.num_params - 1):
                             ax.set_xlabel(self.param_names[j])
-        SaveFigureToPdf(figure, 'figure3.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure3.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def fisherMatrixValues(self):
         figure = plt.figure()
@@ -56,13 +52,13 @@ class fisherplots:
             for j in range(self.num_params):
                 if(i >= j):
                     ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                    drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
+                    fns.drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
                     if(j == 0):
                         ax.set_ylabel(self.param_names[i])
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
                     ax.text(-20,0, str(round(self.fisher.fisher_matrix[param_names[i],param_names[j]],5)), fontweight='bold')
-        SaveFigureToPdf(figure, 'figure4.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure4.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def fisherMatrixChi2(self):
         figure = plt.figure()
@@ -71,13 +67,13 @@ class fisherplots:
             for j in range(self.num_params):
                 if(i >= j):
                     ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                    drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
+                    fns.drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]])
                     if(j == 0):
                         ax.set_ylabel(self.param_names[i])
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
                     ax.text(-20,0, str(round(self.fisher.fisher_matrix_chi2[self.param_names[i],self.param_names[j]],5)), fontweight='bold')
-        SaveFigureToPdf(figure, 'figure5.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure5.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def secondDerivatives(self):
         figure = plt.figure()
@@ -86,13 +82,13 @@ class fisherplots:
             for j in range(self.num_params):
                 if(i >= j):
                     ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                    drawPlot(ax, self.fisher.second_derivatives_images[self.param_names[i],self.param_names[j]])
+                    fns.drawPlot(ax, self.fisher.second_derivatives_images[self.param_names[i],self.param_names[j]])
                     # ax.text(0,20, "std:" + str(fisher.second_derivatives_galaxy_images[self.param_names[i],self.param_names[j]].std().round(4)), fontsize = 8, fontweight='bold') 
                     if(j == 0):
                         ax.set_ylabel(self.param_names[i])
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
-        SaveFigureToPdf(figure, 'figure8.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure8.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def biasMatrixValues(self):
         figuresOfBiasMatrixNumbers = []    
@@ -103,7 +99,7 @@ class fisherplots:
                 for k in range(self.num_params):
                     if(j >= k):
                         ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * j + k + 1)
-                        drawPlot(ax, self.fisher.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]]) 
+                        fns.drawPlot(ax, self.fisher.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]]) 
                         if(k == 0):
                             ax.set_ylabel(self.param_names[j])
                         if(j == self.num_params - 1):
@@ -112,7 +108,7 @@ class fisherplots:
             figuresOfBiasMatrixNumbers.append(figure)
 
         for i, figure in enumerate(figuresOfBiasMatrixNumbers): 
-            SaveFigureToPdf(figure, 'figure' + str(10) + '_' + str(i) + '.png', self.wdir, self.plots_dir, hide = self.hide) 
+            fns.SaveFigureToPdf(figure, 'figure' + str(10) + '_' + str(i) + '.png', self.wdir, self.plots_dir, hide = self.hide) 
 
     def biasMatrix(self):
         figuresOfBiasMatrix = [] 
@@ -123,14 +119,14 @@ class fisherplots:
                 for k in range(self.num_params):
                     if(j >= k):
                         ax = figure.add_subplot(self.num_params,self.num_params,self.num_params * j + k + 1)
-                        drawPlot(ax, self.fisher.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]]) 
+                        fns.drawPlot(ax, self.fisher.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]]) 
                         if(k == 0):
                             ax.set_ylabel(self.param_names[j])
                         if(j == self.num_params - 1):
                             ax.set_xlabel(self.param_names[k])
             figuresOfBiasMatrix.append(figure)
         for i, figure in enumerate(figuresOfBiasMatrix): 
-            SaveFigureToPdf(figure, 'figure' + str(9) + '_' + str(i) + '.png', self.wdir, self.plots_dir, hide = self.hide) 
+            fns.SaveFigureToPdf(figure, 'figure' + str(9) + '_' + str(i) + '.png', self.wdir, self.plots_dir, hide = self.hide) 
 
     def covarianceMatrix(self):
         figure = plt.figure()
@@ -139,38 +135,38 @@ class fisherplots:
             for j in range(self.num_params):
                 if(i >= j):
                     ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                    drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]] * 0) #figure out better way.
+                    fns.drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]] * 0) #figure out better way.
                     if(j == 0):
                         ax.set_ylabel(self.param_names[i])
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
                     ax.text(-20,0, str(round(self.fisher.covariance_matrix[self.param_names[i],self.param_names[j]],5)), fontweight='bold')
-        SaveFigureToPdf(figure, 'figure6.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure6.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def correlationMatrix(self):
         figure = plt.figure()
         figure.suptitle('Correlation matrix elements', fontsize=14, fontweight='bold')
-        for i in range(num_params): 
-            for j in range(num_params):
+        for i in range(self.num_params): 
+            for j in range(self.num_params):
                 if(i >= j):
-                    ax = figure6.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
-                    drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]] * 0)
+                    ax = figure.add_subplot(self.num_params,self.num_params, self.num_params * i + j + 1)
+                    fns.drawPlot(ax, self.fisher.fisher_matrix_images[self.param_names[i],self.param_names[j]] * 0)
                     if(j == 0):
-                        ax.set_ylabel(param_names[i])
-                    if(i == num_params - 1):
-                        ax.set_xlabel(param_names[j])
+                        ax.set_ylabel(self.param_names[i])
+                    if(i == self.num_params - 1):
+                        ax.set_xlabel(self.param_names[j])
                     ax.text(-20,0, str(round(self.fisher.correlation_matrix[self.param_names[i],self.param_names[j]],5)), fontweight='bold')
-        SaveFigureToPdf(figure, 'figure7.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure7.png', self.wdir, self.plots_dir, hide = self.hide)
 
     def biasValues(self):
         figure = plt.figure() 
         figure.suptitle('Contribution to Bias from each pixel by parameter', fontsize = 14)
         for i in range(self.num_params):
             ax = figure.add_subplot(1,self.num_params,i+1)
-            drawPlot(ax, self.fisher.bias_images[self.param_names[i]], title = self.param_names[i])
+            fns.drawPlot(ax, self.fisher.bias_images[self.param_names[i]], title = self.param_names[i])
             ax.text(-20,0, str(round(self.fisher.biases[self.param_names[i]],5)), fontweight='bold')
 
-        SaveFigureToPdf(figure, 'figure12.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure12.png', self.wdir, self.plots_dir, hide = self.hide)
 
 
     def biases(self):
@@ -178,6 +174,6 @@ class fisherplots:
         figure.suptitle('Contribution to Bias from each pixel by parameter', fontsize = 15)
         for i in range(self.num_params):
             ax = figure.add_subplot(1,self.num_params,i+1)
-            drawPlot(ax, self.fisher.bias_images[self.param_names[i]], title = self.param_names[i])
+            fns.drawPlot(ax, self.fisher.bias_images[self.param_names[i]], title = self.param_names[i])
 
-        SaveFigureToPdf(figure, 'figure11.png', self.wdir, self.plots_dir, hide = self.hide)
+        fns.SaveFigureToPdf(figure, 'figure11.png', self.wdir, self.plots_dir, hide = self.hide)

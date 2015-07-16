@@ -2,8 +2,11 @@
 Each file will not necessarily have only one row of results (although it will most of the times"""
 
 import csv
+
 import numpy as np 
+
 import os
+
 import sys
 
 

@@ -1,13 +1,16 @@
+"""This program allows the user to display various statistical results (like plots) for the galaxies generated in generate.py"""
+
 import argparse
-import defaults
+
 import os
-import matplotlib.pyplot as plt
-from functions import *
+
+import functions as fns
+
 import csv
-import math
-import numpy as np
-from fisher import *
-from plotfisher import *
+
+import fisher
+
+import plotfisher 
 
 def main():
     parser = argparse.ArgumentParser(description = 'Display different results and plots from the galaxies in a given file.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -65,7 +68,7 @@ def main():
             lst_params.append(row)
 
     params = lst_params[0] 
-
+ 
     #convert number values in params to floats.
     for key, value in params.iteritems():
         try:
@@ -74,10 +77,10 @@ def main():
             pass
 
     #possible here create all possible galaxies with all params. 
-    gal_image = drawGalaxy(params)
+    gal_image = fns.drawGalaxy(params)
 
     fisher_analysis = fisher.fisher(params = params, gal_image = gal_image, sigma_n = args.sigma_n)
-    fisherplot = fisherplot.plotfisher(fisher = fisher_analysis, wdir = args.wdir, plots_dir = args.plots_dir, hide = args.hide)
+    fisherplot = plotfisher.fisherplot(fisher = fisher_analysis, wdir = args.wdir, plots_dir = args.plots_dir, hide = args.hide)
 
 
 

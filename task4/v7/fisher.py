@@ -1,10 +1,11 @@
-import argparse
+"""This module contains functions necessary to produce statistical results of the fisher formalism from a given galaxy"""
+
 import defaults
-import os
-import matplotlib.pyplot as plt
-from functions import *
-import csv
+
+import functions as fns
+
 import math
+
 import numpy as np
 
 
@@ -16,6 +17,7 @@ class fisher:
         names = defaults.names()
         self.gal_image = gal_image 
         self.params = params 
+        self.steps = defaults.steps(self.params).dict
         self.sigma_n = sigma_n #this is the jiggle in one pixel due to the noise, uniform for all pixels for now too.
         self.param_names = names.galaxy_parameters[params['model']]
         self.num_params = len(self.param_names)
@@ -36,8 +38,8 @@ class fisher:
 
     def derivativesImages(self):
         #create a dictionary with the derivatives of the model with respect to each parameter.
-        steps = defaults.steps(params).dct
-        return {self.param_names[i]:partialDifferentiate(func = drawGalaxy, parameter = self.param_names[i], step = steps[self.param_names[i]])(params).array for i in range(self.num_params)}
+
+        return {self.param_names[i]:fns.partialDifferentiate(func = fns.drawGalaxy, parameter = self.param_names[i], step = self.steps[self.param_names[i]])(self.params).array for i in range(self.num_params)}
 
     def fisherMatrixImages(self):
         FisherM_images = {}
@@ -50,15 +52,15 @@ class fisher:
         FisherM = {}
         for i in range(self.num_params): 
             for j in range(self.num_params): 
-                FisherM[self.param_names[i],self.param_names[j]] = fisherMatrixImages(self.gal_image,params)[self.param_names[i],self.param_names[j]].sum() #sum over all pixels. 
+                FisherM[self.param_names[i],self.param_names[j]] = self.fisherMatrixImages(self.gal_image,self.params)[self.param_names[i],self.param_names[j]].sum() #sum over all pixels. 
         return FisherM
 
     def fisherMatrixChi2(self):
         FisherM_chi2 = {}
         for i in range(self.num_params): 
             for j in range(self.num_params): 
-                FisherM_chi2[self.param_names[i],self.param_names[j]] = .5 * secondPartialDifferentiate(chi2, self.param_names[i], self.param_names[j], steps[self.param_names[i]], steps[self.param_names[j]], sigma_n = self.
-                    sigma_n, gal_image = self.gal_image)(params)
+                FisherM_chi2[self.param_names[i],self.param_names[j]] = .5 * fns.secondPartialDifferentiate(fns.chi2, self.param_names[i], self.param_names[j], self.steps[self.param_names[i]], self.steps[self.param_names[j]], sigma_n = self.
+                    sigma_n, gal_image = self.gal_image)(self.params)
 
         return FisherM_chi2
 
@@ -66,7 +68,7 @@ class fisher:
         secondDs_gal = {}
         for i in range(self.num_params): 
             for j in range(self.num_params):
-                SecondDs_gal[self.param_names[i],self.param_names[j]] = (secondPartialDifferentiate(drawGalaxy, self.param_names[i], self.param_names[j], steps[self.param_names[i]], steps[self.param_names[j]])(params).array)
+                secondDs_gal[self.param_names[i],self.param_names[j]] = (fns.secondPartialDifferentiate(fns.drawGalaxy, self.param_names[i], self.param_names[j], self.steps[self.param_names[i]], self.steps[self.param_names[j]])(self.params).array)
 
         return secondDs_gal
 
@@ -84,7 +86,7 @@ class fisher:
         for i in range(self.num_params):
             for  j in range(self.num_params):
                 for k in range(self.num_params):
-                    BiasM[self.param_names[i],self.param_names[j],self.param_names[k]] = BiasM_images[self.param_names[i],self.param_names[j],self.param_names[k]].sum()
+                    BiasM[self.param_names[i],self.param_names[j],self.param_names[k]] = self.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]].sum()
 
         return BiasM
 
@@ -116,7 +118,7 @@ class fisher:
             for j in range(self.num_params):
                 for k in range(self.num_params):
                     for l in range(self.num_params):
-                        sumation += CovM[self.param_names[i],self.param_names[j]]*CovM[self.param_names[k],self.param_names[l]]*BiasM_images[self.param_names[j],self.param_names[k],self.param_names[l]]
+                        sumation += self.covariance_matrix[self.param_names[i],self.param_names[j]]*self.covariance_matrix[self.param_names[k],self.param_names[l]]*self.bias_matrix_images[self.param_names[j],self.param_names[k],self.param_names[l]]
             bias_images[self.param_names[i]] = (-.5) * sumation
 
         return bias_images
