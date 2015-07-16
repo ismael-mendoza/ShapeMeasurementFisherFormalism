@@ -19,35 +19,14 @@ def objfuncChi(fit_params, data, variance_noise, **kwargs):
     return (model - data) / math.sqrt(variance_noise)
 
 def main(argv):
-
     names = defaults.names()
-    dflt_params = defaults.parameters().dflt_params
+    dflt_params = defaults.parameters().dict
     noise_seed, snr, wdir, galaxy_file, rltsdir = int(argv[1]), int(argv[2]), argv[3], argv[4], argv[5]
-
-    if not os.path.isdir(wdir):
-        print ('Directory does not exists')
-        return -1
-
-    filename = os.path.join(wdir, galaxy_file + '.csv')
-    if not os.path.isfile(filename):
-        print('Galaxies file does not exist')
-        return -1
 
     if not os.path.isdir(os.path.join(wdir, rltsdir)):
         os.mkdir(os.path.join(wdir, rltsdir))
 
-    with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        lst_params = [] #possible here create dictionary with total number of params of both galaxies.
-        for row in reader: 
-            lst_params.append(row)
-
-    params = lst_params[0] 
-    for key, value in params.iteritems():
-        try:
-            params[key] = float(value)
-        except ValueError:
-            pass
+    params = fns.getParamsCsv(wdir, galaxy_file)
 
     gal_image, variance_noise = fns.drawGalaxy(params, SNR = snr, noise_seed = noise_seed)
 

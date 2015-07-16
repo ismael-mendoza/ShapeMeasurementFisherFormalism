@@ -7,11 +7,9 @@ import functions as fns
 
 
 def main():
-
-    #initialize names used. 
-    names = defaults.names()
-    #initialize dictionary with default parameters 
-    dflt_params = defaults.parameters().dflt_params
+    
+    names = defaults.names() #initialize names used. 
+    dflt_params = defaults.parameters().dict #initialize dictionary with default parameters 
 
     # Initialize and parse command-line arguments.
     parser = argparse.ArgumentParser(description = 'Generate galaxies specified by the user that are added to a file.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -45,7 +43,8 @@ def main():
         f.close()
     tempname = os.path.join(args.wd, 'temp' + '.csv')
     shutil.copyfile(filename, tempname) #creat a copy to read from and compare.
- 
+    
+    #write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=names.fieldnames)
         row_to_write = dict(
@@ -77,7 +76,7 @@ def main():
 
     os.remove(tempname)
         
-    #print defaults from default.py in some format. 
+    #print appropiate defaults for creating galaxies from default.py in some format. 
     if args.defaults:
         pass
 

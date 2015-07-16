@@ -24,21 +24,18 @@ class fisher:
 
         self.derivatives_images = self.derivativesImages()
         self.fisher_matrix_images = self.fisherMatrixImages()
-        self.second_derivatives_images = self.secondDerivativesImages()
-        self.bias_matrix_images = self.biasMatrixImages()
-        self.bias_images = self.biasImages()
-
-
         self.fisher_matrix = self.fisherMatrix()
         self.fisher_matrix_chi2 = self.fisherMatrixChi2()
         self.covariance_matrix = self.covarianceMatrix()
         self.correlation_matrix = self.correlationMatrix()
+        self.second_derivatives_images = self.secondDerivativesImages()
+        self.bias_matrix_images = self.biasMatrixImages()
         self.bias_matrix = self.biasMatrix()
-        self.biases = self.biases()
+        self.bias_images = self.biasImages()
+        self.biases = self.biases()      
 
     def derivativesImages(self):
         #create a dictionary with the derivatives of the model with respect to each parameter.
-
         return {self.param_names[i]:fns.partialDifferentiate(func = fns.drawGalaxy, parameter = self.param_names[i], step = self.steps[self.param_names[i]])(self.params).array for i in range(self.num_params)}
 
     def fisherMatrixImages(self):
@@ -52,7 +49,7 @@ class fisher:
         FisherM = {}
         for i in range(self.num_params): 
             for j in range(self.num_params): 
-                FisherM[self.param_names[i],self.param_names[j]] = self.fisherMatrixImages(self.gal_image,self.params)[self.param_names[i],self.param_names[j]].sum() #sum over all pixels. 
+                FisherM[self.param_names[i],self.param_names[j]] = self.fisher_matrix_images[self.param_names[i],self.param_names[j]].sum() #sum over all pixels. 
         return FisherM
 
     def fisherMatrixChi2(self):
@@ -63,6 +60,26 @@ class fisher:
                     sigma_n, gal_image = self.gal_image)(self.params)
 
         return FisherM_chi2
+
+    def covarianceMatrix(self):
+        #Covariance matrix is inverse of Fisher Matrix:
+        CovM = {}
+        FisherM_array = np.array([[self.fisher_matrix[self.param_names[i],self.param_names[j]] for i in range(self.num_params)] for j in range(self.num_params)])#convert to numpy array because it can be useful.
+        CovM_array = np.linalg.inv(FisherM_array) #need to be an array to inverse.
+
+        for i in range(self.num_params):
+            for j in range(self.num_params):
+                CovM[self.param_names[i],self.param_names[j]] = CovM_array[i][j]
+
+        return CovM
+    
+    def correlationMatrix(self):
+        correlation_matrix = {}
+        for i in range(self.num_params):
+            for j in range(self.num_params):
+                correlation_matrix[self.param_names[i],self.param_names[j]] = self.covariance_matrix[self.param_names[i],self.param_names[j]] / math.sqrt(self.covariance_matrix[self.param_names[i],self.param_names[i]] * self.covariance_matrix[self.param_names[j],self.param_names[j]])
+
+        return correlation_matrix
 
     def secondDerivativesImages(self):
         secondDs_gal = {}
@@ -90,25 +107,7 @@ class fisher:
 
         return BiasM
 
-    def covarianceMatrix(self):
-        #Covariance matrix is inverse of Fisher Matrix:
-        CovM = {}
-        FisherM_array = np.array([[self.fisher_matrix[self.param_names[i],self.param_names[j]] for i in range(self.num_params)] for j in range(self.num_params)])#convert to numpy array because it can be useful.
-        CovM_array = np.linalg.inv(FisherM_array) #need to be an array to inverse.
 
-        for i in range(self.num_params):
-            for j in range(self.num_params):
-                CovM[self.param_names[i],self.param_names[j]] = CovM_array[i][j]
-
-        return CovM
-    
-    def correlationMatrix(self):
-        correlation_matrix = {}
-        for i in range(self.num_params):
-            for j in range(self.num_params):
-                correlation_matrix[self.param_names[i],self.param_names[j]] = self.covariance_matrix[self.param_names[i],self.param_names[j]] / math.sqrt(self.covariance_matrix[self.param_names[i],self.param_names[i]] * self.covariance_matrix[self.param_names[j],self.param_names[j]])
-
-        return correlation_matrix
 
     def biasImages(self):
         #now we want bias of each parameter per pixel, so we can see how each parameter contributes.

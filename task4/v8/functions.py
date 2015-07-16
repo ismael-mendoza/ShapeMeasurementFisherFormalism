@@ -1,5 +1,5 @@
 """Contains various functions used throughout the module, may need to look for a better way to organize them specially drawGalaxy will become 
-a very big function"""
+quite large soon. """
 
 import os
 
@@ -11,7 +11,40 @@ from copy import deepcopy
 
 import galsim
 
+import csv
+
 cts = defaults.constants() #some constants used in the functions.
+
+def getParamsCsv(wdir, galaxy_file):
+
+    #some error handling.
+    if not os.path.isdir(wdir):
+        print ('Directory does not exists')
+        return -1
+
+    filename = os.path.join(wdir, galaxy_file + '.csv')
+    if not os.path.isfile(filename):
+        print('Galaxies file does not exist')
+        return -1
+
+    #extract params from each of the rows in the given csvfile.
+    with open(filename, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        lst_params = [] #possible here create dictionary with total number of params of both galaxies.
+        for row in reader: 
+            lst_params.append(row)
+
+    params = lst_params[0] 
+
+    #convert all appropiate values to floats. 
+    for key, value in params.iteritems():
+        try:
+            params[key] = float(value)
+        except ValueError:
+            pass
+
+    return params
+
 
 def csvIsEmpty(filename):
     """checks each row and if any is not empty, then the file is not empty"""

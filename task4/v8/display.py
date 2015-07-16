@@ -2,17 +2,14 @@
 
 import argparse
 
-import os
-
 import functions as fns
-
-import csv
 
 import fisher
 
-import plotfisher 
+import plotsfisher 
 
 def main():
+
     parser = argparse.ArgumentParser(description = 'Display different results and plots from the galaxies in a given file.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--wdir', default = 'output', metavar = 'DIRECTORY', type = str,
     help = 'Specify a directory name where the output will be inputted and files read from.')
@@ -50,75 +47,49 @@ def main():
 
     args = parser.parse_args()
 
-
-    #some checks.
-    if not os.path.isdir(args.wdir):
-        print ('Directory does not exists')
-        return -1
-
-    filename = os.path.join(args.wdir, args.galaxy_file + '.csv')
-    if not os.path.isfile(filename):
-        print('Galaxies file does not exist')
-        return -1
-
-    with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        lst_params = [] #possible here create dictionary with total number of params of both galaxies.
-        for row in reader: 
-            lst_params.append(row)
-
-    params = lst_params[0] 
+    params = fns.getParamsCsv(args.wdir, args.galaxy_file)
  
-    #convert number values in params to floats.
-    for key, value in params.iteritems():
-        try:
-            params[key] = float(value)
-        except ValueError:
-            pass
-
     #possible here create all possible galaxies with all params. 
     gal_image = fns.drawGalaxy(params)
 
     fisher_analysis = fisher.fisher(params = params, gal_image = gal_image, sigma_n = args.sigma_n)
-    fisherplot = plotfisher.fisherplot(fisher = fisher_analysis, wdir = args.wdir, plots_dir = args.plots_dir, hide = args.hide)
-
-
+    fisherplots = plotfisher.fisherplots(fisher = fisher_analysis, wdir = args.wdir, plots_dir = args.plots_dir, hide = args.hide)
 
     if args.draw_galaxy: 
-        fisherplot.galaxy()
+        fisherplots.galaxy()
 
     if args.partials: 
-        fisherplot.derivatives()
+        fisherplots.derivatives()
 
     if args.fisher and args.values: 
-        fisherplot.fisherMatrixValues()
+        fisherplots.fisherMatrixValues()
 
     elif args.fisher: 
-        fisherplot.fisherMatrix()
+        fisherplots.fisherMatrix()
 
     if args.fisher_chi2: 
-        fisherplot.fisherMatrixChi2()
+        fisherplots.fisherMatrixChi2()
 
     if args.covariance: 
-        fisherplot.covarianceMatrix()
+        fisherplots.covarianceMatrix()
 
     if args.correlation: 
-        fisherplot.correlationMatrix()
+        fisherplots.correlationMatrix()
 
     if args.second_partials: 
-        fisherplot.secondDerivatives()
+        fisherplots.secondDerivatives()
  
     if args.bias_matrix and args.values: 
-        fisherplot.biasMatrixValues()
+        fisherplots.biasMatrixValues()
 
     elif args.bias_matrix: 
-        fisherplot.biasMatrix()
+        fisherplots.biasMatrix()
 
     if args.biases and args.values: 
-        fisherplot.biasValues()
+        fisherplots.biasValues()
 
     elif args.biases: 
-        fisherplot.biases()
+        fisherplots.biases()
 
 
 
