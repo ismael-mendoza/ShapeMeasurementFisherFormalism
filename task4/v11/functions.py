@@ -122,6 +122,9 @@ def drawGalaxy(params, SNR = -1, noise_seed = 0, **kwargs):
         elif('sigma' in params.keys()):
             gal = galsim.Gaussian(flux=params['flux'], sigma=params['sigma'])
 
+    elif(params['model'] == 'exponential'):
+        gal = galsim.Exponential(half_light_radius = params['hlr'])
+
         #set shear, if desired. note that shear generates a new sheared galaxy, should not try to change attribute of the galaxy directly
         if('e1' and 'e2' in params.keys()): 
             gal = gal.shear(e1=params['e1'], e2 = params['e2'])

@@ -100,7 +100,7 @@ def main(argv):
 
     #now we want to to do a triangle plot from triangle.py and overlap this figure. 
     figure = triangle.corner(residuals.values(), labels=fisher.param_names,
-                         truths=[0.0, 0.0, 0.0],
+                         truths= biases.values(),
                          show_titles=True, title_args={"fontsize": 12})
     figure.gca().annotate("A Title", xy=(0.5, 1.0), xycoords="figure fraction",
                           xytext=(0, -5), textcoords="offset points",
