@@ -73,7 +73,6 @@ def PartialDeriveChi2(gal_image, chi2, params, parameter, step, sigma_n):
 
     return (chi2_up - chi2_down).array/ (2* step)
 
-def 
 
 def Chi2(gal_image, params, sigma_n): 
     """Returns chi2 given the modified parameters and the original galaxy, assume sigma_n is the same for all pixels -- OWN"""
