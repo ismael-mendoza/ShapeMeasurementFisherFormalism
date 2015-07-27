@@ -26,10 +26,7 @@ names = defaults.names()
 
 class galsParameters:
 
-
-
-
-    def __init__(self, galaxy_file):
+    def __init__(self, wdir, galaxy_file):
         #initialize a the object by reading the galaxies' paramaters info from the given file. 
 
         #some error handling.
@@ -59,7 +56,7 @@ class galsParameters:
                     pass
 
         self.id_params = gals_params #dictionary of the form {id:params}, key is id, values are params of each galaxy, the params do not have id as a key anymore.
-        self.params = self.convertParamsId
+        self.params = self.convertParamsId()
         self.model_params = self.convertParamsId(omit = names.extra)
 
         def convertParamsId(self, omit = []): 
@@ -189,8 +186,10 @@ def drawGalaxies(gals_params, snr = -1, noise_seed = 0, **kwargs):
     *Noise should only be added once to the image (otherwise two different noises combined), so it should go here and not in the original drawGalaxy function. 
     """
     gals = []
-    for gal_id in gals_params:
-        gals.append(drawGalaxy(gals_params[gal_id], **kwargs))
+    id_params = gals_params.id_params
+    
+    for gal_id in id_params:
+        gals.append(drawGalaxy(id_params[gal_id], **kwargs))
     final = sum(gals) #will sum all galaxy arrays in gals.
 
     #careful with noise, must be added only once. 

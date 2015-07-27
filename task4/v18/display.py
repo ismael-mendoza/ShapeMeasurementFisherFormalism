@@ -3,8 +3,6 @@
 
 import argparse
 
-import functions as fns
-
 import fisher
 
 import plotsfisher 
@@ -12,6 +10,8 @@ import plotsfisher
 import defaults
 
 import os
+
+import galfun
 
 def main():
     names = defaults.names()
@@ -30,13 +30,13 @@ def main():
     help = 'Specify a directory name where the plots will be saved')
     parser.add_argument('--hide', action = 'store_true',
     help = 'Do not show plots produced')
-    parser.add_argument('--draw-galaxy', action = 'store_true',
+    parser.add_argument('-d', '--draw-galaxy', action = 'store_true',
     help = 'Show original galaxies')
     parser.add_argument('--partials', action = 'store_true',
     help = 'Show partial derivative images.')
     parser.add_argument('--second-partials', action = 'store_true',
     help = 'Show second partial derivative images.')
-    parser.add_argument('--fisher', action = 'store_true',
+    parser.add_argument('-f', '--fisher', action = 'store_true',
     help = 'Show fisher matrix images.')
     parser.add_argument('--fisher-chi2', action = 'store_true',
     help = 'Show fisher matrix images with chi2 calculated values on top.')
@@ -46,7 +46,7 @@ def main():
     help = 'Show correlation matrix elements.')   
     parser.add_argument('--bias-matrix', action = 'store_true',
     help = 'Show bias matrix images.')
-    parser.add_argument('--biases', action = 'store_true',
+    parser.add_argument('-b', '--biases', action = 'store_true',
     help = 'Show bias images.')
     parser.add_argument('--values', action = 'store_true', 
     help = 'Show values on top of appropiate images (fisher, biases).')
@@ -54,16 +54,11 @@ def main():
     help = 'Value of noise bias (standard deviation) in each pixel.')
 
 
-    ##maybe change steps from default. 
-
-
     args = parser.parse_args()
 
-    gals_params = fns.galsParameters(args.wdir, args.galaxy_file)
- 
-    gals_image = fns.drawGalaxies(gals_params)
+    galaxies = galfun.galaxies(args.wdir, args.galaxy_file)
 
-    fish = fisher.fisher(gals_params = gals_params, gals_image = gals_image, sigma_n = float(args.sigma_n))
+    fish = fisher.fisher_analysis(galaxies = galaxies, sigma_n = args.sigma_n)
     fisherplots = plotsfisher.fisherplots(fisher = fish, wdir = args.wdir, plots_dir = args.plots_dir, hide = args.hide)
 
     if args.draw_galaxy: 
@@ -103,7 +98,7 @@ def main():
         fisherplots.biases()
 
     
-    info = defaults.info(params, fish)
+    info = defaults.info(galaxies, fish)
     if args.verbose: 
         for line in info.galaxy + info.fisher:
             print line
@@ -112,7 +107,6 @@ def main():
         with open(os.path.join(args.wdir, names.info + '.txt'), 'w') as txtfile:
             for line in info.galaxy + info.fisher:
                 txtfile.write(line + '\n') #last character to skip lines.
-
 
 if __name__ == '__main__':
     main()

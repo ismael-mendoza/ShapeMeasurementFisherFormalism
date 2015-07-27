@@ -12,6 +12,14 @@ import shutil
 
 import functions as fns
 
+def csvIsEmpty(filename):
+    """checks each row and if any is not empty, then the file is not empty"""
+
+    with open(filename, 'r') as f:
+        for row in f:
+            if len(row) != 0:
+                return False
+        else: return True
 
 def main():
     
@@ -69,7 +77,7 @@ def main():
         )
 
         #if file is empty just write the new row. 
-        if fns.csvIsEmpty(tempname):      
+        if csvIsEmpty(tempname):      
             writer.writeheader()
             writer.writerow(row_to_write)
         else:

@@ -32,19 +32,6 @@ class parameters:
         self.dict['psf_flux'] = 1. 
         self.dict['psf_fwhm'] = .7 
 
-class steps: 
-    """Define the steps for derivatives of each individual parameter."""
-    def __init__(self, params):
-        self.dict = dict()
-        self.dict['flux'] = params['flux'] * .01
-        self.dict['hlr'] = params['hlr'] *.01
-        self.dict['e1'] = .01
-        self.dict['e2'] = .01
-        self.dict['x0'] = .01
-        self.dict['y0'] = .01
-        #steps['q'] = orig_params['q']*.01
-        #steps['beta'] = orig_params['beta']*.01
-
 class min:
     """min values for fit, may add more as needed"""
     def __init__(self, gal_image):
@@ -84,29 +71,28 @@ class names:
         self.galaxy_models = ['gaussian','exponential']
         self.psf_models = ['gaussian']
 
-        self.galaxy_parameters = dict()
-        self.psf_parameters = dict()
-        self.galaxy_parameters['gaussian'] = ['x0','y0','flux','hlr','e1', 'e2']
-        self.psf_parameters['gaussian'] = ['psf_flux','psf_fwhm']
-        self.galaxy_parameters['exponential'] = ['x0','y0', 'flux','hlr','e1', 'e2']
+        self.gal_models_parameters = dict()
+        self.gal_models_parameters['gaussian'] = ['x0','y0','flux','hlr','e1', 'e2']
+        self.gal_models_parameters['exponential'] = ['x0','y0', 'flux','hlr','e1', 'e2']
+        self.galaxy_parameters = list(set([elt for sublist in self.gal_models_parameters.values()for elt in sublist])) #remove repeated elements.
 
-        self.parameters = [] 
-        for lst in self.galaxy_parameters.values() + self.psf_parameters.values():
-            for element in lst:
-                self.parameters.append(element)
-        self.parameters = list(set(self.parameters)) #remove repeated elements.
+        self.psf_models_parameters = dict()
+        self.psf_models_parameters['gaussian'] = ['psf_flux','psf_fwhm']        
+        self.psf_parameters =  list(set([elt for sublist in self.psf_models_parameters.values() for elt in sublist]))
 
-        self.extra = ['id', 'model', 'psf_model']
+        self.parameters = self.galaxy_parameters + self.psf_parameters
+
+        self.extra = ['id', 'model', 'psf_model'] #elements probably not in fits, more often then not, the non-numerical values written to the file. 
         
-        self.fieldnames = self.extra + self.parameters
+        self.fieldnames = self.extra + self.galaxy_parameters + self.psf_parameters
 
 
 class info: 
     """Contains the different things that are written in the information text file"""
     
-    def __init__(self, gals_params, fish = -1, fits_biases = -1, N = -1):
+    def __init__(self, galaxies, fish = -1, fits_biases = -1, N = -1):
         cts = constants()
-        params = gals_params.params 
+        params = galaxies.params 
 
         #contains all the lines of galaxy info to be writen into the file. 
         self.galaxy = list(

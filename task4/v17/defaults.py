@@ -32,18 +32,7 @@ class parameters:
         self.dict['psf_flux'] = 1. 
         self.dict['psf_fwhm'] = .7 
 
-class steps: 
-    """Define the steps for derivatives of each individual parameter."""
-    def __init__(self, params):
-        self.dict = dict()
-        self.dict['flux'] = params['flux'] * .01
-        self.dict['hlr'] = params['hlr'] *.01
-        self.dict['e1'] = .01
-        self.dict['e2'] = .01
-        self.dict['x0'] = .01
-        self.dict['y0'] = .01
-        #steps['q'] = orig_params['q']*.01
-        #steps['beta'] = orig_params['beta']*.01
+
 
 class min:
     """min values for fit, may add more as needed"""
@@ -96,7 +85,7 @@ class names:
                 self.parameters.append(element)
         self.parameters = list(set(self.parameters)) #remove repeated elements.
 
-        self.extra = ['id', 'model', 'psf_model']
+        self.extra = ['id', 'model', 'psf_model'] #elements probably not in fits, more often then not, the non-numerical values written to the file. 
         
         self.fieldnames = self.extra + self.parameters
 

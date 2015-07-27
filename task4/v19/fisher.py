@@ -1,27 +1,62 @@
 #!/usr/bin/env python
 """This module contains functions necessary to produce statistical results of the fisher formalism from a given galaxy"""
 
-import defaults
-
-import functions as fns
-
 import math
 
 import numpy as np
 
+from copy import deepcopy
+
+import galfun
 
 
-class fisher:
+def partialDifferentiate(func, param, steps, **kwargs):
+    """Partially derive f with respect to a parameter with a certain step.
+    We are assuming that the function has a certain structure, namely, one of its arguments is a dictionary of 
+    variables that can be changed and other (**kwargs) arguments are requisites or extra variables
+    the function needs to be evaluated. This is because we are assuming we can add step to params[parameter]."""
+
+    def Dfunc(params):
+        """Evaluate the partial derivative at params."""
+        params_up = deepcopy(params) #avoids altering params later.
+        params_up[param] += steps[param] #increment the value of the parameter by step. 
+
+        params_down = deepcopy(params)
+        params_down[param] -= steps[param]
+
+        return ((func(params_up, **kwargs) - func(params_down, **kwargs)) /
+               (2 * steps[param]))
+    return Dfunc
+
+def secondPartialDifferentiate(func, param1, param2, steps,**kwargs): 
+    Df = partialDifferentiate(func, param1, steps, **kwargs)
+    return partialDifferentiate(Df, param2, steps)
+
+def chi2(params, gal_image, sigma_n, **kwargs): 
+    """Returns chi2 given the modified parameters and the original galaxy, assume sigma_n is the same for all pixels -- OWN"""
+    return ((((gal_image - galfun.drawGalaxies(params, **kwargs)).array/ (sigma_n)))**2).sum()
+
+
+#steps defined here because it is where its relevant (derivatives).
+class steps: 
+    """Define the steps for derivatives of each individual parameter."""
+    def __init__(self, params):
+        self.dict = dict()
+        for param in params.keys():
+            if param[:-2] == 'flux' or param[:-2] == 'hlr': #remove the last _1 or _2 in the given parameter.
+                self.dict[param] = params[param] * .01
+            else:
+                self.dict[param] = .01
+
+class fisher_analysis:
     """Given a galaxy image and the appropiate parameters that describe it, will produce a fisher objec that contains the analysis of it using the fisher formalism"""
 
-    def __init__(self, gals_params, gals_image, sigma_n): 
-        #names = defaults.names()
-        self.gals_image = gals_image 
-        self.gals_params = gals_params 
-        self.steps = defaults.steps(self.params).dict
-        self.sigma_n = float(sigma_n) #this is the jiggle in one pixel due to the noise, uniform for all pixels for now too.
-        self.param_names = [self.gals_params[gal_id].keys() for gal_id in self.gals_params.keys()]
-        #names.galaxy_parameters[params['model']]
+    def __init__(self, galaxies, sigma_n): 
+
+        self.galaxies = galaxies
+        self.steps = steps(self.galaxies.model_params).dict #get set of params from the first galaxy.
+        self.sigma_n = float(sigma_n) 
+        self.param_names = self.galaxies.model_params.keys()
         self.num_params = len(self.param_names)
 
         self.derivatives_images = self.derivativesImages()
@@ -38,7 +73,7 @@ class fisher:
 
     def derivativesImages(self):
         #create a dictionary with the derivatives of the model with respect to each parameter.
-        return {self.param_names[i]:fns.partialDifferentiate(func = fns.drawGalaxies, parameter = self.param_names[i], step = self.steps[self.param_names[i]])(self.params) for i in range(self.num_params)}
+        return {self.param_names[i]:partialDifferentiate(func = galfun.drawGalaxies, param = self.param_names[i], steps = self.steps)(params = self.galaxies.params) for i in range(self.num_params)} #function here after differentiation is basically drawGalaxy
 
     def fisherMatrixImages(self):
         FisherM_images = {}
@@ -58,8 +93,7 @@ class fisher:
         FisherM_chi2 = {}
         for i in range(self.num_params): 
             for j in range(self.num_params): 
-                FisherM_chi2[self.param_names[i],self.param_names[j]] = .5 * fns.secondPartialDifferentiate(fns.chi2, self.param_names[i], self.param_names[j], self.steps[self.param_names[i]], self.steps[self.param_names[j]], sigma_n = self.
-                    sigma_n, gal_image = self.gal_image)(self.params)
+                FisherM_chi2[self.param_names[i],self.param_names[j]] = .5 * secondPartialDifferentiate(func = chi2, param1 = self.param_names[i], param2 = self.param_names[j], steps = self.steps, sigma_n = self.sigma_n, gal_image = self.galaxies.image)(params = self.galaxies.params)
 
         return FisherM_chi2
 
@@ -87,7 +121,7 @@ class fisher:
         secondDs_gal = {}
         for i in range(self.num_params): 
             for j in range(self.num_params):
-                secondDs_gal[self.param_names[i],self.param_names[j]] = (fns.secondPartialDifferentiate(fns.drawGalaxy, self.param_names[i], self.param_names[j], self.steps[self.param_names[i]], self.steps[self.param_names[j]])(self.params))
+                secondDs_gal[self.param_names[i],self.param_names[j]] = secondPartialDifferentiate(func = galfun.drawGalaxies, param1 = self.param_names[i], param2 =self.param_names[j], steps = self.steps)(params = self.galaxies.params)
 
         return secondDs_gal
 
@@ -105,7 +139,10 @@ class fisher:
         for i in range(self.num_params):
             for  j in range(self.num_params):
                 for k in range(self.num_params):
-                    BiasM[self.param_names[i],self.param_names[j],self.param_names[k]] = self.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]].sum()
+                    BiasM[self.param_names[i], 
+                    self.param_names[j],
+                    self.param_names[k]
+                    ] = self.bias_matrix_images[self.param_names[i],self.param_names[j],self.param_names[k]].sum()
 
         return BiasM
 
@@ -117,17 +154,16 @@ class fisher:
             for j in range(self.num_params):
                 for k in range(self.num_params):
                     for l in range(self.num_params):
-                        sumation += self.covariance_matrix[self.param_names[i],self.param_names[j]]*self.covariance_matrix[self.param_names[k],self.param_names[l]]*self.bias_matrix_images[self.param_names[j],self.param_names[k],self.param_names[l]]
+                        sumation += (self.covariance_matrix[
+                            self.param_names[i],
+                            self.param_names[j]
+                            ]*self.covariance_matrix[self.param_names[k],self.param_names[l]]*self.bias_matrix_images[self.param_names[j],self.param_names[k],self.param_names[l]])
             bias_images[self.param_names[i]] = (-.5) * sumation
 
         return bias_images
 
-
     def biases(self):
-        return {self.param_names[i]:self.bias_images[self.param_names[i]].sum() for i in range(self.num_params)}
-
-
-
-
-
-
+        return {
+            self.param_names[i]:self.bias_images[self.param_names[i]].sum()
+            for i in range(self.num_params)
+            }
