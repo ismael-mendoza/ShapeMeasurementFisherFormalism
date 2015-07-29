@@ -172,12 +172,12 @@ def main(argv):
 
     # #some sanity checks. 
     # #want to check answers analitically with the formulas from the paper.
-    # rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
+    rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
 
 
-    # print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
-    # print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
-    # print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
+    print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
+    print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
+    print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
     
 
 

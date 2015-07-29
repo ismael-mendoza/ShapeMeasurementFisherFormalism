@@ -54,11 +54,11 @@ def main(argv):
 
     orig_params = dict()
     orig_params['gal_flux'] = 100.                    #0 ; total counts on the image, watch out if this is too large, can cause problems because FT transform on narrow functions. 
-    orig_params['gal_sigma'] =  3.                    #1; arcsec
+    orig_params['gal_sigma'] =  1.                    #1; arcsec
     #orig_params['q'] = .5                             #2 ; minor to major axis ration
     #orig_params['beta'] = 1.75 * np.pi                #3; angle
-    orig_params['e1'] = .1                            #2 ; ellipticity: e1 
-    orig_params['e2'] = -.5                           #3; ellipticity: e2
+    orig_params['e1'] = 0.                            #2 ; ellipticity: e1 
+    orig_params['e2'] = 0.                           #3; ellipticity: e2
     orig_params['x0'] = 0.                            #4;shift in x origin. 
     orig_params['y0'] = 0.                            #5;shift in y
 
@@ -160,13 +160,12 @@ def main(argv):
 
     #some sanity checks. 
     #want to check answers analitically with the formulas from the paper.
-        # rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
+    rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
 
-
-        # print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
-        # print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
-        # print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
-        
+    print 'stat. error in a2: '+ str((math.sqrt(variance(a2_func, a2_func, orig_params, param_names, CovM, steps)) / a2_func(orig_params)) *  rhoA)
+    print 'stat. error in a1: '+ str((math.sqrt(variance(a1_func, a1_func, orig_params, param_names, CovM, steps)) / a1_func(orig_params)) *  rhoA)
+    print 'Flux bias: ' + str((biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2)
+    
 
 
     #use lmfit over a lot of noisy images. 

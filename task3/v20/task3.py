@@ -155,18 +155,11 @@ def main(argv):
 
     rhoA =  amplitude_func(orig_params) / math.sqrt(variance(amplitude_func, amplitude_func, orig_params, param_names, CovM, steps))
 
-    print a2_var
+    #print a2_var
 
     print (math.sqrt(a2_var) / a2) *  rhoA
 
     print (biases['gal_flux']/orig_params['gal_flux']) * (rhoA)**2
-
-
-
-
-
-
-
 
 
     # print biases['gal_sigma']

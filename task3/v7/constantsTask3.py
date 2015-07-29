@@ -1,9 +1,9 @@
 
 
 #global constants for image (never going to use in a fit): (do not put in dictionary)
-pixel_scale = .4
-nx = 40
-ny = 40
+pixel_scale = .2
+nx = 48
+ny = 48
 
 
 #variables for adjusting space between plots. 
