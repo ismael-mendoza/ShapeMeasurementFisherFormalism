@@ -174,7 +174,7 @@ def main(argv):
     figure = triangle.corner(np.array(points_plot).transpose(), bins = bins, 
                              labels=fish.param_names,
                              extents = extents,
-                             truths= truths, plot_contours=True,
+                             truths= truths, plot_contours=False, 
                              show_titles=True,
                              title_args={"fontsize": 12}, fig = fish_figure)
     # figure.gca().annotate("Triangle plot", xy=(0.5, 1.0), xycoords="figure fraction",

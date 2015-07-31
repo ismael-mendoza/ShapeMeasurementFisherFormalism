@@ -1,2 +1,0 @@
-id,model,psf_model,x0,y0,flux,hlr,e1,e2,psf_fwhm,psf_flux
-1,gaussian,gaussian,1.0,-1.0,100.0,1.0,0.4,-0.3,0.7,1.0
