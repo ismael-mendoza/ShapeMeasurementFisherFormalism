@@ -102,6 +102,8 @@ def main(argv):
                                             -float(row[param]))/(math.sqrt(fish.covariance_matrix[param,param])))
 
     biases = {param:np.mean(residuals[param]) for param in residuals.keys()}
+    stds = {param:np.std(residuals[param]) for param in residuals.keys()}
+    print stds
     
     info = defaults.info(g_parameters, fish, fits_biases = biases, 
                          number_fits = number_fits)
@@ -118,7 +120,10 @@ def main(argv):
     #produce pull plot. 
     extent = (-2.5,2.5)
     bins = 40
+    print extent[1]-extent[0]
+    print number_fits/bins
     norm_area = (extent[1]-extent[0]) * (number_fits/bins)
+    # print norm_area
 
     fish_figure = plt.figure() 
     for i in range(fish.num_params): 
@@ -174,7 +179,7 @@ def main(argv):
     figure = triangle.corner(np.array(points_plot).transpose(), bins = bins, 
                              labels=fish.param_names,
                              extents = extents,
-                             truths= truths, plot_contours=False, 
+                             truths= truths, plot_contours=True, 
                              show_titles=True,
                              title_args={"fontsize": 12}, fig = fish_figure)
     # figure.gca().annotate("Triangle plot", xy=(0.5, 1.0), xycoords="figure fraction",
