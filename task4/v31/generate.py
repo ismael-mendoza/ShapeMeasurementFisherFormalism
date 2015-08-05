@@ -76,19 +76,10 @@ def main():
     #write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=names.fieldnames)
-        row_to_write = dict(
-            id = args.id,
-            model = args.model,
-            x0 = args.x0,
-            y0 = args.y0,
-            flux = args.flux,
-            hlr = args.hlr,
-            e1 = args.e1,
-            e2 = args.e2,
-            psf_model = args.psf_model,
-            psf_flux = args.psf_flux,
-            psf_fwhm = args.psf_fwhm
-        )
+        args_dict = vars(args)
+        #extract appropiate entries from args_dict
+        row_to_write={k:v for (k,v) in args_dict.iteritems() 
+                      if k in names.fieldnames}
 
         #if file is empty just write the new row. 
         if csvIsEmpty(tempname):      

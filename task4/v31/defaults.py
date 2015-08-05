@@ -22,22 +22,23 @@ def getMinimums(g_parameters, gal_image):
     for param in g_parameters.model_param_names:
         param_no_subscript = param[:-2]
         if param_no_subscript == 'flux':
-            minimums['flux'] = 0. 
+            minimums[param] = 0. 
 
         elif param_no_subscript == 'hlr':
-            minimums['hlr'] = 0. 
+            minimums[param] = 0. 
 
         elif param_no_subscript == 'x0':
-            minimums['x0'] = - gal_image.getXMax() * PIXEL_SCALE / 2
+            minimums[param] = - gal_image.getXMax() * PIXEL_SCALE / 2
 
         elif param_no_subscript == 'y0':
-            minimums['y0'] = - gal_image.getYMax() * PIXEL_SCALE / 2
+            minimums[param] = - gal_image.getYMax() * PIXEL_SCALE / 2
 
         elif param_no_subscript == 'e1':
-            minimums['e1'] = -.7 
+            minimums[param] = -1 
 
+        #no bounds on e2 as it is constrained by the expr. 
         elif param_no_subscript == 'e2':
-            minimums['e2'] = -.7
+            minimums[param] = None
 
     return minimums
 
@@ -49,24 +50,54 @@ def getMaximums(g_parameters, gal_image):
     for param in g_parameters.model_param_names:
         param_no_subscript = param[:-2]
         if param_no_subscript == 'flux':
-            maximums['flux'] = None
+            maximums[param] = None
 
         elif param_no_subscript == 'hlr':
-            maximums['hlr'] = None 
+            maximums[param] = None 
 
         elif param_no_subscript == 'x0':
-            maximums['x0'] = gal_image.getXMax() * PIXEL_SCALE / 2
+            maximums[param] = gal_image.getXMax() * PIXEL_SCALE / 2
 
         elif param_no_subscript == 'y0':
-            maximums['y0'] = gal_image.getYMax() * PIXEL_SCALE / 2
+            maximums[param] = gal_image.getYMax() * PIXEL_SCALE / 2
 
         elif param_no_subscript == 'e1':
-            maximums['e1'] = .7 
+            maximums[param] = 1
 
         elif param_no_subscript == 'e2':
-            maximums['e2'] = .7
+            maximums[param] = None
 
     return maximums
+
+def getExprs(g_parameters):
+
+    exprs = dict()
+    #assume both galaxies have same params (always, which they use depends on 
+    #their model.)
+    first_galaxy_params = g_parameters.id_params.itervalues().next()
+    for param in first_galaxy_params:
+        for gal_id in g_parameters.id_params:
+            subscriptParam = param + '_' + gal_id
+            if param == 'flux':
+                exprs[subscriptParam] = None
+
+            elif param == 'hlr':
+                exprs[subscriptParam] = None 
+
+            elif param == 'x0':
+                exprs[subscriptParam] = None
+
+            elif param == 'y0':
+                exprs[subscriptParam] = None
+
+            elif param == 'e1':
+                exprs[subscriptParam] = None
+
+            elif param == 'e2':
+                exprs[subscriptParam] = ('math.sqrt' + '(e_' + gal_id + 
+                                         '**2-e1**2)')
+
+    return exprs
 
 
 #general global(module-level) constants.
@@ -105,3 +136,5 @@ PARAMETERS['e1'] = 0.
 PARAMETERS['e2'] = 0. 
 PARAMETERS['psf_flux'] = 1. 
 PARAMETERS['psf_fwhm'] = .7 
+PARAMETERS['psf_e1'] = 0.
+PARAMETERS['psf_e2'] = 0.

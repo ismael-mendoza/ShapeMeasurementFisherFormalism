@@ -96,12 +96,13 @@ def main():
         g_parameters = galfun.GParameters(args.project)
         fish = fisher.Fisher(g_parameters, snr)
         information = info.Info(g_parameters, fish, number_fits = number_fits)
+        information.writeInfo(args.project)
 
         if args.verbose:
             information.printInfo()
 
-        if args.info_file:
-            information.writeInfo(args.project)
+
+
 
 
 
