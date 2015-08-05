@@ -76,7 +76,7 @@ def main():
 
     g_parameters = galfun.GParameters(args.project)
     fish = fisher.Fisher(g_parameters=g_parameters, snr=float(args.snr))
-    fisherplots = plotsfisher.FisherPlots(fish = fish, wdir = args.project,
+    fisherplots = plotsfisher.FisherPlots(fish = fish, project = args.project,
                                           plots_dir = defaults.PLOTS_DIR, 
                                           hide = args.hide)
 
@@ -86,7 +86,7 @@ def main():
         fisherplots.derivatives()
     if args.fisher and args.values or args.all: 
         fisherplots.fisherMatrixValues()
-    elif args.fisher or args.all: 
+    if args.fisher and not args.values or args.all: 
         fisherplots.fisherMatrix()
     if args.fisher_chi2 or args.all: 
         fisherplots.fisherMatrixChi2()
@@ -98,11 +98,11 @@ def main():
         fisherplots.secondDerivatives()
     if args.bias_matrix and args.values or args.all: 
         fisherplots.biasMatrixValues()
-    elif args.bias_matrix or args.all: 
-        fisherplots.biasMatrix()
     if args.biases and args.values or args.all: 
         fisherplots.biasValues()
-    elif args.biases or args.all: 
+    if args.bias_matrix and not args.values or args.all: 
+        fisherplots.biasMatrix()
+    if args.biases and not args.values or args.all: 
         fisherplots.biases()
 
     information = info.Info(g_parameters, fish)

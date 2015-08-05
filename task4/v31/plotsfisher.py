@@ -31,6 +31,9 @@ def saveFigureToPdf(figure,file_name, project, plotsdir='', hide = False):
     if not hide: 
         os.system("open " + file_name)
 
+    #close it so does not consume memory.
+    plt.close(figure)
+
 
 def drawImage(ax, plot, title = "", xlabel = "", ylabel = ""): 
     """draws a given plot with default values using imshow in the given 
@@ -54,12 +57,12 @@ def drawImage(ax, plot, title = "", xlabel = "", ylabel = ""):
 
 class FisherPlots:
     """Produce plots for a fish object and displays them, in a given 
-    plots_dir that is in a given wdir. Hide if just save images but not 
+    plots_dir that is in a given project. Hide if just save images but not 
     display them.
     """
-    def __init__(self, fish, wdir, plots_dir, hide): 
+    def __init__(self, fish, project, plots_dir, hide): 
         self.fish = fish
-        self.wdir = wdir
+        self.project = project
         self.plots_dir = plots_dir
         self.num_params = fish.num_params
         self.param_names = fish.param_names
@@ -67,21 +70,21 @@ class FisherPlots:
         self.hide = hide
 
         #delete plots_dir directory for nameImages to work if already there.
-        if os.path.isdir(os.path.join(self.wdir,self.plots_dir)): 
-            os.system('rm -r ' + os.path.join(self.wdir,self.plots_dir))
+        if os.path.isdir(os.path.join(self.project,self.plots_dir)): 
+            os.system('rm -r ' + os.path.join(self.project,self.plots_dir))
         else: 
-            os.mkdir(os.path.join(self.wdir,self.plots_dir))
+            os.mkdir(os.path.join(self.project,self.plots_dir))
 
     def nameImages(self):
         """Returns first base#n.extension string where n is an integer 
-        that is not a file in wdir/pltsdir.
+        that is not a file in project/pltsdir.
         """
         n = 0
         while(True):
             n+= 1
             filename = ''.join([defaults.FIGURE_BASENAME,str(n),
                                 defaults.FIGURE_EXTENSION])
-            path = os.path.join(self.wdir, self.plots_dir,filename)
+            path = os.path.join(self.project, self.plots_dir,filename)
             figure_name_exists = os.path.isfile(path)
             if not figure_name_exists:
                 break
@@ -94,7 +97,7 @@ class FisherPlots:
         drawImage(subplt, self.gal_image)
 
         saveFigureToPdf(figure, self.nameImages(), 
-            self.wdir, self.plots_dir, hide=self.hide)
+            self.project, self.plots_dir, hide=self.hide)
 
     def derivatives(self):
         figure = plt.figure() 
@@ -107,7 +110,7 @@ class FisherPlots:
             drawImage(ax, self.fish.derivatives_images[self.param_names[i]],
                       title=self.param_names[i])
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide=self.hide)
 
     def fisherMatrix(self):
@@ -131,7 +134,7 @@ class FisherPlots:
                         if(i == self.num_params - 1):
                             ax.set_xlabel(self.param_names[j])
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                        hide=self.hide)
 
     def fisherMatrixValues(self):
@@ -156,7 +159,7 @@ class FisherPlots:
                     annotateAxisCenter(ax, str(round(self.fish.fisher_matrix[
                         self.param_names[i],self.param_names[j]],defaults.SIG_DIGITS)))
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide = self.hide)
 
     def fisherMatrixChi2(self):
@@ -172,7 +175,7 @@ class FisherPlots:
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
                     annotateAxisCenter(ax, str(round(self.fish.fisher_matrix_chi2[self.param_names[i],self.param_names[j]],defaults.SIG_DIGITS)))
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, hide = self.hide)
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, hide = self.hide)
 
     def secondDerivatives(self):
         figure = plt.figure()
@@ -186,7 +189,7 @@ class FisherPlots:
                         ax.set_ylabel(self.param_names[i])
                     if(i == self.num_params - 1):
                         ax.set_xlabel(self.param_names[j])
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, hide = self.hide)
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, hide = self.hide)
 
     def biasMatrixValues(self):
         figuresOfBiasMatrixNumbers = []    
@@ -213,7 +216,7 @@ class FisherPlots:
             basename = self.nameImages().strip(defaults.FIGURE_EXTENSION)
             filename = ''.join([basename,'_',
                                 str(i),defaults.FIGURE_EXTENSION])
-            saveFigureToPdf(figure, filename, self.wdir, self.plots_dir, 
+            saveFigureToPdf(figure, filename, self.project, self.plots_dir, 
                             hide = self.hide) 
 
     def biasMatrix(self):
@@ -235,7 +238,7 @@ class FisherPlots:
         for i, figure in enumerate(figuresOfBiasMatrix): 
             basename = self.nameImages().strip(defaults.FIGURE_EXTENSION)
             filename = ''.join([basename,'_',str(i),defaults.FIGURE_EXTENSION])
-            saveFigureToPdf(figure, filename, self.wdir, self.plots_dir, 
+            saveFigureToPdf(figure, filename, self.project, self.plots_dir, 
                             hide = self.hide)  
 
     def covarianceMatrix(self):
@@ -252,7 +255,7 @@ class FisherPlots:
                         ax.set_xlabel(self.param_names[j])
                     annotateAxisCenter(ax, str(round(self.fish.covariance_matrix[self.param_names[i],self.param_names[j]],defaults.SIG_DIGITS)))
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide = self.hide)
 
     def correlationMatrix(self):
@@ -271,7 +274,7 @@ class FisherPlots:
 
                     annotateAxisCenter(ax, str(round(self.fish.correlation_matrix[self.param_names[i],self.param_names[j]],defaults.SIG_DIGITS)))
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide = self.hide)
 
     def biasValues(self):
@@ -286,7 +289,7 @@ class FisherPlots:
             annotateAxisCenter(ax, str(round(self.fish.biases[self.param_names
                                                               [i]],defaults.SIG_DIGITS)))
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide = self.hide)
 
     def biases(self):
@@ -298,5 +301,5 @@ class FisherPlots:
             drawImage(ax, self.fish.bias_images[self.param_names[i]], 
                       title = self.param_names[i])
 
-        saveFigureToPdf(figure, self.nameImages(), self.wdir, self.plots_dir, 
+        saveFigureToPdf(figure, self.nameImages(), self.project, self.plots_dir, 
                         hide = self.hide)
