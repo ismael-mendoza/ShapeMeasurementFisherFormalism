@@ -17,8 +17,10 @@ import galfun
 
 
 def objFunc(fit_params, data, variance_noise, **kwargs):
+    print fit_params
     model = galfun.drawGalaxies(params = fit_params.valuesdict(), 
                                 image = True, **kwargs)
+    print(model-data).array.sum()
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
 
