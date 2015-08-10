@@ -8,13 +8,9 @@ import os
 
 import csv
 
-import galfun 
-
 import shutil
 
 import names
-
-import info
 
 def csvIsEmpty(filename):
     """Checks if a given csv file is empty by making sure each of the rows in the file does not have a string on it.
@@ -38,30 +34,24 @@ def main():
     type=str,
     help=('Specify a directory name where the project will be saved. In this fashion each individual project represents one analysis.'))
 
-    parser.add_argument('-g', '--galaxy', required = True,
+    parser.add_argument('-g', '--id', required = True,
     type = int,
-    help = ('Add galaxy with id GALAXYID, if GALAXYID already exists in the'
-            'table, you will change the parameters of the galaxy with that'
-            'GALAXYID but not create a new entry.'))
-    parser.add_argument('--psf', 
-    help=('Write a psf with parameters and model specified by the user into a'
-          'separate file for reading later.'))
-    parser.add_argument('--model', default = 'gaussian', 
-    type = str,
-    help = 'Change the object model.')
-    # parser.add_argument('--psf_model', default = names.psf_models[0], 
-    # type = str, choices = names.psf_models,
-    # help = 'Change the psf model.')
+    help = ('Add a galaxy with given ID to the project file.'))
+
+    parser.add_argument('--galaxy-model', default = defaults.MODEL, 
+    type = str, choices = names.gal_models,
+    help = 'Change the galaxy\'s model.')
+
+    parser.add_argument('--psf_model', default = defaults.MODEL, 
+    type = str, choices = names.psf_models,
+    help = 'Change the psf model.')
 
     #add all parameter arguments to the parser. 
     for name in names.parameters:
-        parser.add_argument('--' + name, default = defaults.PARAMETERS[name], 
-            metavar = name.upper(), type = float, 
-            help = 'Change the parameter ' + name + ' from its default value.'
+        parser.add_argument('--' + name, default = None, 
+            type = float, 
+            help = 'Add a value for the parameter ' + name +'.'
             ) 
-
-    parser.add_argument('--verbose', action='store_true',
-    help='Prints parameters of the galaxy created.')
 
 
     args = parser.parse_args()
@@ -69,10 +59,12 @@ def main():
     if not os.path.isdir(args.project):
         os.mkdir(args.project)
 
+    #create file for galaxies if it does not exist. 
     filename = os.path.join(args.project, defaults.GALAXY_FILE)
     if not os.path.isfile(filename):
         f = open(filename, 'w+')
         f.close()
+
     tempname = os.path.join(args.project, 'temp' + '.csv')
 
     #creat a copy to read from and compare.
@@ -82,15 +74,16 @@ def main():
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=names.fieldnames)
         args_dict = vars(args)
-        #extract appropiate entries from args_dict
+
+        #extract appropiate entries from dictionary of args.
         row_to_write={k:v for (k,v) in args_dict.iteritems() 
                       if k in names.fieldnames}
 
-        #if file is empty just write the new row. 
         if csvIsEmpty(tempname):      
             writer.writeheader()
             writer.writerow(row_to_write)
-        #otherwise more complicated comparison.
+
+        #otherwise more complicated comparison with previous entry.
         else:
             with open(tempname, 'r') as tempfile:
                 reader = csv.DictReader(tempfile)
@@ -101,11 +94,6 @@ def main():
                 writer.writerow(row_to_write)
 
         os.remove(tempname)
-
-        if args.verbose:
-            information = info.Info(galfun.GParameters(args.project))
-            information.printInfo()
-                        
                         
 if __name__ == '__main__':
     main()

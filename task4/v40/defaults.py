@@ -5,9 +5,8 @@ def getSteps(g_parameters):
     """Get steps for a given set of galaxy parameters"""
 
     steps = dict()
-    for param in g_parameters.model_params.keys():
-        param_no_subscript = param[:-2]
-        if param_no_subscript == 'flux' or param_no_subscript == 'hlr': 
+    for param in g_parameters.fit_params.keys():
+        if 'flux' in param or 'hlr' in param: 
             steps[param] = g_parameters.model_params[param] * .01
         else:
             steps[param] = .01
@@ -30,27 +29,30 @@ def getMinimums(g_parameters, gal_image):
 
     minimums = dict()
     for param in g_parameters.fit_params:
-        param_no_subscript = param[:-2]
-        if param_no_subscript == 'flux':
+
+        if 'flux' in param:
             minimums[param] = 0. 
 
-        elif param_no_subscript == 'hlr':
+        elif 'hlr' in param:
             minimums[param] = 0. 
 
-        elif param_no_subscript == 'x0':
+        elif 'x0' in param:
             minimums[param] = - gal_image.getXMax() * PIXEL_SCALE / 2
 
-        elif param_no_subscript == 'y0':
+        elif 'y0' in param:
             minimums[param] = - gal_image.getYMax() * PIXEL_SCALE / 2
 
-        elif 
-
-        elif param_no_subscript == 'eta1':
+        elif 'eta1' in param:
             minimums[param] = -5
 
-        #no bounds on e2 as it is constrained by the expr. 
-        elif param_no_subscript == 'eta2':
+        elif 'eta2' in param:
             minimums[param] = -5
+
+        elif 'e1' in param:
+            minimums[param] = -.7
+
+        elif 'e2' in param:
+            minimums[param] = -.7
 
     return minimums
 
@@ -60,24 +62,30 @@ def getMaximums(g_parameters, gal_image):
 
     maximums = dict()
     for param in g_parameters.fit_params:
-        param_no_subscript = param[:-2]
-        if param_no_subscript == 'flux':
+
+        if 'flux' in param:
             maximums[param] = None
 
-        elif param_no_subscript == 'hlr':
+        elif 'hlr' in param:
             maximums[param] = None 
 
-        elif param_no_subscript == 'x0':
+        elif 'x0' in param:
             maximums[param] = gal_image.getXMax() * PIXEL_SCALE / 2
 
-        elif param_no_subscript == 'y0':
+        elif 'y0' in param:
             maximums[param] = gal_image.getYMax() * PIXEL_SCALE / 2
 
-        elif param_no_subscript == 'eta1':
+        elif 'eta1' in param:
             maximums[param] = 5
 
-        elif param_no_subscript == 'eta2':
+        elif 'eta2' in param:
             maximums[param] = 5
+
+        elif 'e1' in param:
+            maximums[param] = .7
+
+        elif 'e2' in param:
+            maximums[param] = .7
 
     return maximums
 
@@ -93,7 +101,7 @@ FONTSIZE_TITLE = 14
 EXTENT_PULL = (-2.5,2.5)
 BINS_PULL = 40
 SIG_DIGITS = 4
-FIT_DEVIATION = .001
+FIT_DEVIATION = .00001
 
 
 #some default names for argparse and i/0 file management.
@@ -101,22 +109,48 @@ PROJECT = 'project'
 PLOTS_DIR = 'plots'
 RESULTS_DIR = 'results'
 GALAXY_FILE = 'galaxies.csv'
+PSF_FILE = 'psf.csv'
 INFO_FILE = 'info.txt'
 FIGURE_BASENAME = 'figure'
 FIGURE_EXTENSION = '.pdf'
 TRIANGLE_NAME = 'triangle.pdf'
 SNR_FILE = 'snr.txt'
+MODEL = 'gaussian'
 
 
-#Default values of some parameters that are given to argparse.
-PARAMETERS = dict()
-PARAMETERS['x0'] = 0. 
-PARAMETERS['y0'] = 0.
-PARAMETERS['flux'] = 100. 
-PARAMETERS['hlr'] = 1.
-PARAMETERS['e1'] = 0. 
-PARAMETERS['e2'] = 0. 
-PARAMETERS['psf_flux'] = 1. 
-PARAMETERS['psf_fwhm'] = .7 
-PARAMETERS['psf_e1'] = 0.
-PARAMETERS['psf_e2'] = 0.
+# #Default values of some parameters that are given to argparse.
+# GAL_PARAMETERS = dict()
+
+# #gaussian & exponential
+# GAL_PARAMETERS['flux'] = 1. 
+# GAL_PARAMETERS['fwhm'] = .7
+# GAL_PARAMETERS['sigma'] = 0.
+# GAL_PARAMETERS['hlr'] = 1.
+
+# #bulge+disk
+# GAL_PARAMETERS['flux_b'] = 1.
+# GAL_PARAMETERS['flux_d'] = 1.
+# GAL_PARAMETERS['hlr_d'] = 1.
+# GAL_PARAMETERS['R_r'] = 1. 
+# GAL_PARAMETERS['delta_e'] = 0.
+# GAL_PARAMETERS['delta_theta'] = 0.
+# GAL_PARAMETERS['n_d'] = 4.
+# GAL_PARAMETERS['n_b'] = .5
+
+# #general.
+# GAL_PARAMETERS['e1'] = 0. 
+# GAL_PARAMETERS['e2'] = 0. 
+# GAL_PARAMETERS['eta1'] = 0.
+# GAL_PARAMETERS['eta2'] = 0.
+
+# GAL_PARAMETERS['x0'] = 0. 
+# GAL_PARAMETERS['y0'] = 0.
+
+
+# PSF_PARAMETERS = dict()
+
+# PSF_PARAMETERS['flux'] = 1. 
+# PSF_PARAMETERS['fwhm'] = .7 
+# PSF_PARAMETERS['beta'] = 0.
+# PSF_PARAMETERS['e1'] = 0.
+# PSF_PARAMETERS['e2'] = 0.
