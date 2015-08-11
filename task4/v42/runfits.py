@@ -35,14 +35,14 @@ def main(argv):
     orig_image = galfun.drawGalaxies(g_parameters=g_parameters, image=True)
     mins = defaults.getMinimums(g_parameters,orig_image)
     maxs = defaults.getMaximums(g_parameters,orig_image)
-    init_values = defaults.getInitialValuesFit(g_parameters)
+    #init_values = defaults.getInitialValuesFit(g_parameters)
     nfit_params = g_parameters.nfit_params
     noisy_image,variance_noise = galfun.addNoise(orig_image, snr, noise_seed)
 
     fit_params = lmfit.Parameters()
     for param in g_parameters.fit_params:
         fit_params.add(param, 
-                       value = init_values[param], 
+                       value = g_parameters.fit_params[param], 
                        min = mins[param], 
                        max = maxs[param])
 

@@ -28,9 +28,9 @@ def drawGalaxy(params):
 
     #check each model of galaxy
     if(params['galaxy_model'] == 'gaussian'):
-        if('hlr' in params.keys()):
+        if('hlr' in params):
             gal = galsim.Gaussian(flux=params['flux'], half_light_radius=params['hlr'])
-        elif('sigma' in params.keys()):
+        elif('sigma' in params):
             gal = galsim.Gaussian(flux=params['flux'], sigma=params['sigma'])
 
     elif(params['galaxy_model'] == 'exponential'):
@@ -38,33 +38,48 @@ def drawGalaxy(params):
 
     elif(params['galaxy_model'] == 'bulge+disk'):
         pass
+    else:
+        raise ValueError('The galaxy model was not specified.')
 
 
     #set shear
-    if('e1' and 'e2' in params.keys()): 
+    if('e1' and 'e2' in params): 
         gal = gal.shear(e1=params['e1'], e2 = params['e2'])
-    elif('eta1' and 'eta2' in params.keys()):
+    elif('eta1' and 'eta2' in params):
         gal = gal.shear(eta1=params['eta1'], eta2=params['eta2'])
-    elif('q' and 'beta' in params.keys()):
+    elif('q' and 'beta' in params):
         gal = gal.shear(q=params['q'], beta = params['beta'] * galsim.radians)
+    else:
+        raise ValueError('The shear for the galaxy was not specified.')
 
     #shift galaxy.
-    gal = gal.shift(params['x0'],params['y0'])
+    if('x0' and 'y0' in params):
+        gal = gal.shift(params['x0'],params['y0'])
+    else:
+        raise ValueError('The shift for the galaxy was not specified.')
 
-    #generate psf, if psf_flux is not 0 and it was specified by the user.
+    #generate psf.
     if(params.get('psf_flux', 0) != 0):
+
+        if(params.get('psf_flux', 1) != 1):
+            raise ValueError('I do not think you want a psf of flux not 1')
+
         #each psf model. 
         if(params['psf_model'] == 'gaussian'):
-            if('psf_hlr' in params.keys()):
+            if('psf_hlr' in params):
                 psf = galsim.Gaussian(flux=params['psf_flux'], half_light_radius=params['psf_hlr'])
-            elif('psf_sigma' in params.keys()):
+            elif('psf_sigma' in params):
                 psf = galsim.Gaussian(flux=params['psf_flux'], 
                                       sigma=params['psf_sigma'])
-            elif('psf_fwhm' in params.keys()):
+            elif('psf_fwhm' in params):
                 psf = galsim.Gaussian(flux=params['psf_flux'], 
                                       fwhm=params['psf_fwhm'])
+            else:
+                raise ValueError('Size of PSF was not specified.')
+        else:
+            raise ValueError('PSF model was not specified.')
 
-        psf = psf.shear(e1=params['psf_e1'],e2=params['psf_e2'])
+        psf = psf.shear(e1=params.get('psf_e1',0),e2=params.get('psf_e2',0))
 
         final = galsim.Convolve([gal, psf])
     else:

@@ -44,10 +44,10 @@ def getMinimums(g_parameters, gal_image):
             minimums[param] = - gal_image.getYMax() * PIXEL_SCALE / 2
 
         elif 'eta1' in param:
-            minimums[param] = -5
+            minimums[param] = -1
 
         elif 'eta2' in param:
-            minimums[param] = -5
+            minimums[param] = -1
 
         elif 'e1' in param:
             minimums[param] = -.7
@@ -77,10 +77,10 @@ def getMaximums(g_parameters, gal_image):
             maximums[param] = gal_image.getYMax() * PIXEL_SCALE / 2
 
         elif 'eta1' in param:
-            maximums[param] = 5
+            maximums[param] = 3
 
         elif 'eta2' in param:
-            maximums[param] = 5
+            maximums[param] = 3
 
         elif 'e1' in param:
             maximums[param] = .7
