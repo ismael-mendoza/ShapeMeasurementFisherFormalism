@@ -15,7 +15,7 @@ eta2_1: 1.0
 psf_model_1: gaussian
 y0_1: 0.0
 the results were produced with:
-/Users/Ismael/code/research/task4/v42
+/Users/Ismael/code/research/task4/v43
 
 Fisher analysis (and fittings if included) used the following snr: 20.0
 

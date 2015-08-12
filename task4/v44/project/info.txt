@@ -15,7 +15,7 @@ eta2_1: 1.0
 psf_model_1: gaussian
 y0_1: 0.0
 the results were produced with:
-/Users/Ismael/code/research/task4/v42
+/Users/Ismael/code/research/task4/v44
 
 Fisher analysis (and fittings if included) used the following snr: 20.0
 
@@ -28,3 +28,27 @@ eta2_1: 0.01
 y0_1: 0.01
 Number of fits:
 15
+
+We used the following initial values for the fitting:
+eta1_1: 1.0
+hlr_1: 0.25
+x0_1: 1e-05
+flux_1: 1.0
+eta2_1: 1.0
+y0_1: 1e-05
+
+We used the following minimum values for the fitting:
+eta1_1: -1
+hlr_1: 0.0
+x0_1: -4.8
+flux_1: 0.0
+eta2_1: -1
+y0_1: -4.8
+
+We used the following maximum values for the fitting:
+eta1_1: 3
+hlr_1: None
+x0_1: 4.8
+flux_1: None
+eta2_1: 3
+y0_1: 4.8
