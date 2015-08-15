@@ -1,0 +1,54 @@
+Default values used in the analysis:
+nx: 48
+ny: 48
+pixel_scale: 0.2
+
+Galaxies drawn have the following parameters:
+x0_1: 1.0
+psf_fwhm_1: 0.7
+hlr_1: 0.25
+e2_1: 0.2
+galaxy_model_1: gaussian
+psf_flux_1: 1.0
+flux_1: 1.0
+e1_1: 0.2
+psf_model_1: gaussian
+y0_1: 1.0
+the results were produced with:
+/Users/Ismael/code/research/task4/v49
+
+Fisher analysis (and fittings if included) used the following snr: 60.0
+
+Steps used for the derivatives: 
+hlr_1: 0.0025
+e2_1: 0.01
+x0_1: 0.01
+flux_1: 0.01
+e1_1: 0.01
+y0_1: 0.01
+Number of fits:
+15
+
+We used the following initial values for the fitting:
+hlr_1: 0.25
+e2_1: 0.2
+x0_1: 1.0
+flux_1: 1.0
+e1_1: 0.2
+y0_1: 1.0
+
+We used the following minimum values for the fitting:
+hlr_1: 0.0
+e2_1: -0.7
+x0_1: -4.8
+flux_1: 0.0
+e1_1: -0.7
+y0_1: -4.8
+
+We used the following maximum values for the fitting:
+hlr_1: inf
+e2_1: 0.7
+x0_1: 4.8
+flux_1: inf
+e1_1: 0.7
+y0_1: 4.8
