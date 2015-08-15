@@ -22,58 +22,59 @@ import names
 
 
 def drawGalaxy(params):
-    """Draws an image of a galaxy with noise and convoluted with a given psf if desired. Also sets
+    """Draw an image of a galaxy with noise and convoluted with a given psf if
+    desired. Also sets
     GaussianNoise to the image if SNR is given.
     """
-
     # check each model of galaxy
-    if(params['galaxy_model'] == 'gaussian'):
-        if('hlr' in params):
+    if params['galaxy_model'] == 'gaussian':
+        if 'hlr' in params:
             gal = galsim.Gaussian(
                 flux=params['flux'], half_light_radius=params['hlr'])
-        elif('sigma' in params):
+        elif 'sigma' in params:
             gal = galsim.Gaussian(flux=params['flux'], sigma=params['sigma'])
 
-    elif(params['galaxy_model'] == 'exponential'):
+    elif params['galaxy_model'] == 'exponential':
         gal = galsim.Exponential(
             flux=params['flux'], half_light_radius=params['hlr'])
 
-    elif(params['galaxy_model'] == 'bulge+disk'):
+    elif params['galaxy_model'] == 'bulge+disk':
         pass
     else:
         raise ValueError('The galaxy model was not specified.')
 
     # set shear
-    if('e1' and 'e2' in params):
+    if 'e1' and 'e2' in params:
         gal = gal.shear(e1=params['e1'], e2=params['e2'])
-    elif('eta1' and 'eta2' in params):
+    elif 'eta1' and 'eta2' in params:
         gal = gal.shear(eta1=params['eta1'], eta2=params['eta2'])
-    elif('q' and 'beta' in params):
+    elif 'q' and 'beta' in params:
         gal = gal.shear(q=params['q'], beta=params['beta'] * galsim.radians)
     else:
         raise ValueError('The shear for the galaxy was not specified.')
 
     # shift galaxy.
-    if('x0' and 'y0' in params):
+    if 'x0' and 'y0' in params:
         gal = gal.shift(params['x0'], params['y0'])
     else:
         raise ValueError('The shift for the galaxy was not specified.')
 
     # generate psf.
-    if(params.get('psf_flux', 0) != 0):
+    if params.get('psf_flux', 0) != 0:
 
-        if(params.get('psf_flux', 1) != 1):
+        if params.get('psf_flux', 1) != 1:
             raise ValueError('I do not think you want a psf of flux not 1')
 
         # each psf model.
-        if(params['psf_model'] == 'gaussian'):
-            if('psf_hlr' in params):
+        if params['psf_model'] == 'gaussian':
+            if 'psf_hlr' in params:
                 psf = galsim.Gaussian(
-                    flux=params['psf_flux'], half_light_radius=params['psf_hlr'])
-            elif('psf_sigma' in params):
+                    flux=params['psf_flux'],
+                    half_light_radius=params['psf_hlr'])
+            elif 'psf_sigma' in params:
                 psf = galsim.Gaussian(flux=params['psf_flux'],
                                       sigma=params['psf_sigma'])
-            elif('psf_fwhm' in params):
+            elif 'psf_fwhm' in params:
                 psf = galsim.Gaussian(flux=params['psf_flux'],
                                       fwhm=params['psf_fwhm'])
             else:
@@ -99,6 +100,30 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
     so that they are convoluted with the same psf and convolution is an additive operation (integrating is additive)
     *Convolution can also be done for each galaxy separately and then adding them, we will always assume galaxies have same psf.
     *Noise should only be added once to the image (otherwise two different noises combined), so it should go here and not in the original drawGalaxy function.
+    """
+    """Create image of galaxies given a set of parameters.
+
+    Galaxies can be draw in different ways, most common is to pass in g_parameters, but also for the fits a combination of fit_params and nfit_params as a keyword argument is needed.
+
+    Args:
+        fit_params(dict):Dictionary containing the parameters of a galaxy that
+        are relevant when doing a fit.
+
+    Args:
+        entry(astropy.table.Row): A single row from a galaxy :mod:`descwl.catalog`.
+        dx_arcsecs(float): Horizontal offset of catalog entry's centroid from image center
+            in arcseconds.
+        dy_arcsecs(float): Vertical offset of catalog entry's centroid from image center
+            in arcseconds.
+        filter_band(str): The LSST filter band to use for calculating flux, which must
+            be one of 'u','g','r','i','z','y'.
+
+    Returns:
+        :class:`Galaxy`: A newly created galaxy source model.
+
+    Raises:
+        SourceNotVisible: All of the galaxy's components are being ignored.
+        RuntimeError: Catalog entry is missing AB flux value in requested filter band.
     """
 
     if id_params is None and g_parameters is None:
@@ -140,7 +165,8 @@ def addNoise(image, snr, noise_seed):
     return noisy_image, variance_noise
 
 
-class GParameters:
+class GParameters(object):
+
     """Class that manages given galaxy parameters."""
 
     def __init__(self, project=None, id_params=None):
@@ -191,7 +217,7 @@ class GParameters:
         return nfit_params
 
     def sortModelParamsNames(self):
-        """Returns param names in the order _1, _2,..., and in each
+        """Return param names in the order _1, _2,..., and in each
         subscript follow
         order of defaults.py, retuns list of ordered params names. With it we
         can change order just by changing order in names file gal_parameters.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Some of the defaults that are used in the overall program."""
 
-def getSteps(g_parameters):
-    """Get steps for a given set of galaxy parameters"""
 
+def getSteps(g_parameters):
+    """Get steps for a given set of galaxy parameters."""
     steps = dict()
     fit_params = g_parameters.fit_params
     for param in fit_params:
@@ -14,7 +14,9 @@ def getSteps(g_parameters):
 
     return steps
 
+
 def getInitialValuesFit(g_parameters):
+    """Get initial values for the fit."""
     initial_values = dict()
     fit_params = g_parameters.fit_params
     for param in fit_params:
@@ -25,9 +27,9 @@ def getInitialValuesFit(g_parameters):
 
     return initial_values
 
-def getMinimums(g_parameters, gal_image):
-    """min values for fit, may add more as needed"""
 
+def getMinimums(g_parameters, gal_image):
+    """min values for fit, may add more as needed."""
     minimums = dict()
     for param in g_parameters.fit_params:
         if 'flux' in param:
@@ -58,8 +60,7 @@ def getMinimums(g_parameters, gal_image):
 
 
 def getMaximums(g_parameters, gal_image):
-    """max values for fit, may add more as needed"""
-
+    """Max values for fit, may add more as needed."""
     maximums = dict()
     for param in g_parameters.fit_params:
 
@@ -90,21 +91,21 @@ def getMaximums(g_parameters, gal_image):
     return maximums
 
 
-#general global(module-level) constants.
-NX = 48 #pixels
+# general global(module-level) constants.
+NX = 48  # pixels
 NY = 48
-PIXEL_SCALE = .2 #arcsec/pixel
-DPI = 600. #resolution for pdf saving.
+PIXEL_SCALE = .2  # arcsec/pixel
+DPI = 600.  # resolution for pdf saving.
 FONTSIZE_LABEL = 8
 FONTSIZE_VALUE = 4
 FONTSIZE_TITLE = 14
-EXTENT_PULL = (-10,10)
+EXTENT_PULL = (-10, 10)
 BINS_PULL = 40
 SIG_DIGITS = 4
 FIT_DEVIATION = .00001
 
 
-#some default names for argparse and i/0 file management.
+# some default names for argparse and i/0 file management.
 PROJECT = 'project'
 PLOTS_DIR = 'plots'
 RESULTS_DIR = 'results'
