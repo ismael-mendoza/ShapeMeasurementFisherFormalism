@@ -171,7 +171,7 @@ def main(argv):
                                              dim,
                                              dim * i + j + 1)
 
-    # have to transform point.values to a convenient form for the triangle plot
+    # have to transform point.values to a convenient form for the plot.
     extents = [defaults.EXTENT_PULL] * dim
     points_plot = []
     truths = []
@@ -184,16 +184,23 @@ def main(argv):
     truths.append(0)
     points_plot.append(redchis)
 
-    figure = triangle.corner(np.array(points_plot).transpose(),
-                             bins=defaults.BINS_PULL,
-                             labels=plot_names,
-                             extents=extents,
-                             truths=truths, plot_contours=False,
-                             show_titles=True,
-                             title_args={"fontsize": defaults.FONTSIZE_LABEL},
-                             fig=fish_figure)
+    figure1 = triangle.corner(np.array(points_plot).transpose(),
+                              bins=defaults.BINS_PULL,
+                              labels=plot_names,
+                              extents=extents,
+                              truths=truths, plot_contours=False,
+                              show_titles=True,
+                              title_args={"fontsize": defaults.FONTSIZE_LABEL},
+                              fig=fish_figure)
 
-    figure.savefig(os.path.join(project, defaults.TRIANGLE_NAME))
+    #add redchi individual histogram
+    figure2 = plt.figure()
+    ax = figure2.add_subplot(111)
+    ax.hist(redchis)
+    ax.set_title(defaults.REDCHI_HIST_TITLE, fontsize=defaults.FONTSIZE_TITLE)
+
+    figure1.savefig(os.path.join(project, defaults.TRIANGLE_NAME))
+    figure2.savefig(os.path.join(project, defaults.REDCHI_HIST_NAME))
 
 if __name__ == "__main__":
     main(sys.argv)

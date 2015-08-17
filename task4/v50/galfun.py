@@ -38,8 +38,35 @@ def drawGalaxy(params):
         gal = galsim.Exponential(
             flux=params['flux'], half_light_radius=params['hlr'])
 
+    elif params['galaxy_model'] == 'deVaucouleurs':
+        gal = galsim.DeVaucouleurs(half_light_radius=params['hlr'],
+                                   flux=params['flux'])
+
     elif params['galaxy_model'] == 'bulge+disk':
-        pass
+        if 'flux_b' and 'flux_d' in params:
+            flux_b = params['flux_b']
+            flux_d = params['flux_d']
+
+        elif 'flux_b' and 'flux_b/flux_total' in params:
+            raise NotImplementedError()
+
+        if 'hlr_b' and 'hlr_d' in params:
+            hlr_d = params['hlr_d']
+            hlr_b = params['hlr_b']
+
+        if 'hlr_d' and 'R_r' in params:
+            hlr_d = params['hlr_d']
+            hlr_b = params['R_r'] * hlr_d
+
+        bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr_b,
+                              flux=flux_b)
+        disk = galsim.Sersic(n=params['n_d'], half_light_radius=hlr_d,
+                             flux=flux_d)
+
+        if 'delta_e' or 'delta_theta' in params:
+            raise NotImplementedError()
+
+        gal = bulge + disk
     else:
         raise ValueError('The galaxy model was not specified.')
 
@@ -79,6 +106,10 @@ def drawGalaxy(params):
                                       fwhm=params['psf_fwhm'])
             else:
                 raise ValueError('Size of PSF was not specified.')
+
+        elif params['psf_model'] == 'moffat':
+            pass
+
         else:
             raise ValueError('PSF model was not specified.')
 
@@ -146,7 +177,7 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
 
 
 def displayGalaxy(image):
-    """Displays a galaxy given an image of a galaxy, mostly used just for
+    """Display a galaxy given an image of a galaxy, mostly used just for
     testing.
     """
     figure, subplt = plt.subplots(1, 1)

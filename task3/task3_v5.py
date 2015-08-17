@@ -18,6 +18,7 @@ nx = 40
 ny = 40
 
 
+
 #variables for adjusting space between plots. 
 
 left  = 0.125  # the left side of the subplots of the figure
