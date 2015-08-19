@@ -1,0 +1,29 @@
+Default values used in the analysis:
+nx: 48
+ny: 48
+pixel_scale: 0.2
+
+Galaxies drawn have the following parameters:
+x0_1: 0.0
+psf_fwhm_1: 0.7
+hlr_1: 0.25
+e2_1: 0.1
+galaxy_model_1: exponential
+psf_flux_1: 1.0
+flux_1: 1.0
+psf_beta_1: 3.0
+e1_1: 0.1
+psf_model_1: moffat
+y0_1: 0.0
+the results were produced with:
+/Users/Ismael/code/research/task4/v52
+
+Fisher analysis (and fittings if included) used the following snr: 40.0
+
+Steps used for the derivatives: 
+hlr_1: 0.0025
+e2_1: 0.01
+x0_1: 0.01
+flux_1: 0.01
+e1_1: 0.01
+y0_1: 0.01
