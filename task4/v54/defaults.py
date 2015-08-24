@@ -103,6 +103,7 @@ EXTENT_PULL = (-3, 3)
 BINS_PULL = 40
 SIG_DIGITS = 4
 FIT_DEVIATION = .00001
+SNR_NORM = 20.
 
 
 # some default names for argparse and i/0 file management.

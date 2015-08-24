@@ -408,18 +408,16 @@ class FisherPlots(object):
                         self.project, self.plots_dir, hide=self.hide)
 
     def biasPlot2(self):
-        """Plot of bias as a function of snr with fixed size (hlr)."""
+        """Plot of bias*(snr_nrom/snr)**2 as a function of snr with fixed size (hlr)."""
         steps = 5
         snr_range = (20, 60)
         snrs = np.linspace(snr_range[0], snr_range[1], steps)
         figure = plt.figure()
-        figure.suptitle('Plot of bias as a function of snr')
+        figure.suptitle('Plot of bias*(snr_nrom/snr)**2 as a function of snr')
         id_params = copy.deepcopy(self.fish.g_parameters.id_params)
         for i in range(self.num_params):
             param = self.param_names[i]
-            biases = []
-            sigmas = []
-            bias_sigmas = []
+            ys = []
             if self.num_params % 2 == 0:
                 ax = figure.add_subplot(2, self.num_params / 2, i + 1)
             else:
@@ -428,57 +426,57 @@ class FisherPlots(object):
                 g_parameters = galfun.GParameters(id_params=id_params)
                 fish = fisher.Fisher(g_parameters, snr)
                 bias = fish.biases[param]
-                sigma = math.sqrt(fish.covariance_matrix[param, param])
-                biases.append(bias)
-                sigmas.append(sigma)
-                bias_sigma = bias / sigma
-                bias_sigmas.append(bias_sigma)
+                y = bias * (defaults.SNR_NORM/snr)**2
+                ys.append(y)
 
-            if self.bias_sigma:
-                ax.errorbar(snrs, bias_sigmas)
-            elif self.error_bars:
-                ax.errorbar(snrs, biases, yerr=sigmas)
-            else:
-                ax.errorbar(snrs, biases)
+            ax.errorbar(snrs, ys)
             ax.set_title(param, fontsize=defaults.FONTSIZE_LABEL)
 
         saveFigureToPdf(figure, self.nameImages(),
                         self.project, self.plots_dir, hide=self.hide)
 
     def biasPlot3(self):
-        """Plot of bias*snr2 as a function of hlr/psf_fwhm with a fixed snr."""
-        steps = 10
+        """Plot of bias*(snr_norm/snr)**2 as a function of hlr/psf_fwhm with a fixed snr."""
+        steps = 20
         x_range = (.2, 1.5)  # x = hlr_gal / psf_fwhm
         xs = np.linspace(x_range[0], x_range[1], steps)
         figure = plt.figure()
-        figure.suptitle('Plot of bias*snr2 as a function of hlr/psf_fwhm')
+        figure.suptitle('Plot of bias*(snr_norm/snr)**2 as a'
+                        'function of hlr/psf_fwhm')
         id_params = copy.deepcopy(self.fish.g_parameters.id_params)
         snr = self.fish.snr
+        ys = {} # y= bias*snr2
+        for x in xs:
+            gal_id = id_params.keys()[0]
+            hlr = x * id_params[gal_id]['psf_fwhm']
+            id_params[gal_id]['hlr'] = hlr
+            g_parameters = galfun.GParameters(id_params=id_params)
+            fish = fisher.Fisher(g_parameters, snr)
+            biases = fish.biases
+            for i in range(self.num_params):
+                param = self.param_names[i]
+                if param not in ys:
+                    ys[param] = []
+                bias = biases[param]
+                y = bias * (defaults.SNR_NORM/snr)**2
+                ys[param].append(y)
+
         for i in range(self.num_params):
-            param = self.param_names[i]
-            ys = []  # y= bias*snr2
             if self.num_params % 2 == 0:
                 ax = figure.add_subplot(2, self.num_params / 2, i + 1)
             else:
                 ax = figure.add_subplot(2, self.num_params / 2 + 1, i + 1)
-            for x in xs:
-                gal_id = id_params.keys()[0]
-                hlr = x * id_params[gal_id]['psf_fwhm']
-                id_params[gal_id]['hlr'] = hlr
-                g_parameters = galfun.GParameters(id_params=id_params)
-                fish = fisher.Fisher(g_parameters, snr)
-                bias = fish.biases[param]
-                y = bias * snr ** 2
-                ys.append(y)
-
-            ax.errorbar(xs, ys)
-
+            param = self.param_names[i]
+            ax.errorbar(xs, ys[param])
             ax.set_title(param, fontsize=defaults.FONTSIZE_LABEL)
 
         saveFigureToPdf(figure, self.nameImages(),
                         self.project, self.plots_dir, hide=self.hide)
 
     def biasPlot4(self):
+        pass
+
+    def biasPlot5(self):
         hrange = (.9, 1.2)  # arcsecs
         steps = 4  # how many step from initial separation to final separation.
         figure = plt.figure()
@@ -513,7 +511,7 @@ class FisherPlots(object):
         saveFigureToPdf(figure, self.nameImages(),
                         self.project, self.plots_dir, hide=self.hide)
 
-    def biasPlot5(self):
+    def biasPlot6(self):
         """Must parametrize at least one galaxy with e/beta. Assume also
         that at least one of the galaxies is non-circular (first galaxy
         given).
@@ -550,7 +548,7 @@ class FisherPlots(object):
         saveFigureToPdf(figure, self.nameImages(),
                         self.project, self.plots_dir, hide=self.hide)
 
-    def biasPlot6(self):
+    def biasPlot7(self):
         vsteps = 10
         hsteps = 10
         hrange = (0, math.pi)

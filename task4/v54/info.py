@@ -4,7 +4,30 @@ import os
 
 class Info:
     """Contains what is written in the information text file and printed out
-    with verbose option.
+    with verbose option in the interface files.
+
+
+    The :class:`Info` object will contain different information depending on
+    the different parameters that are passed to it. All of its attributes are
+    list of strings that are printed in a format specified when the object is
+    created.
+
+        Args:
+            g_parameters(:class:`GParameters`): Object that contains the
+                                                relevant information of the
+                                                parameters of the galaxies
+                                                used.
+            fish(:class:`Fisher`): Object containing the results of the
+                                   different fisher analysis done over the
+                                   specified galaxies.
+            number_fits(int): Number of fits done if a
+
+
+        Attributes:
+
+
+        Returns:
+            A galsim.Image object.
     """
 
     def __init__(self, g_parameters, fish=None, number_fits=None,

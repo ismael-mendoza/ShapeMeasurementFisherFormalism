@@ -87,23 +87,29 @@ def main():
                              'and varying size.')
 
     parser.add_argument('--bplot2', action='store_true',
-                        help='Plot the bias of a given galaxy for a fixed snr'
-                             'and varying size, no error bars.')
+                        help='Plot the bias*snr2 of a given galaxy for'
+                             'varying snr, keeping sized fixed.')
 
     parser.add_argument('--bplot3', action='store_true',
-                        help='Plot the bias/sigma of a given galaxy for a'
-                        'fixed snr and varying size.')
+                        help='Plot the bias*(snr_norm/snr)**2 of a given'
+                        'galaxy as a function of gal_hlr/psf_fwhm.')
 
     parser.add_argument('--bplot4', action='store_true',
+                            help='Plot the bias/sigma of a given galaxy for a'
+                            'fixed snr and varying size.')
+
+    parser.add_argument('--bplot5', action='store_true',
                         help='Vary distance between two given galaxies and'
                         'plot their bias.')
 
-    parser.add_argument('--bplot5', action='store_true',
+    parser.add_argument('--bplot6', action='store_true',
                         help='Vary the beta of a galaxy (keeping e fixed) and'
                         'plot bias.')
 
-    parser.add_argument('--bplot6', action='store_true',
-                        help='Keep ellipticies of galaxies fixed but change their relative orientation while plotting their bias in a color map.')
+    parser.add_argument('--bplot7', action='store_true',
+                        help='Keep ellipticies of galaxies fixed but change'
+                        'their relative orientation while plotting their bias'
+                        'in a color map.')
 
     args = parser.parse_args()
 
@@ -150,22 +156,23 @@ def main():
             fisherplots.biasPlot2()
         if args.bplot3:
             fisherplots.biasPlot3()
-
+        if args.bplot4:
+            pass
     else:
-        if args.bplot1 or args.bplot2 or args.bplot3:
+        if args.bplot1 or args.bplot2 or args.bplot3 or args.bplot4:
             raise ValueError(
-                'The bias plots 1,2,3 only work with an individual galaxy.')
+                'The bias plots 1,2,3,4 only work with an individual galaxy.')
 
     if g_parameters.num_galaxies == 2:
-        if args.bplot4:
-            fisherplots.biasPlot4()
         if args.bplot5:
             fisherplots.biasPlot5()
         if args.bplot6:
             fisherplots.biasPlot6()
+        if args.bplot7:
+            fisherplots.biasPlot7()
     else:
-        if args.bplot4 or args.bplot5 or args.bplot6:
-            raise ValueError('The bias plot 4,5,6 only work when you have'
+        if args.bplot5 or args.bplot6 or args.bplot7:
+            raise ValueError('The bias plot 5,6,7 only work when you have'
                              'exactly two galaxies specified in your file.')
 
     information = info.Info(g_parameters, fish)
