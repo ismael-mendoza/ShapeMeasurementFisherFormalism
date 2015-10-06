@@ -685,50 +685,50 @@ class Plots(object):
         saveFigureToPdf(figure, self.nameImages(),
                                 self.project, self.plots_dir, hide=self.hide)
 
-        def plotConditionNumber1(self):
-            """Plot condition number of fisher matrix as a function of
-            separation between the galaxies.
-            """
-
-            separation_range = (.0, 3.0)  # arcsecs.
-            steps = 50
-            figure = plt.figure(figsize=(50, 50))
-            figure.suptitle('Condition Number as a function of distance'
-                            'between two galaxies')
-            id_params = copy.deepcopy(self.fish.g_parameters.id_params)
-            snr = self.fish.snr
-            separations = np.linspace(separation_range[0], separation_range[1],
-                                      steps)
-            condition_numbers = {}
-            for separation in separations:
-                pos1 = separation / 2
-                pos2 = -separation / 2
-                ids = id_params.keys()
-                id1 = ids[0]
-                id2 = ids[1]
-                id_params[id1]['x0'] = pos1
-                id_params[id2]['x0'] = pos2
-                g_parameters = galfun.GParameters(id_params=id_params)
-                fish = fisher.Fisher(g_parameters, snr)
-                for i in range(self.num_params):
-                    param = self.param_names[i]
-                    if param not in values:
-                        biases[param] = []
-
-
-                for i in range(self.num_params):
-                    param = self.param_names[i]
-                    ax = figure.add_subplot(2, self.num_params / 2,
-                                            i + 1)
-                    ax.scatter(separations, biases[param])
-                    ax.errorbar(separations, biases[param])
-                    #ax.set_title(titles[i], fontsize=14)
-                    ax.set_xlabel(x_titles[i], fontsize=30)
-                    ax.set_ylabel(y_titles[i], fontsize=30)
-                    ax.tick_params(labelsize=22)
-                    #scientic notation force.
-                    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,
-                    0))
+        # def plotConditionNumber1(self):
+        #     """Plot condition number of fisher matrix as a function of
+        #     separation between the galaxies.
+        #     """
+        #
+        #     separation_range = (.0, 3.0)  # arcsecs.
+        #     steps = 50
+        #     figure = plt.figure(figsize=(50, 50))
+        #     figure.suptitle('Condition Number as a function of distance'
+        #                     'between two galaxies')
+        #     id_params = copy.deepcopy(self.fish.g_parameters.id_params)
+        #     snr = self.fish.snr
+        #     separations = np.linspace(separation_range[0], separation_range[1],
+        #                               steps)
+        #     condition_numbers = {}
+        #     for separation in separations:
+        #         pos1 = separation / 2
+        #         pos2 = -separation / 2
+        #         ids = id_params.keys()
+        #         id1 = ids[0]
+        #         id2 = ids[1]
+        #         id_params[id1]['x0'] = pos1
+        #         id_params[id2]['x0'] = pos2
+        #         g_parameters = galfun.GParameters(id_params=id_params)
+        #         fish = fisher.Fisher(g_parameters, snr)
+        #         for i in range(self.num_params):
+        #             param = self.param_names[i]
+        #             if param not in values:
+        #                 biases[param] = []
+        #
+        #
+        #         for i in range(self.num_params):
+        #             param = self.param_names[i]
+        #             ax = figure.add_subplot(2, self.num_params / 2,
+        #                                     i + 1)
+        #             ax.scatter(separations, biases[param])
+        #             ax.errorbar(separations, biases[param])
+        #             #ax.set_title(titles[i], fontsize=14)
+        #             ax.set_xlabel(x_titles[i], fontsize=30)
+        #             ax.set_ylabel(y_titles[i], fontsize=30)
+        #             ax.tick_params(labelsize=22)
+        #             #scientic notation force.
+        #             ax.ticklabel_format(style='sci', axis='y', scilimits=(0,
+        #             0))
 
 
     def noisy_image(self):

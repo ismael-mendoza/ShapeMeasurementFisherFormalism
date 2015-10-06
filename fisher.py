@@ -225,3 +225,11 @@ class Fisher(object):
     def fisherConditionNumber(self):
         fisher_array = self.matrixToNumpyArray(self.fisher_matrix)
         return np.linalg.cond(fisher_array)
+
+
+    def biasShear(self, g):
+        """Returns the value of the bias of the given lensing shear for the
+        particular galaxy analyzed by using the ring test. Only works with
+        a single galaxy profile. 
+        """
+        pass

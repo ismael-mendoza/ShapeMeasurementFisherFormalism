@@ -209,6 +209,19 @@ def addNoise(image, snr, noise_seed=0):
                                              preserve_flux=True)
     return noisy_image, variance_noise
 
+def shearEllipticity(g,e1,e2):
+    """Changes given ellipticity to a sheared ellpticity according to the
+    formula (14) of paper: http://arxiv.org/abs/1409.6273.
+    Ellipticity should be given by inputting the two components.
+    Returns both sheared components of ellpicity.
+    Assumes g is real.
+    """
+    #Calculations done by hand.
+    denominator = (e1**2 + e2**2)*g
+    e1_s = ((e1+g)*e1 + (e2)**2)/denominator
+    e2_s = (e1*e2 - e2*(e1+g1))/denominator
+    return e1_s,e2_s
+
 
 class GParameters(object):
 
