@@ -49,12 +49,12 @@ def shearEllipticity(g,e1,e2):
     formula (14) of paper: http://arxiv.org/abs/1409.6273.
     Ellipticity should be given by inputting the two components.
     Returns both sheared components of ellpicity.
-    Assumes g is real.
+    Assumes g is real. So that g1=g and g2=0
     """
     #Calculations done by hand.
-    denominator = (e1**2 + e2**2)*g
+    denominator = 1 + (e1**2 + e2**2)*g
     e1_s = ((e1+g)*e1 + (e2)**2)/denominator
-    e2_s = (e1*e2 - e2*(e1+g1))/denominator
+    e2_s = (e1*e2 - e2*(e1+g))/denominator
     return e1_s,e2_s
 
 def ringTest(fish, g):
@@ -71,8 +71,8 @@ def ringTest(fish, g):
     snr = fish.snr
     angles = np.linspace(angle_range[0], angle_range[1], steps)
     biases_e1 = []
-    orig_e1 = id_params['e1']
-    orig_e2 = id_params['e2']
+    orig_e1 = id_params[id1]['e1']
+    orig_e2 = id_params[id1]['e2']
     e = math.sqrt(orig_e1**2 + orig_e2**2) #unsheared ellipticity
     for angle in angles:
         e1 = e*math.cos(angle) #get unsheared components for this angle.
@@ -81,7 +81,7 @@ def ringTest(fish, g):
         id_params[id1]['e1'] = e1_s
         id_params[id1]['e2'] = e2_s
         g_parameters = galfun.GParameters(id_params=id_params)
-        fish = fisher.Fisher(g_parameters, snr)
+        fish = Fisher(g_parameters, snr)
         biases_e1.append(fish.biases['e1'+'_'+id1])
 
     return np.mean(biases_e1) #return bias on g.

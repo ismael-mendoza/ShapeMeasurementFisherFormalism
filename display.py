@@ -112,7 +112,7 @@ def main():
                         help='Print the condition number of the Fisher'
                              'Matrix.')
 
-    parser.add_argument('--ring_test', type=float,
+    parser.add_argument('--ring_test', type=float, metavar='SHEAR',
                         help='Print the bias of the given shear g using'
                               'a ring test on the provided single galaxy.')
 
