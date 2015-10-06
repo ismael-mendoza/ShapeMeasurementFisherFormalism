@@ -112,6 +112,10 @@ def main():
                         help='Print the condition number of the Fisher'
                              'Matrix.')
 
+    parser.add_argument('--ring_test', type=float,
+                        help='Print the bias of the given shear g using'
+                              'a ring test on the provided single galaxy.')
+
 
     args = parser.parse_args()
 
@@ -181,7 +185,8 @@ def main():
         plots.noisy_image()
     if args.condition_number:
         print fish.fisher_condition_number
-
+    if args.ring_test:
+        print fisher.ringTest(fish, args.ring_test)
 
     information = info.Info(g_parameters, fish)
     information.writeInfo(args.project)

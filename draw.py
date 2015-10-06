@@ -585,7 +585,9 @@ class Plots(object):
     def biasPlot6(self):
         """Must parametrize at least one galaxy with e/beta. Assume also
         that at least one of the galaxies is non-circular (first galaxy
-        given has e1,e2 different from zero).
+        given has e1,e2 different from zero). This plots the bias between
+        an unchanged galaxy and an elliptical galaxy that is rotating as a
+        function of the rotation angle.  
         """
         angle_range = (0, math.pi)
         steps = 30
