@@ -44,18 +44,15 @@ def secondPartialDifferentiate(func, param1, param2, steps, **kwargs):
     Df = partialDifferentiate(func, param1, steps, **kwargs)
     return partialDifferentiate(Df, param2, steps)
 
-def shearEllipticity(g,e1,e2):
+def shearEllipticity(g, e):
     """Changes given ellipticity to a sheared ellpticity according to the
     formula (14) of paper: http://arxiv.org/abs/1409.6273.
     Ellipticity should be given by inputting the two components.
     Returns both sheared components of ellpicity.
-    Assumes g is real. So that g1=g and g2=0
+    Uses complex numbers.
     """
-    #Calculations done by hand.
-    denominator = 1 + (e1**2 + e2**2)*g
-    e1_s = ((e1+g)*e1 + (e2)**2)/denominator
-    e2_s = (e1*e2 - e2*(e1+g))/denominator
-    return e1_s,e2_s
+    e_s = (e + g)/(1 + g.conjugate()*e)
+    return e_s
 
 def ringTest(fish, g):
     """Returns the value of the bias of the given lensing shear for the
@@ -64,28 +61,41 @@ def ringTest(fish, g):
     Assume galaxy is parametrized with e1,e2.
     """
     angle_range = (0, 2*math.pi)
-    steps = 6 #need only 6 points on the ring.
+    steps = 6 #6 points on the ring.
     id_params = copy.deepcopy(fish.g_parameters.id_params)
     ids = id_params.keys()
     id1 = ids[0]
     snr = fish.snr
     angles = np.linspace(angle_range[0], angle_range[1], steps)
-    biases_e1 = []
+    ellipticities_s = [] #for sanity check.
+    biases = []
     orig_e1 = id_params[id1]['e1']
     orig_e2 = id_params[id1]['e2']
-    e = math.sqrt(orig_e1**2 + orig_e2**2) #unsheared ellipticity
+    orig_e = complex(orig_e1,orig_e2) #unsheared ellipticity
     for angle in angles:
-        e1 = e*math.cos(angle) #get unsheared components for this angle.
-        e2 = e*math.sin(angle)
-        e1_s, e2_s = shearEllipticity(g, e1, e2) #get sheared components
-        id_params[id1]['e1'] = e1_s
-        id_params[id1]['e2'] = e2_s
+        e = complex(abs(orig_e)*math.cos(angle)+abs(orig_e)*math.sin(angle))
+        e_s = shearEllipticity(g, e) #get sheared components
+        id_params[id1]['e1'] = e_s.real
+        id_params[id1]['e2'] = e_s.imag
         g_parameters = galfun.GParameters(id_params=id_params)
         fish = Fisher(g_parameters, snr)
-        biases_e1.append(fish.biases['e1'+'_'+id1])
+        bias = complex(fish.biases['e1_'+id1],fish.biases['e2_'+id1])
+        ellipticities_s.append(e_s)
+        biases.append(bias)
 
-    return np.mean(biases_e1) #return bias on g.
+    #sanity check.
+    assert np.mean(ellipticities_s)==g, ('Average of sheared ellipticities is
+                                        'not shear')
 
+    #return bias(g) which is average of ellipticity bias
+    return np.mean(biases)
+
+#####do sanity check <apparent_ellipticty> = g.
+
+####calculate multiplicative bias and additive bias , g= .0001, g=.001, g=.02
+
+##check if b=mg+c vs. g is linear, Do it as a vector equation for each of the
+#components.
 
 class Fisher(object):
     """Produce fisher object(containing fisher analysis) for a given set of
