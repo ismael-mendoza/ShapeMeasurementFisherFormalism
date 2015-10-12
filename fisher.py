@@ -73,20 +73,22 @@ def ringTest(fish, g):
     orig_e2 = id_params[id1]['e2']
     orig_e = complex(orig_e1,orig_e2) #unsheared ellipticity
     for angle in angles:
-        e = complex(abs(orig_e)*math.cos(angle)+abs(orig_e)*math.sin(angle))
+        e = complex(abs(orig_e)*math.cos(angle),abs(orig_e)*math.sin(angle))
         e_s = shearEllipticity(g, e) #get sheared components
+        ellipticities_s.append(e_s)
+
         id_params[id1]['e1'] = e_s.real
         id_params[id1]['e2'] = e_s.imag
         g_parameters = galfun.GParameters(id_params=id_params)
         fish = Fisher(g_parameters, snr)
         bias = complex(fish.biases['e1_'+id1],fish.biases['e2_'+id1])
-        ellipticities_s.append(e_s)
         biases.append(bias)
 
     #sanity check.
-    assert np.mean(ellipticities_s)==g, ('Average of sheared ellipticities is
-                                        'not shear')
-
+    # assert np.mean(ellipticities_s)==g, ('Average of sheared ellipticities is'
+    #                                      ' not shear.')
+    print g
+    print np.mean(ellipticities_s)
     #return bias(g) which is average of ellipticity bias
     return np.mean(biases)
 
