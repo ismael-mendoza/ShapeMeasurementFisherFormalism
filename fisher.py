@@ -61,12 +61,13 @@ def ringTest(fish, g):
     Assume galaxy is parametrized with e1,e2.
     """
     angle_range = (0, 2*math.pi)
-    steps = 6 #6 points on the ring.
+    steps = 7 #6 points on the ring. excluding theta=2pi
     id_params = copy.deepcopy(fish.g_parameters.id_params)
     ids = id_params.keys()
     id1 = ids[0]
     snr = fish.snr
-    angles = np.linspace(angle_range[0], angle_range[1], steps)
+    angles = list(np.linspace(angle_range[0], angle_range[1], steps))
+    angles.pop() #remove 2pi angle redundancy.
     ellipticities_s = [] #for sanity check.
     biases = []
     orig_e1 = id_params[id1]['e1']
@@ -85,10 +86,8 @@ def ringTest(fish, g):
         biases.append(bias)
 
     #sanity check.
-    # assert np.mean(ellipticities_s)==g, ('Average of sheared ellipticities is'
-    #                                      ' not shear.')
-    print g
     print np.mean(ellipticities_s)
+
     #return bias(g) which is average of ellipticity bias
     return np.mean(biases)
 
