@@ -42,7 +42,8 @@ def drawGalaxy(params):
         elif 'sigma' in params:
             gal = galsim.Gaussian(flux=params['flux'], sigma=params['sigma'])
 
-    else: raise ValueError('Did not specify the size.')
+        else:
+            raise ValueError('Did not specify the size.')
 
     elif params['galaxy_model'] == 'exponential':
         gal = galsim.Exponential(
