@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 """This program allows the user to display various statistical results (like
 plots) for the galaxies generated in generate.py
@@ -19,8 +18,7 @@ import info
 
 def main():
     parser = argparse.ArgumentParser(description=(
-        'Display different results and plots from the galaxies in a given'
-        'file.'), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        'Display different results fisher results for a galaxy.'), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-p', '--project', default=defaults.PROJECT,
                         type=str,
@@ -112,7 +110,7 @@ def main():
                         help='Print the condition number of the Fisher'
                              'Matrix.')
 
-    parser.add_argument('--ring_test', type=complex, metavar='SHEAR',
+    parser.add_argument('--ring_test', action='store_true',
                         help='Print the bias of the given shear g using'
                               'a ring test on the provided single galaxy.')
 
@@ -186,7 +184,7 @@ def main():
     if args.condition_number:
         print fish.fisher_condition_number
     if args.ring_test:
-        print fisher.ringTest(fish, args.ring_test)
+        fisher.getMultAddBias(fish)
 
     information = info.Info(g_parameters, fish)
     information.writeInfo(args.project)

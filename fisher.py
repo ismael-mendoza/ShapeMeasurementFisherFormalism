@@ -13,6 +13,7 @@ import galfun
 
 import defaults
 
+import scipy.optimize as scipyopt
 
 
 
@@ -54,7 +55,10 @@ def shearEllipticity(g, e):
     e_s = (e + g)/(1 + g.conjugate()*e)
     return e_s
 
-def ringTest(fish, g):
+def residual_shear(x, m, a):
+    return m*x + a
+
+def shearBias(fish, g):
     """Returns the value of the bias of the given lensing shear for the
     particular galaxy analyzed by using the ring test. Only works with
     a single galaxy profile.
@@ -86,12 +90,10 @@ def ringTest(fish, g):
         biases.append(bias)
 
     #sanity check.
-    print np.mean(ellipticities_s)
+    #print np.mean(ellipticities_s)
 
     #return bias(g) which is average of ellipticity bias
     return np.mean(biases)
-
-#####do sanity check <apparent_ellipticty> = g.
 
 ####calculate multiplicative bias and additive bias , g= .0001, g=.001, g=.02
 
