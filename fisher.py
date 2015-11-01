@@ -15,8 +15,6 @@ import defaults
 
 import scipy.optimize as scipyopt
 
-
-
 def partialDifferentiate(func, param, steps, **kwargs):
     """Partially derive f with respect to param with a certain step.
 
@@ -45,60 +43,6 @@ def secondPartialDifferentiate(func, param1, param2, steps, **kwargs):
     Df = partialDifferentiate(func, param1, steps, **kwargs)
     return partialDifferentiate(Df, param2, steps)
 
-def shearEllipticity(g, e):
-    """Changes given ellipticity to a sheared ellpticity according to the
-    formula (14) of paper: http://arxiv.org/abs/1409.6273.
-    Ellipticity should be given by inputting the two components.
-    Returns both sheared components of ellpicity.
-    Uses complex numbers.
-    """
-    e_s = (e + g)/(1 + g.conjugate()*e)
-    return e_s
-
-def residual_shear(x, m, a):
-    return m*x + a
-
-def shearBias(fish, g):
-    """Returns the value of the bias of the given lensing shear for the
-    particular galaxy analyzed by using the ring test. Only works with
-    a single galaxy profile.
-    Assume galaxy is parametrized with e1,e2.
-    """
-    angle_range = (0, 2*math.pi)
-    steps = 7 #6 points on the ring. excluding theta=2pi
-    id_params = copy.deepcopy(fish.g_parameters.id_params)
-    ids = id_params.keys()
-    id1 = ids[0]
-    snr = fish.snr
-    angles = list(np.linspace(angle_range[0], angle_range[1], steps))
-    angles.pop() #remove 2pi angle redundancy.
-    ellipticities_s = [] #for sanity check.
-    biases = []
-    orig_e1 = id_params[id1]['e1']
-    orig_e2 = id_params[id1]['e2']
-    orig_e = complex(orig_e1,orig_e2) #unsheared ellipticity
-    for angle in angles:
-        e = complex(abs(orig_e)*math.cos(angle),abs(orig_e)*math.sin(angle))
-        e_s = shearEllipticity(g, e) #get sheared components
-        ellipticities_s.append(e_s)
-
-        id_params[id1]['e1'] = e_s.real
-        id_params[id1]['e2'] = e_s.imag
-        g_parameters = galfun.GParameters(id_params=id_params)
-        fish = Fisher(g_parameters, snr)
-        bias = complex(fish.biases['e1_'+id1],fish.biases['e2_'+id1])
-        biases.append(bias)
-
-    #sanity check.
-    #print np.mean(ellipticities_s)
-
-    #return bias(g) which is average of ellipticity bias
-    return np.mean(biases)
-
-####calculate multiplicative bias and additive bias , g= .0001, g=.001, g=.02
-
-##check if b=mg+c vs. g is linear, Do it as a vector equation for each of the
-#components.
 
 class Fisher(object):
     """Produce fisher object(containing fisher analysis) for a given set of

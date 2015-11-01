@@ -1,8 +1,8 @@
 """Define names of different parameters and models used throughout the
-package
+package.
 """
 
-extra = ['id', 'galaxy_model', 'psf_model']
+
 
 gal_models_parameters = dict()
 gal_models_parameters['gaussian'] = [

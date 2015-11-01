@@ -12,6 +12,11 @@ import shutil
 
 import names
 
+import galfun
+
+import fisher
+
+import info
 
 def csvIsEmpty(filename):
     """Check if a given csv file is empty by making sure each of the rows in
@@ -53,6 +58,10 @@ def main():
     parser.add_argument('--psf_model',
                         type=str, choices=names.psf_models,
                         help='Change the psf model.')
+
+    parser.add_argument('--snr', type=float,
+                        help='Value of noise bias (standard deviation). If'
+                        'given a info file with fisher analysis is created.')
 
     # add all parameter arguments to the parser.
     for name in names.parameters:
@@ -100,6 +109,14 @@ def main():
                 writer.writerow(row_to_write)
 
         os.remove(tempname)
+
+
+    if(args.snr):
+        g_parameters = galfun.GParameters(args.project)
+        fish = fisher.Fisher(g_parameters=g_parameters, snr=float(args.snr))
+        information = info.Info(g_parameters, fish)
+        information.writeInfo(args.project)
+
 
 if __name__ == '__main__':
     main()

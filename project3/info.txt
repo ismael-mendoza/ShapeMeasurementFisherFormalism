@@ -7,12 +7,13 @@ Galaxies drawn have the following parameters:
 x0_1: 0.0
 psf_fwhm_1: 0.7
 hlr_1: 0.5
-e2_1: 0.0
-galaxy_model_1: gaussian
+e2_1: 0.2
+galaxy_model_1: exponential
 psf_flux_1: 1.0
 flux_1: 1.0
+psf_beta_1: 3.0
 e1_1: 0.2
-psf_model_1: gaussian
+psf_model_1: moffat
 y0_1: 0.0
 the results were produced with:
 /Users/Ismael/code/research/repo
@@ -28,4 +29,4 @@ e1_1: 0.01
 y0_1: 0.01
 
 Condition number of Fisher Matrix:
-35.9698384014
+40.8844922983
