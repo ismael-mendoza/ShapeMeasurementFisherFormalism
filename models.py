@@ -1,12 +1,16 @@
 import galsim
 
 
-extra = ['id', 'galaxy_model', 'psf_model']
 
+def getExtra():
+    return ['id', 'galaxy_model', 'psf_model']
 
 
 ###doubts,
 #how to initialize a subclass in python??
+
+
+
 
 
 def shearPsf(psf, params):
@@ -18,7 +22,6 @@ class model(object):
     def __init__(self):
         self.parameters = []
         self.omit_fit = []
-        self.profile = get_profile(params)
 
     def get_profile(self, params):
         pass
@@ -61,7 +64,6 @@ class gaussian(model):
             'eta1', 'eta2',
             'e', 'beta'
         ]
-
         self.omit_fit = []
 
 
@@ -80,9 +82,19 @@ class gaussian(model):
 class exponential(model):
 
     def __init__(self):
-        self.parameters = []
+        self.parameters = [
+            'x0', 'y0',
+
+            'flux',
+
+            'hlr',
+            'fwhm',
+            'sigma',
+
+            'e1', 'e2',
+            'eta1', 'eta2'
+        ]
         self.omit_fit = []
-        self.profile = get_profile(params)
 
     def get_profile(self, params):
     return galsim.Exponential(flux=params['flux'],
@@ -91,63 +103,126 @@ class exponential(model):
 
 class deVaucouleurs(model):
 
-    def __init__(self):
-        self.parameters = []
+    def __init__(self, params):
+        self.parameters = [
+            'x0', 'y0',
+
+            'flux',
+
+            'hlr',
+            'fwhm',
+            'sigma',
+
+            'e1', 'e2',
+            'eta1', 'eta2'
+        ]
         self.omit_fit = []
-        self.profile = get_profile(params)
 
     def get_profile(self, params):
         return galsim.DeVaucouleurs(half_light_radius=params['hlr'],
                                     flux=params['flux'])
 
+
 class bulgeDisk(model):
 
     def __init__(self):
-        self.parameters = []
+        self.parameters = [
+        'x0', 'y0',
+
+        'flux_b', 'flux_d', 'flux_b/flux_total',
+
+        'hlr_d', 'hlr_b', 'R_r',
+
+        'e1', 'e2',
+        'eta1', 'eta2',
+
+        'delta_e', 'delta_theta',
+
+        'n_d', 'n_b'
+    ]
+
         self.omit_fit = []
-        self.profile = get_profile(params)
+
+    def get_profile(self, params):
+        if 'flux_b' and 'flux_d' in params:
+            flux_b = params['flux_b']
+            flux_d = params['flux_d']
+
+        elif 'flux_b' and 'flux_b/flux_total' in params:
+            raise NotImplementedError('Need to implement flux_b/flux_total')
+
+        if 'hlr_b' and 'hlr_d' in params:
+            hlr_d = params['hlr_d']
+            hlr_b = params['hlr_b']
+
+        if 'hlr_d' and 'R_r' in params:
+            hlr_d = params['hlr_d']
+            hlr_b = params['R_r'] * hlr_d
+
+        bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr_b,
+                              flux=flux_b)
+
+        disk = galsim.Sersic(n=params['n_d'], half_light_radius=hlr_d,
+                             flux=flux_d)
+
+        if 'delta_e' in params or 'delta_theta' in params:
+            raise NotImplementedError('Need to implement delta_e or '
+                                      'delta_theta.')
+
+        return (bulge+disk)
+
+class psf_model(object):
+
+    def __init__(self):
+        self.parameters = []
 
     def get_profile(self, params):
         pass
 
+class psf_gaussian(psf_model):
+    def __init__(self):
+        self.parameters = [
+            'psf_flux',
 
+            'psf_fwhm',
 
-def gaussianProfile(params):
+            'psf_e1', 'psf_e2'
+        ]
 
+    def get_profile(self, params):
+        if 'psf_hlr' in params:
+            psf = galsim.Gaussian(
+                flux=params['psf_flux'],
+                half_light_radius=params['psf_hlr'])
 
+        elif 'psf_sigma' in params:
+            psf = galsim.Gaussian(flux=params['psf_flux'],
+                                  sigma=params['psf_sigma'])
+        elif 'psf_fwhm' in params:
+            psf = galsim.Gaussian(flux=params['psf_flux'],
+                                  fwhm=params['psf_fwhm'])
+        else:
+            raise ValueError('Size of PSF was not specified.')
+        return psf
 
-def exponentialProfile(params):
+class psf_moffat(psf_model):
 
-def deVaucouleursProfile(params):
+    def __init__(self):
+        self.parameters = [
+            'psf_flux',
 
+           'psf_fwhm',
 
-def bulgeDiskProfile(params):
-    if 'flux_b' and 'flux_d' in params:
-        flux_b = params['flux_b']
-        flux_d = params['flux_d']
+           'psf_beta',
 
-    elif 'flux_b' and 'flux_b/flux_total' in params:
-        raise NotImplementedError('Need to implement flux_b/flux_total')
+           'psf_e1', 'psf_e2'
+        ]
 
-    if 'hlr_b' and 'hlr_d' in params:
-        hlr_d = params['hlr_d']
-        hlr_b = params['hlr_b']
+    def get_profile(self, params):
+    return galsim.Moffat(beta=params['psf_beta'],
+                         fwhm=params['psf_fwhm'],
+                         flux=params['psf_flux'])
 
-    if 'hlr_d' and 'R_r' in params:
-        hlr_d = params['hlr_d']
-        hlr_b = params['R_r'] * hlr_d
-
-    bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr_b,
-                          flux=flux_b)
-
-    disk = galsim.Sersic(n=params['n_d'], half_light_radius=hlr_d,
-                         flux=flux_d)
-
-    if 'delta_e' in params or 'delta_theta' in params:
-        raise NotImplementedError('Need to implement delta_e or '
-                                  'delta_theta.')
-
-    return (bulge+disk)
 
 def psfProfile(params):
     # each psf model.
@@ -161,24 +236,10 @@ def psfProfile(params):
         raise ValueError('PSF model was not specified.')
 
 def gaussianPsfProfile(params):
-    if 'psf_hlr' in params:
-        psf = galsim.Gaussian(
-            flux=params['psf_flux'],
-            half_light_radius=params['psf_hlr'])
 
-    elif 'psf_sigma' in params:
-        psf = galsim.Gaussian(flux=params['psf_flux'],
-                              sigma=params['psf_sigma'])
-    elif 'psf_fwhm' in params:
-        psf = galsim.Gaussian(flux=params['psf_flux'],
-                              fwhm=params['psf_fwhm'])
-    else:
-        raise ValueError('Size of PSF was not specified.')
 
 def moffatPsfProfile(params):
-    psf = galsim.Moffat(beta=params['psf_beta'],
-                        fwhm=params['psf_fwhm'],
-                        flux=params['psf_flux'])
+
 
 
 
@@ -188,7 +249,7 @@ def get_model(params):
         return gaussianProfile(params)
 
 
-    elif params['galaxy_model'] == 'exponential':
+    elif params['galaxy_model'] == 'exp2onential':
         return exponentialProfile(params)
 
 
@@ -202,6 +263,29 @@ def get_model(params):
     else:
         raise ValueError('The galaxy model was not specified.')
 
+
+#iterate over all subclasses to get fieldnames.
+#instantiate each subclass and get self.parameters from each and add to
+#fieldnames.
+
+def getParameters():
+    gal_parameters = []
+    subclasses = [scls for scls in vars()['model'].__subclasses__()]
+    for cls in subclasses:
+        ojb = cls()
+        gal_parameters += obj.parameters
+    return gal_parameters
+
+def getPsfParameters():
+    pass
+
+
+def getFieldnames():
+    pass
+
+subclasses = [scls for scls in vars()['model'].__subclasses__()]
+for cls in subclasses:
+    cls
 
 def drawGalaxy(params):
     """Return the image of a single galaxy optionally drawn with a psf.
