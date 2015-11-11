@@ -68,8 +68,7 @@ gal_models_parameters['bulge+disk'] = [
 
 
 gal_models = gal_models_parameters.keys()
-gal_parameters = list(set(
-    [elt for sublist in gal_models_parameters.values() for elt in sublist]))
+}{}
 
 
 psf_models_parameters = dict()

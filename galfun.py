@@ -10,10 +10,48 @@ import galsim
 
 import copy
 
-import names
+import models
 
-import math
 
+#Todo - 
+# remove drawGalaxies returning two different things. Check if other functions have side effects,
+    #better to do only one thing. 
+#
+
+def drawGalaxy(params):
+    """Return the image of a single galaxy optionally drawn with a psf.
+
+    Look at the :mod:`names.py` to figure out which galaxy models and psf
+    models are supported as well as their corresponding implemented parameters.
+    This function uses galsim extensively to draw the different models.
+
+    Args:
+        params(dict): Dictionary containing the information of a single
+        galaxy where the keys is the name(str) of the parameter and the
+        values are the values of the parametes.
+
+    Returns:
+        A galsim.Image object.
+    """
+
+    gal_cls = models.getModelCls(params)
+    gal_model = gal_cls(params)
+
+    final = gal_model.gal
+
+    if params.get('psf_flux', 0) != 0:
+
+        if params.get('psf_flux', 1) != 1:
+            raise ValueError('I do not think you want a psf of flux not 1')
+
+        psf_cls = models.getPsfModelCls(params)
+        psf_model = psf_cls(params)
+
+        final = galsim.Convolve([final, psf_model.psf])
+
+    # Draw the image with a particular pixel scale, given in arcsec/pixel.
+    return final.drawImage(scale=defaults.PIXEL_SCALE, nx=defaults.NX,
+                           ny=defaults.NY)
 
 def drawGalaxies(fit_params=None, id_params=None, image=False,
                  g_parameters=None, **kwargs):
@@ -53,6 +91,7 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
 
     for gal_id in id_params:
         gals.append(drawGalaxy(id_params[gal_id]))
+    
     final = sum(gals)
 
     if image is False:
@@ -60,6 +99,19 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
     else:
         return final
 
+
+
+def getOmitFit(id_params):
+
+    omit_fit = {} 
+
+    for gal_id in id_params:
+        params = id_params[gal_id]
+        gal_cls = models.getModelCls(params)
+        gal_model = gal_cls(params)
+        omit_fit[params['galaxy_model']] = gal_model.omit_fit
+
+    return omit_fit
 
 def addNoise(image, snr, noise_seed=0):
     """Set gaussian noise to the given galsim.Image.
@@ -153,9 +205,9 @@ class GParameters(object):
                     except ValueError:
                         pass
 
-        self.omit_fit = names.omit_fit
         self.id_params = id_params
         self.params = GParameters.convertId_Params(self.id_params)
+        self.omit_fit = getOmitFit(id_params)
         self.fit_params = GParameters.convertId_Params(self.id_params,
                                                        self.omit_fit)
         self.nfit_params = self.getNFitParams()
@@ -180,7 +232,10 @@ class GParameters(object):
         param_names = []
         for gal_id in self.id_params:
             galaxy_model = self.id_params[gal_id]['galaxy_model']
-            for name in names.gal_models_parameters[galaxy_model]:
+            cls = models.getModelCls(self.id_params[gal_id])
+            gal_model = cls()
+            
+            for name in gal_model.parameters:
                 for param in self.id_params[gal_id]:
                     if param not in self.omit_fit.get(galaxy_model, []):
                         if param == name:

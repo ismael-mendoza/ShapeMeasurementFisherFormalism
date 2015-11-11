@@ -10,13 +10,13 @@ import csv
 
 import shutil
 
-import names
-
 import galfun
 
 import fisher
 
 import info
+
+import models 
 
 def csvIsEmpty(filename):
     """Check if a given csv file is empty by making sure each of the rows in
@@ -52,19 +52,19 @@ def main():
                               'file.'))
 
     parser.add_argument('--galaxy-model', required=True,
-                        type=str, choices=names.gal_models,
+                        type=str, choices=models.getAllModels(),
                         help='Change the galaxy\'s model.')
 
     parser.add_argument('--psf_model',
-                        type=str, choices=names.psf_models,
+                        type=str, choices=models.getAllPsfModels(),
                         help='Change the psf model.')
 
     parser.add_argument('--snr', type=float,
                         help='Value of noise bias (standard deviation). If'
-                        'given a info file with fisher analysis is created.')
+                        'given an info file with fisher analysis is created.')
 
     # add all parameter arguments to the parser.
-    for name in names.parameters:
+    for name in models.getAllParameters():
         parser.add_argument('--' + name, default=None,
                             type=float,
                             help='Add a value for the parameter ' + name + '.')
@@ -87,12 +87,12 @@ def main():
 
     # write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=names.fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=models.getFieldnames())
         args_dict = vars(args)
 
         # extract appropiate entries from dictionary of args.
         row_to_write = {k: v for (k, v) in args_dict.iteritems()
-                        if k in names.fieldnames}
+                        if k in models.getFieldnames()}
 
         if csvIsEmpty(tempname):
             writer.writeheader()
