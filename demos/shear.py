@@ -3,15 +3,10 @@ os.chdir("/Users/Ismael/code/research/repo/")
 
 import fisher
 import galfun
-import galsim
-import sys
 import copy
 import numpy as np
 import math
-import os
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import pylab
+
 
 def shearEllipticity(g, e):
     """Changes given ellipticity to a sheared ellpticity according to the
@@ -76,7 +71,6 @@ def biasesEllipticities(fish, g):
     for angle in angles:
         e = complex(abs(orig_e)*math.cos(angle),abs(orig_e)*math.sin(angle))
         e_s = shearEllipticity(g, e) #get sheared components
-        ellipticities_s.append(e_s)
         id_params[id1]['e1'] = e_s.real
         id_params[id1]['e2'] = e_s.imag
         g_parameters = galfun.GParameters(id_params=id_params)
@@ -105,10 +99,10 @@ def getMultAddBiasG1(fish):
         b = shearBias(fish, g)
         gs.append(g)
         bs.append(b)
-    gs_real = np.array([g.real for g in gs])
-    gs_imag = np.array([g.imag for g in gs])
-    bs_real = np.array([b.real for b in bs])
-    bs_imag = np.array([b.imag for b in bs])
+    gs_real = np.array([g_i.real for g_i in gs])
+    gs_imag = np.array([g_i.imag for g_i in gs])
+    bs_real = np.array([b_i.real for b_i in bs])
+    bs_imag = np.array([b_i.imag for b_i in bs])
     m1, c1 = np.polyfit(gs_real, bs_real,1)
     m2, c2 = np.polyfit(gs_imag, bs_imag, 1)
     return (m1, c1, m2, c2)
@@ -127,10 +121,10 @@ def getMultAddBiasG2(fish):
         b = shearBias(fish, g)
         gs.append(g)
         bs.append(b)
-    gs_real = np.array([g.real for g in gs])
-    gs_imag = np.array([g.imag for g in gs])
-    bs_real = np.array([b.real for b in bs])
-    bs_imag = np.array([b.imag for b in bs])
+    gs_real = np.array([g_i.real for g_i in gs])
+    gs_imag = np.array([g_i.imag for g_i in gs])
+    bs_real = np.array([b_i.real for b_i in bs])
+    bs_imag = np.array([b_i.imag for b_i in bs])
 
     m1, c1 = np.polyfit(gs_real, bs_real,1)
     m2, c2 = np.polyfit(gs_imag, bs_imag, 1)

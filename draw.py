@@ -7,18 +7,6 @@ import defaults
 
 import os
 
-import numpy as np
-
-import copy
-
-import galfun
-
-import fisher
-
-import math
-
-import galsim
-
 def annotateAxisCenter(ax, text):
     ax.text(.5, .5, text,
             ha='center', va='center', transform=ax.transAxes,
@@ -70,8 +58,7 @@ class Plots(object):
     display them.
     """
 
-    def __init__(self, fish, project, plots_dir, hide, error_bars,
-                 bias_sigma):
+    def __init__(self, fish, project, plots_dir, hide):
         self.fish = fish
         self.project = project
         self.plots_dir = plots_dir
@@ -79,8 +66,6 @@ class Plots(object):
         self.param_names = fish.param_names
         self.gal_image = fish.image
         self.hide = hide
-        self.error_bars = error_bars
-        self.bias_sigma = bias_sigma
 
         # delete plots_dir directory for nameImages to work if already there.
         if os.path.isdir(os.path.join(self.project, self.plots_dir)):
