@@ -1,6 +1,5 @@
 ###Todo-
-#how to initialize a subclass in python, to not copy paste self.__init__ in all models??
-#
+#change omit -> omit_fit for clarity? 
 
 import galsim
 
@@ -20,17 +19,22 @@ class model(object):
     parameters = []
     omit_general = [] #omit always for all instances. 
 
-    def __init__(self, params=None):
+    def __init__(self, params=None, params_omit=None):
 
+        self.omit_fit = self.getOmitFit()
+        
+        if(params_omit):
+            self.setOmitSpecific(params_omit)
         if(params):
-            self.omit_fit = self.getOmitFit()
             self.gal = self.getGal(params)
 
     def getOmitFit(self):
-        omit = list(set(getExtra() + getPsfParameters() + self.omit_general)) #remove redundancy. 
+        #remove redundancy. 
+        omit = list(set(getExtra() + getPsfParameters() + self.omit_general)) 
         return omit
 
-    #pass in a list if you want to omit specific parameters for that instance. 
+    #pass in a list if you want to omit specific parameters 
+    #for that instance. 
     def setOmitSpecific(self, params_omit):
         self.omit_fit = list(set(params_omit + self.omit_fit))
 
@@ -83,8 +87,8 @@ class gaussian(model):
     ]
     omit_general = []
 
-    def __init__(self, params=None):
-        model.__init__(self, params)
+    def __init__(self, params=None, params_omit=None):
+        model.__init__(self, params, params_omit)
 
     def getProfile(self, params):
         if 'flux' not in params:
@@ -117,8 +121,8 @@ class exponential(model):
     ]
     omit_general = []
     
-    def __init__(self, params=None):
-        model.__init__(self, params)
+    def __init__(self, params=None, params_omit=None):
+        model.__init__(self, params, params_omit)
 
 
     def getProfile(self, params):
@@ -144,8 +148,8 @@ class deVaucouleurs(model):
     omit_general = []
 
 
-    def __init__(self, params=None):
-        model.__init__(self, params)
+    def __init__(self, params=None, params_omit=None):
+        model.__init__(self, params, params_omit)
 
     def getProfile(self, params):
         return galsim.DeVaucouleurs(half_light_radius=params['hlr'],
@@ -169,10 +173,10 @@ class bulgeDisk(model):
     'n_d', 'n_b'
     ]
 
-    omit_general = []
+    omit_general = ['delta_e', 'delta_theta', 'n_d', 'n_b']
 
-    def __init__(self,params=None):
-        model.__init__(self, params)
+    def __init__(self, params=None, params_omit=None):
+        model.__init__(self, params, params_omit)
 
     def getProfile(self, params):
         if 'flux_b' in params and 'flux_d' in params:
@@ -205,6 +209,47 @@ class bulgeDisk(model):
         if 'delta_e' in params or 'delta_theta' in params:
             raise NotImplementedError('Need to implement delta_e or '
                                       'delta_theta.')
+
+        return (bulge+disk)
+
+class bulgeDisk6(model):
+
+    parameters = [
+    'x0', 'y0',
+
+    'flux',
+
+    'hlr',
+
+    'e1', 'e2',
+    'eta1', 'eta2',
+
+    'n_d', 'n_b'
+    ]
+
+    omit_general = ['n_d', 'n_b']
+
+    def __init__(self, params=None, params_omit=None):
+        model.__init__(self, params, params_omit)
+
+    def getProfile(self, params):
+        if 'flux' in params:
+            flux = params['flux']
+
+        else:
+            raise ValueError('Flux was not specified.')
+
+        if 'hlr' in params:
+            hlr = params['hlr']
+
+        else: 
+            raise ValueError('Size was not specified.')
+
+        bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr,
+                              flux=flux)
+
+        disk = galsim.Sersic(n=params['n_d'], half_light_radius=hlr,
+                             flux=flux)
 
         return (bulge+disk)
 
@@ -265,6 +310,7 @@ class psf_moffat(psf_model):
 
        'psf_e1', 'psf_e2'
     ]
+
     def __init__(self, params=None):
         psf_model.__init__(self, params)
 
@@ -275,7 +321,8 @@ class psf_moffat(psf_model):
 
 
 #iterate over all subclasses to get fieldnames.
-#instantiate each subclass and get self.parameters from each and add to fieldnames.
+#instantiate each subclass and get self.parameters from each and add to
+#fieldnames.
 def getGalParameters():
     gal_parameters = []
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
@@ -306,19 +353,19 @@ def getFieldnames():
 
 
 #return the corresponding class to the model specified in params
-def getModelCls(params):
+def getModelCls(model):
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
     for cls in subclasses:
-        if(cls.__name__ == params['galaxy_model']):
+        if(cls.__name__ == model):
             return cls
     raise NotImplementedError('Have not implemented that galaxy model')
 
 
 #return the corresponding psf class specified in params.
-def getPsfModelCls(params):
+def getPsfModelCls(model):
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
     for cls in subclasses:
-        if(cls.__name__ == params['psf_model']):
+        if(cls.__name__ == model):
             return cls
     raise NotImplementedError('Have not implemented that psf model')
 

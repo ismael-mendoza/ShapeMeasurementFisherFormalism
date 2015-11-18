@@ -13,8 +13,6 @@ import galfun
 
 import defaults
 
-import scipy.optimize as scipyopt
-
 def partialDifferentiate(func, param, steps, **kwargs):
     """Partially derive f with respect to param with a certain step.
 
@@ -43,7 +41,6 @@ def secondPartialDifferentiate(func, param1, param2, steps, **kwargs):
     Df = partialDifferentiate(func, param1, steps, **kwargs)
     return partialDifferentiate(Df, param2, steps)
 
-
 class Fisher(object):
     """Produce fisher object(containing fisher analysis) for a given set of
     galaxy parameters.
@@ -56,7 +53,7 @@ class Fisher(object):
     def __init__(self, g_parameters, snr):
         self.g_parameters = g_parameters
         self.snr = snr
-        self.image = galfun.drawGalaxies(g_parameters=self.g_parameters,
+        self.image = galfun.drawGalaxies(g_parameters=self.g_parameters, 
                                          image=True)
         _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
         self.steps = defaults.getSteps(self.g_parameters)

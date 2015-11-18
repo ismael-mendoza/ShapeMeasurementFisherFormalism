@@ -14,16 +14,19 @@ import models
 
 
 #Todo - 
-# remove drawGalaxies returning two different things. Check if other functions have side effects,
-    #better to do only one thing. 
-#
+# remove drawGalaxies returning two different things. 
+#Check if other functions have side effects,better to do only one thing. 
+#drawGalaxies and Gparameters have different ways of initializing them? 
+#confusing, better to only 
+#have one way? 
 
 def drawGalaxy(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
     Look at the :mod:`names.py` to figure out which galaxy models and psf
-    models are supported as well as their corresponding implemented parameters.
-    This function uses galsim extensively to draw the different models.
+    models are supported as well as their corresponding implemented 
+    parameters. This function uses galsim extensively to draw the different 
+    models.
 
     Args:
         params(dict): Dictionary containing the information of a single
@@ -34,7 +37,8 @@ def drawGalaxy(params):
         A galsim.Image object.
     """
 
-    gal_cls = models.getModelCls(params)
+    galaxy_model = params['galaxy_model']
+    gal_cls = models.getModelCls(galaxy_model)
     gal_model = gal_cls(params)
 
     final = gal_model.gal
@@ -44,7 +48,7 @@ def drawGalaxy(params):
         if params.get('psf_flux', 1) != 1:
             raise ValueError('I do not think you want a psf of flux not 1')
 
-        psf_cls = models.getPsfModelCls(params)
+        psf_cls = models.getPsfModelCls(params['psf_model'])
         psf_model = psf_cls(params)
 
         final = galsim.Convolve([final, psf_model.psf])
@@ -53,8 +57,8 @@ def drawGalaxy(params):
     return final.drawImage(scale=defaults.PIXEL_SCALE, nx=defaults.NX,
                            ny=defaults.NY)
 
-def drawGalaxies(fit_params=None, id_params=None, image=False,
-                 g_parameters=None, **kwargs):
+def drawGalaxies(fit_params=None, id_params=None, g_parameters=None, 
+                 image=False, **kwargs):
     """Return the image of a set of galaxies.
 
     One of the the following must be specified:
@@ -73,8 +77,8 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
                          parameters. For details, :class:`GParameters`
         g_parameters(:class:`GParameters`): An object containing different
                                             forms of the galaxy parameters.
-        image(bool): If :bool:True returns an galsim.Image otherwise it returns
-                     a np.array
+        image(bool): If :bool:True returns an galsim.Image otherwise it 
+        returns a np.array
 
     Returns:
         A galsim.Image or a np.array
@@ -93,23 +97,26 @@ def drawGalaxies(fit_params=None, id_params=None, image=False,
         gals.append(drawGalaxy(id_params[gal_id]))
     
     final = sum(gals)
-
-    if image is False:
-        return final.array
-    else:
+    
+    if image:
         return final
+    else:
+        return final.array
 
-
-
-def getOmitFit(id_params):
+#assume params_omit is a dictionary from gal_id to parameters to omit, 
+#must to the same.
+#for omit fit
+def getOmitFit(id_params, omit):
 
     omit_fit = {} 
 
     for gal_id in id_params:
+        params_omit = omit.get(gal_id,[])
         params = id_params[gal_id]
-        gal_cls = models.getModelCls(params)
-        gal_model = gal_cls(params)
-        omit_fit[params['galaxy_model']] = gal_model.omit_fit
+        galaxy_model = params['galaxy_model']
+        cls = models.getModelCls(galaxy_model)
+        obj = cls(params_omit=params_omit)
+        omit_fit[gal_id] = obj.omit_fit
 
     return omit_fit
 
@@ -161,8 +168,8 @@ class GParameters(object):
             params(dict): Dictionary that encodes the same information as
                           id_params but in a different form. Combines each of
                           the dictionaries contained in id_params into a
-                          single dictionary that contains all parameters but in
-                          the form param_#.
+                          single dictionary that contains all parameters but 
+                          in the form param_#.
             fit_params(dict): Dictionary similar to the params attribute but
                               without the parameters specified in omit_fit.
             nfit_params(dict): Dictionary that contains all the parameters not
@@ -174,7 +181,7 @@ class GParameters(object):
             num_galaxies(int): Number of galaxies specified.
     """
 
-    def __init__(self, project=None, id_params=None):
+    def __init__(self, project=None, id_params=None, omit={}):
         if project:
             if not os.path.isdir(project):
                 raise OSError('Directory given does not exist.')
@@ -207,7 +214,7 @@ class GParameters(object):
 
         self.id_params = id_params
         self.params = GParameters.convertId_Params(self.id_params)
-        self.omit_fit = getOmitFit(id_params)
+        self.omit_fit = getOmitFit(id_params, omit)
         self.fit_params = GParameters.convertId_Params(self.id_params,
                                                        self.omit_fit)
         self.nfit_params = self.getNFitParams()
@@ -226,18 +233,16 @@ class GParameters(object):
 
     def sortModelParamsNames(self):
         """Return the keys of :attr:`params` in an ordered specified by
-        :mod:`names.py`. And when having more than one galaxy, all the
+        the class parameters. And when having more than one galaxy, all the
         parameters from one of the galaxies are ordered together.
         """
         param_names = []
         for gal_id in self.id_params:
             galaxy_model = self.id_params[gal_id]['galaxy_model']
-            cls = models.getModelCls(self.id_params[gal_id])
-            gal_model = cls()
-            
-            for name in gal_model.parameters:
+            cls = models.getModelCls(galaxy_model)
+            for name in cls.parameters:
                 for param in self.id_params[gal_id]:
-                    if param not in self.omit_fit.get(galaxy_model, []):
+                    if param not in self.omit_fit.get(gal_id, []):
                         if param == name:
                             param_names.append(param + '_' + str(gal_id))
         return param_names
@@ -256,9 +261,8 @@ class GParameters(object):
         """
         params = {}
         for gal_id in id_params:
-            galaxy_model = id_params[gal_id]['galaxy_model']
             for param in id_params[gal_id]:
-                if param not in omit_fit.get(galaxy_model, []):
+                if param not in omit_fit.get(gal_id, []):
                     params[param + '_' + str(gal_id)] = (
                         id_params[gal_id][param])
         return params

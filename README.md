@@ -21,6 +21,13 @@ plots produced by draw.py
 ###defaults.py
 ###names.py
 
-
-
+##ToDo
+*galfun organize? it is okay now. 
+*change omit -> omit_fits for models.py? 
+*readfits.py can be moved to an ipython notebook, as results can all be nicely done only in ipython. 
+*generate.py integrate omit_fit? right now is manual passing a dictionary to GParameters, but don't know how necessary this could be. 
+*make a demo for producing images and looking at the different parts of GParameters which is the most confusing package. 
+*integrate GParameters, fisher and models better?
+*images from fisher only in ipython do not save as pdf? 
+*can be more efficient if fisher does not have to produce ALL results at once. 
 

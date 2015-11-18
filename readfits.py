@@ -5,6 +5,11 @@ Each file will not necessarily have only one row of results (although it will
 most of the times.
 """
 
+#todo
+#looks very messy, maybe pass this to an ipython notebook? maybe only the fancy part... 
+#not super urgent though. 
+# 
+
 import csv
 
 import numpy as np
@@ -50,8 +55,6 @@ def errorEllipseCor(centroid, cor_xy, alpha=1.52):
     Args:
         centroid(:py:tuple): Position of the center of the ellipse in
                              (x,y) form.
-
-
 
     Returns:
         A :py:dict.

@@ -75,6 +75,7 @@ def biasesEllipticities(fish, g):
         id_params[id1]['e2'] = e_s.imag
         g_parameters = galfun.GParameters(id_params=id_params)
         fish = fisher.Fisher(g_parameters, snr)
+        print fish.biases
         biases_e1.append(fish.biases['e1_'+id1])
         biases_e2.append(fish.biases['e2_'+id1])
 
