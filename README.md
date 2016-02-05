@@ -30,4 +30,4 @@ plots produced by draw.py
 *integrate GParameters, fisher and models better?
 *images from fisher only in ipython do not save as pdf? 
 *can be more efficient if fisher does not have to produce ALL results at once. 
-
+*update documentation. and figure out a way to keep documentation up to date. 

@@ -52,6 +52,9 @@ class model(object):
     def shear(self, gal, params):
         if 'e1' in params and 'e2' in params:
             return gal.shear(e1=params['e1'], e2=params['e2'])
+
+        elif 'g1' in params and 'g2' in params:
+            return gal.shear(g1=params['g1'],g2=params['g2'])
         elif 'eta1' in params and 'eta2' in params:
             return gal.shear(eta1=params['eta1'], eta2=params['eta2'])
         elif 'q' in params and 'beta' in params:
@@ -104,7 +107,6 @@ class gaussian(model):
             raise ValueError('Did not specify the size.')
 
 
-
 class exponential(model):
 
     parameters = [
@@ -116,7 +118,8 @@ class exponential(model):
         'fwhm',
         'sigma',
 
-        'e1', 'e2',
+        'e1', 'e2', 
+        'g1', 'g2',
         'eta1', 'eta2'
     ]
     omit_general = []
@@ -126,8 +129,14 @@ class exponential(model):
 
 
     def getProfile(self, params):
-        return galsim.Exponential(flux=params['flux'],
-                                  half_light_radius=params['hlr'])
+        if 'flux' not in params:
+            raise ValueError('Did not specify flux')
+
+        if 'hlr' in params:
+            return galsim.Exponential(flux=params['flux'],
+                                      half_light_radius=params['hlr'])
+        else:
+            raise ValueError('Did not specify the size.')
 
 
 class deVaucouleurs(model):

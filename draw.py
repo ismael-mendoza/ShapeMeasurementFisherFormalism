@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import matplotlib.pyplot as plt
 
 import matplotlib.cm as cm

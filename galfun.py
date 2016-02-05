@@ -1,15 +1,8 @@
-#!/usr/bin/env python
-
 import os
-
 import csv
-
 import defaults
-
 import galsim
-
 import copy
-
 import models
 
 

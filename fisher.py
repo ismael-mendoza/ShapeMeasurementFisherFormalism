@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """This module contains functions necessary to produce statistical results of
 the fisher formalism from a given galaxy.
 """

@@ -75,7 +75,7 @@ def main():
             snr = float(snrfile.readline())
 
     else:
-        raise ValueError('SNR is nowhere to be found and was not
+        raise ValueError('SNR is nowhere to be found and was not'
                          'specified.')
 
     if not os.path.isdir(rltsdir):
