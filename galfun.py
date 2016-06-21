@@ -12,14 +12,15 @@ import models
 #drawGalaxies and Gparameters have different ways of initializing them? 
 #confusing, better to only 
 #have one way? 
+#condense drawGalaxy and getGalaxyModel functions
 
-def drawGalaxy(params):
+
+def getGalaxyModel(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
     Look at the :mod:`names.py` to figure out which galaxy models and psf
     models are supported as well as their corresponding implemented 
-    parameters. This function uses galsim extensively to draw the different 
-    models.
+    parameters.
 
     Args:
         params(dict): Dictionary containing the information of a single
@@ -27,7 +28,7 @@ def drawGalaxy(params):
         values are the values of the parametes.
 
     Returns:
-        A galsim.Image object.
+        A galsim.GSObject
     """
 
     galaxy_model = params['galaxy_model']
@@ -46,13 +47,11 @@ def drawGalaxy(params):
 
         final = galsim.Convolve([final, psf_model.psf])
 
-    # Draw the image with a particular pixel scale, given in arcsec/pixel.
-    return final.drawImage(scale=defaults.PIXEL_SCALE, nx=defaults.NX,
-                           ny=defaults.NY)
+    return final
 
-def drawGalaxies(fit_params=None, id_params=None, g_parameters=None, 
-                 image=False, **kwargs):
-    """Return the image of a set of galaxies.
+
+def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwargs):
+    """Return the model of a set of galaxies.
 
     One of the the following must be specified:
         fit_params (and nfit_params as **kwargs. Used specially in
@@ -74,6 +73,89 @@ def drawGalaxies(fit_params=None, id_params=None, g_parameters=None,
         returns a np.array
 
     Returns:
+        A galsim.GSObject
+    """
+
+    if id_params is None and g_parameters is None:
+        fit_params.update(kwargs)
+        id_params = GParameters.convertParams_Id(fit_params)
+
+    if g_parameters is not None:
+        id_params = g_parameters.id_params
+
+    gals = []
+
+    for gal_id in id_params:
+        gals.append(getGalaxyModel(id_params[gal_id]))
+    
+    return galsim.Add(gals)
+
+
+def drawGalaxy(params, pixel_scale=None, nx=None, ny=None, stamp=None, bounds=None, mask=None):
+    """Return the image of a single galaxy optionally drawn with a psf.
+    Look at the :mod:`names.py` to figure out which galaxy models and psf
+    models are supported as well as their corresponding implemented 
+    parameters. This function uses galsim extensively to draw the different 
+    models.
+    Args:
+        params(dict): Dictionary containing the information of a single
+        galaxy where the keys is the name(str) of the parameter and the
+        values are the values of the parametes.
+    Returns:
+        A galsim.Image object.
+    """
+
+    galaxy_model = params['galaxy_model']
+    gal_cls = models.getModelCls(galaxy_model)
+    gal_model = gal_cls(params)
+
+    final = gal_model.gal
+
+    if params.get('psf_flux', 0) != 0:
+
+        if params.get('psf_flux', 1) != 1:
+            raise ValueError('I do not think you want a psf of flux not 1')
+
+        psf_cls = models.getPsfModelCls(params['psf_model'])
+        psf_model = psf_cls(params)
+
+        final = galsim.Convolve([final, psf_model.psf])
+
+    if stamp != None:
+        if bounds != None and mask != None:
+            final.drawImage(image=stamp, use_true_center=True)
+            stamp.array[np.logical_not(mask)] = 0.
+            return stamp[bounds]
+        else: 
+            return final.drawImage(image=stamp)
+    else:
+        # Draw the image with a particular pixel scale, given in arcsec/pixel.
+        return final.drawImage(scale=pixel_scale, nx=nx, ny=ny, use_true_center = True)
+
+def drawGalaxies(fit_params=None, id_params=None, image=False,
+                 g_parameters=None, nx, ny, **kwargs):
+    """Return the image of a set of galaxies.
+
+    One of the the following must be specified:
+        fit_params (and nfit_params as **kwargs. Used specially in
+        :mod:`runfits.py`).
+        id_params
+        g_parameters (from which id_params is extracted.)
+    This function draws each of the galaxies specified in id_params and then
+    sums them together to get a final galaxy.
+ 
+    Args:
+        fit_params(dict): Partial form of id_params that only includes the
+                          parameters to be used for the fit.
+                          For details, :class:`GParameters`
+        id_params(dict): Dictionary containing each of the galaxies
+                         parameters. For details, :class:`GParameters`
+        g_parameters(:class:`GParameters`): An object containing different
+                                            forms of the galaxy parameters.
+        image(bool): If :bool:True returns an galsim.Image otherwise it returns
+                     a np.array
+
+    Returns:
         A galsim.Image or a np.array
     """
 
@@ -87,14 +169,17 @@ def drawGalaxies(fit_params=None, id_params=None, g_parameters=None,
     gals = []
 
     for gal_id in id_params:
-        gals.append(drawGalaxy(id_params[gal_id]))
-    
-    final = sum(gals)
-    
-    if image:
-        return final
-    else:
+        gals.append(drawGalaxy(id_params[gal_id], g_parameters.pixel_scale, g_parameters.nx,
+                               g_parameters.ny,g_parameters.stamp, g_parameters.bounds, 
+                               g_parameters.mask))
+    final = sum(gals) #maybe change to galsim.Add???
+
+    if image is False:
         return final.array
+    else:
+        return final
+
+
 
 #assume params_omit is a dictionary from gal_id to parameters to omit, 
 #must to the same.
@@ -213,6 +298,15 @@ class GParameters(object):
         self.nfit_params = self.getNFitParams()
         self.ordered_fit_names = self.sortModelParamsNames()
         self.num_galaxies = len(self.id_params.keys())
+        
+        #information on drawing the galaxy. 
+        self.nx = nx 
+        self.ny = ny 
+        self.pixel_scale = pixel_scale
+        self.stamp = stamp 
+        self.bounds = bounds
+        self.mask = mask
+
 
     def getNFitParams(self):
         """Extract :attr:`nfit_params from :attr:`params` by noticing which

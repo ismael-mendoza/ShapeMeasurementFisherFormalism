@@ -49,18 +49,19 @@ class Fisher(object):
     fisher formalism.
     """
 
-    def __init__(self, g_parameters, snr):
+    def __init__(self, g_parameters, pixel_scale, nx, ny, snr, stamp=None, bounds=None, mask=None):
         self.g_parameters = g_parameters
         self.snr = snr
-        self.image = galfun.drawGalaxies(g_parameters=self.g_parameters, 
-                                         image=True)
+        self.model = galfun.getGalaxiesModels(g_parameters=self.g_parameters)
+        self.image = self.model.drawImage(scale=defaults.PIXEL_SCALE, nx=nx,
+                                          ny=defaults.NY, use_true_center = True, stamp=stamp,
+                                          bounds=bounds)
         _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
         self.steps = defaults.getSteps(self.g_parameters)
         self.param_names = g_parameters.ordered_fit_names
         self.num_params = len(self.param_names)
         self.num_galaxies = self.g_parameters.num_galaxies
-
-        self.derivatives_images = self.derivativesImages()
+        self.derivatives_images = self.derivativesImages(stamp=self.image)
         self.fisher_matrix_images = self.fisherMatrixImages()
         self.fisher_matrix = self.fisherMatrix()
         self.covariance_matrix = self.covarianceMatrix()
@@ -73,7 +74,7 @@ class Fisher(object):
 
         self.fisher_condition_number = self.fisherConditionNumber()
 
-    def derivativesImages(self):
+    def derivativesImages(self, stamp=None):
         """Return images of the partial derivatives of the galaxy.
 
         The partial differentiation includes each of the different parameters
@@ -83,7 +84,7 @@ class Fisher(object):
         for i in range(self.num_params):
             partials_images[self.param_names[i]] = partialDifferentiate(
                 func=galfun.drawGalaxies, param=self.param_names[i],
-                steps=self.steps)(params=self.g_parameters.params)
+                steps=self.steps)(params=self.g_parameters.params, stamp=stamp)
         return partials_images
 
     def fisherMatrixImages(self):

@@ -15,6 +15,7 @@ import galfun
 
 import info
 
+#import pickle 
 
 def main():
     parser = argparse.ArgumentParser(description=(
@@ -75,6 +76,7 @@ def main():
 
     g_parameters = galfun.GParameters(args.project)
     fish = fisher.Fisher(g_parameters=g_parameters, snr=float(args.snr))
+    #pickle.dump(fish.image,open("model_repo.p","wb"))
     plots = draw.Plots(fish=fish, project=args.project,
                        plots_dir=defaults.PLOTS_DIR,
                        hide=args.hide)

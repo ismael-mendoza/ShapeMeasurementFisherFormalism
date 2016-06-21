@@ -9,6 +9,8 @@ def getSteps(g_parameters):
 
     The dictionary is of the form: 'parameter_name:value_of_step'
 
+    Some parameter variations were copied from David's code suggestions. 
+
     Args:
     g_parameters(:class:`GParameters`): An object containing different
                                         forms of the galaxy parameters.
@@ -19,8 +21,18 @@ def getSteps(g_parameters):
     steps = dict()
     fit_params = g_parameters.fit_params
     for param in fit_params:
-        if 'flux' in param or 'hlr' in param:
+        if 'flux' in param:
             steps[param] = fit_params[param] * .01
+
+        if 'hlr' in param:
+            steps[param] = fit_params[param] * .05
+
+        if 'x' in param or 'y' in param:
+            steps[param] = defaults.PIXEL_SCALE/3.
+
+        if 'g1' in param or 'g2' in param:
+            steps[param] = .03
+
         else:
             steps[param] = .01
 
@@ -137,9 +149,6 @@ def getMaximums(g_parameters, gal_image):
 
 
 # general global(module-level) constants.
-NX = 48  # pixels
-NY = 48
-PIXEL_SCALE = .2  # arcsec/pixel
 DPI = 600.  # resolution for pdf saving.
 FONTSIZE_LABEL = 8
 FONTSIZE_VALUE = 4

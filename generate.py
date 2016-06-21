@@ -63,6 +63,17 @@ def main():
                         help='Value of noise bias (standard deviation). If'
                         'given an info file with fisher analysis is created.')
 
+    parser.add_argument('--pixel_scale', type=float,
+                        help='Pixel scale to arcsecs to use.')
+
+
+    parser.add_argument('--nx', type=float,
+                        help='Width of pixel stamp to generate.')
+
+
+    parser.add_argument('--ny', type=float,
+                        help='Height of pixel stamp to generate.')
+
     # add all parameter arguments to the parser.
     for name in models.getAllParameters():
         parser.add_argument('--' + name, default=None,

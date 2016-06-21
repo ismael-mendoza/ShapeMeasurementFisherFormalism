@@ -86,7 +86,7 @@ class gaussian(model):
 
         'e1', 'e2',
         'eta1', 'eta2',
-        'e', 'beta'
+        'e', 'beta',
     ]
     omit_general = []
 
@@ -120,7 +120,8 @@ class exponential(model):
 
         'e1', 'e2', 
         'g1', 'g2',
-        'eta1', 'eta2'
+        'eta1', 'eta2',
+        'q','beta'
     ]
     omit_general = []
     
@@ -135,6 +136,7 @@ class exponential(model):
         if 'hlr' in params:
             return galsim.Exponential(flux=params['flux'],
                                       half_light_radius=params['hlr'])
+
         else:
             raise ValueError('Did not specify the size.')
 
@@ -311,9 +313,10 @@ class psf_gaussian(psf_model):
 class psf_moffat(psf_model):
 
     parameters = [
-        'psf_flux',
+       'psf_flux',
 
        'psf_fwhm',
+       'psf_hlr',
 
        'psf_beta',
 
@@ -324,9 +327,14 @@ class psf_moffat(psf_model):
         psf_model.__init__(self, params)
 
     def getProfile(self, params):
-        return galsim.Moffat(beta=params['psf_beta'],
-                            fwhm=params['psf_fwhm'],
-                            flux=params['psf_flux'])
+        if 'psf_fwhm' in params:
+            return galsim.Moffat(beta=params['psf_beta'],
+                                 fwhm=params['psf_fwhm'],
+                                 flux=params['psf_flux'])
+        elif 'psf_hlr' in params:
+            return galsim.Moffat(beta=params['psf_beta'],
+                                 half_light_radius=params['psf_hlr'],
+                                 flux=params['psf_flux'])
 
 
 #iterate over all subclasses to get fieldnames.
