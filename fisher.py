@@ -3,13 +3,9 @@ the fisher formalism from a given galaxy.
 """
 
 import math
-
 import numpy as np
-
 import copy
-
 import galfun
-
 import defaults
 
 def partialDifferentiate(func, param, steps, **kwargs):
@@ -49,24 +45,30 @@ class Fisher(object):
     fisher formalism.
     """
 
-    def __init__(self, g_parameters, pixel_scale, nx, ny, snr, stamp=None, bounds=None, mask=None):
+    def __init__(self, g_parameters, image_renderer, snr):
         self.g_parameters = g_parameters
         self.snr = snr
         self.model = galfun.getGalaxiesModels(g_parameters=self.g_parameters)
-        self.image = self.model.drawImage(scale=defaults.PIXEL_SCALE, nx=nx,
-                                          ny=defaults.NY, use_true_center = True, stamp=stamp,
-                                          bounds=bounds)
+        self.image_renderer = image_renderer
+
+        #we do not want to mask or crop the images used to obtain the partials. 
+        self.image_renderer_partials = galfun.ImageRenderer(pixel_scale=image_renderer.pixel_scale,
+                                                            nx=image_renderer.nx, 
+                                                            ny=image_renderer.ny,
+                                                            stamp=image_renderer.stamp)
+
+        self.image = self.image_renderer.getImage(self.model)
         _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
-        self.steps = defaults.getSteps(self.g_parameters)
+        self.steps = defaults.getSteps(self.g_parameters, self.image_renderer)
         self.param_names = g_parameters.ordered_fit_names
         self.num_params = len(self.param_names)
         self.num_galaxies = self.g_parameters.num_galaxies
-        self.derivatives_images = self.derivativesImages(stamp=self.image)
+        self.derivatives_images = self.derivativesImages()
+        self.second_derivatives_images = self.secondDerivativesImages()
         self.fisher_matrix_images = self.fisherMatrixImages()
         self.fisher_matrix = self.fisherMatrix()
         self.covariance_matrix = self.covarianceMatrix()
         self.correlation_matrix = self.correlationMatrix()
-        self.second_derivatives_images = self.secondDerivativesImages()
         self.bias_matrix_images = self.biasMatrixImages()
         self.bias_matrix = self.biasMatrix()
         self.bias_images = self.biasImages()
@@ -74,18 +76,68 @@ class Fisher(object):
 
         self.fisher_condition_number = self.fisherConditionNumber()
 
-    def derivativesImages(self, stamp=None):
+    def derivativesImages(self):
         """Return images of the partial derivatives of the galaxy.
 
         The partial differentiation includes each of the different parameters
         that describe the galaxy.
         """
+
         partials_images = {}
         for i in range(self.num_params):
-            partials_images[self.param_names[i]] = partialDifferentiate(
-                func=galfun.drawGalaxies, param=self.param_names[i],
-                steps=self.steps)(params=self.g_parameters.params, stamp=stamp)
+            param = self.param_names[i]
+            params_up = copy.deepcopy(self.g_parameters.params)
+            params_up[param] += self.steps[param]
+            params_down = copy.deepcopy(self.g_parameters.params)
+            params_down[param] -= self.steps[param]
+            gal_up = galfun.getGalaxiesModels(params_up)
+            gal_down = galfun.getGalaxiesModels(params_down)
+            img_up = self.image_renderer_partials.getImage(gal_up)
+            img_down = self.image_renderer_partials.getImage(gal_down)
+            partials_images[param] =  ((img_up - img_down)/(2 * self.steps[param])).array
         return partials_images
+
+
+    def secondDerivativesImages(self):
+        """Return the images for the second derivatives of the given galaxy."""
+        secondDs_gal = {}
+        for i in range(self.num_params):
+            for j in range(self.num_params):
+                param_i = self.param_names[i]
+                param_j = self.param_names[j]
+
+                params_iup_jup = copy.deepcopy(self.g_parameters.params)
+                params_iup_jup[param_i] += self.steps[param_i]
+                params_iup_jup[param_j] += self.steps[param_j]
+
+                params_idown_jup = copy.deepcopy(self.g_parameters.params)
+                params_idown_jup[param_i] -= self.steps[param_i]
+                params_idown_jup[param_j] += self.steps[param_j]   
+
+                params_iup_jdown = copy.deepcopy(self.g_parameters.params)
+                params_iup_jdown[param_i] += self.steps[param_i]
+                params_iup_jdown[param_j] -= self.steps[param_j] 
+
+
+                params_idown_jdown = copy.deepcopy(self.g_parameters.params)
+                params_idown_jdown[param_i] -= self.steps[param_i]
+                params_idown_jdown[param_j] -= self.steps[param_j]
+
+                gal_iup_jup = galfun.getGalaxiesModels(params_iup_jup)
+                gal_idown_jup = galfun.getGalaxiesModels(params_idown_jup)
+                gal_iup_jdown = galfun.getGalaxiesModels(params_iup_jdown)
+                gal_idown_jdown = galfun.getGalaxiesModels(params_idown_jdown)
+
+                img_iup_jup = self.image_renderer_partials.getImage(gal_iup_jup)
+                img_idown_jup = self.image_renderer_partials.getImage(gal_idown_jup)
+                img_iup_jdown = self.image_renderer_partials.getImage(gal_iup_jdown)
+                img_idown_jdown = self.image_renderer_partials.getImage(gal_idown_jdown)
+
+                secondDs_gal[param_i, param_j] = ((img_iup_jup + img_idown_jdown - 
+                                                   img_idown_jup - img_iup_jdown)/
+                                                   (4*self.steps[param_i]*self.steps[param_j])).array
+
+        return secondDs_gal
 
     def fisherMatrixImages(self):
         """Produce images of fisher matrix)."""
@@ -153,18 +205,6 @@ class Fisher(object):
 
         return correlation_matrix
 
-    def secondDerivativesImages(self):
-        """Return the images for the second derivatives of the given galaxy."""
-        secondDs_gal = {}
-        for i in range(self.num_params):
-            for j in range(self.num_params):
-                param_i = self.param_names[i]
-                param_j = self.param_names[j]
-                secondDs_gal[param_i, param_j] = secondPartialDifferentiate(
-                    func=galfun.drawGalaxies, param1=param_i, param2=param_j,
-                    steps=self.steps)(params=self.g_parameters.params)
-
-        return secondDs_gal
 
     def biasMatrixImages(self):
         """Produce images of each element of the bias matrix"""

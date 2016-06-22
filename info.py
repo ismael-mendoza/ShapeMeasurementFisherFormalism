@@ -39,7 +39,7 @@ class Info:
 
     """
 
-    def __init__(self, g_parameters, fish=None, number_fits=None,
+    def __init__(self, g_parameters, image_renderer, fish=None, number_fits=None,
                  init_values=None, minimums=None, maximums=None):
         params = g_parameters.params
         self.galaxy = []
@@ -53,9 +53,9 @@ class Info:
         self.galaxy = list(
             (
                 'Default values used in the analysis:',
-                'nx: ' + str(defaults.NX),
-                'ny: ' + str(defaults.NY),
-                'pixel_scale: ' + str(defaults.PIXEL_SCALE),
+                'nx: ' + str(image_renderer.nx),
+                'ny: ' + str(image_renderer.ny),
+                'pixel_scale: ' + str(image_renderer.pixel_scale),
                 '',
                 'Galaxies drawn have the following parameters:'
             )

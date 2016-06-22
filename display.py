@@ -75,7 +75,10 @@ def main():
         args.hide = True
 
     g_parameters = galfun.GParameters(args.project)
-    fish = fisher.Fisher(g_parameters=g_parameters, snr=float(args.snr))
+    image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
+                                          nx=float(args.nx),ny=float(args.ny))
+    fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
+                         snr=float(args.snr))
     #pickle.dump(fish.image,open("model_repo.p","wb"))
     plots = draw.Plots(fish=fish, project=args.project,
                        plots_dir=defaults.PLOTS_DIR,

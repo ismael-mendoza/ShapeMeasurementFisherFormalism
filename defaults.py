@@ -3,7 +3,7 @@
 """Some of the defaults that are used in the overall program."""
 
 
-def getSteps(g_parameters):
+def getSteps(g_parameters, image_renderer):
     """Return a dictionary containing the steps to be used in the
     derivatives of each parameter.
 
@@ -28,7 +28,7 @@ def getSteps(g_parameters):
             steps[param] = fit_params[param] * .05
 
         if 'x' in param or 'y' in param:
-            steps[param] = defaults.PIXEL_SCALE/3.
+            steps[param] = image_renderer.pixel_scale/3.
 
         if 'g1' in param or 'g2' in param:
             steps[param] = .03
@@ -167,6 +167,7 @@ PLOTS_DIR = 'plots'
 RESULTS_DIR = 'results'
 RESULTS_BASENAME = 'result'
 GALAXY_FILE = 'galaxies.csv'
+IMAGE_FILENAME = 'image.csv'
 PSF_FILE = 'psf.csv'
 INFO_FILE = 'info.txt'
 FIGURE_BASENAME = 'figure'

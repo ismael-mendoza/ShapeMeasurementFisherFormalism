@@ -1,21 +1,13 @@
 #!/usr/bin/env python
 """Generate a galaxy as specified by the user and save it to a csv file"""
 import argparse
-
 import defaults
-
 import os
-
 import csv
-
 import shutil
-
 import galfun
-
 import fisher
-
 import info
-
 import models 
 
 def csvIsEmpty(filename):
@@ -122,12 +114,27 @@ def main():
         os.remove(tempname)
 
 
+    #write image data to a filename
+    image_dict = {'pixel_scale':float(args.pixel_scale),
+                  'nx':float(args.nx),
+                  'ny':float(args.ny)
+                  }
+
+    image_filename = os.path.join(args.project, defaults.IMAGE_FILENAME)
+    with open(image_filename,'w') as csvfile: 
+        writer = csv.DictWriter(csvfile, fieldnames=image_dict.keys())
+        writer.writeheader()
+        writer.writerow(image_dict)
+
+
     if(args.snr):
         g_parameters = galfun.GParameters(args.project)
-        fish = fisher.Fisher(g_parameters=g_parameters, snr=float(args.snr))
-        information = info.Info(g_parameters, fish)
+        image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
+                                              nx=float(args.nx),ny=float(args.ny))
+        fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
+                             snr=float(args.snr))
+        information = info.Info(g_parameters, image_renderer, fish)
         information.writeInfo(args.project)
-
 
 if __name__ == '__main__':
     main()
