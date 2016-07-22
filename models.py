@@ -13,7 +13,7 @@ def getExtra():
     return ['id', 'galaxy_model', 'psf_model']
 
 #make sure names of model class is the same name as the one to generate.
-#write down this class all galaxy modules desired.
+#write down this class in all galaxy modules.
 class model(object):
     
     parameters = []

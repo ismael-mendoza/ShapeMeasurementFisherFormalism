@@ -18,7 +18,6 @@ def csvIsEmpty(filename):
         for row in f:
             if len(row) != 0:
                 return False
-
         return True
 
 
@@ -88,6 +87,7 @@ def main():
     # creat a copy to read from and compare.
     shutil.copyfile(filename, tempname)
 
+
     # write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=models.getFieldnames())
@@ -96,7 +96,7 @@ def main():
         # extract appropiate entries from dictionary of args.
         row_to_write = {k: v for (k, v) in args_dict.iteritems()
                         if k in models.getFieldnames()}
-
+        
         if csvIsEmpty(tempname):
             writer.writeheader()
             writer.writerow(row_to_write)
@@ -111,8 +111,12 @@ def main():
                         writer.writerow(row)
                 writer.writerow(row_to_write)
 
-        if os.path.isfile(tempname):        
-            os.remove(tempname)
+    # if os.path.isfile(tempname):
+    #     print 'yes'
+    #     exit(1)
+    # print 'hello'
+    os.remove(tempname)
+    # print 'hello'
 
 
     # #write image data to a filename
