@@ -52,10 +52,7 @@ class Fisher(object):
         self.image_renderer = image_renderer
 
         #we do not want to mask or crop the images used to obtain the partials. 
-        self.image_renderer_partials = galfun.ImageRenderer(pixel_scale=image_renderer.pixel_scale,
-                                                            nx=image_renderer.nx, 
-                                                            ny=image_renderer.ny,
-                                                            stamp=image_renderer.stamp)
+        self.image_renderer_partials = galfun.ImageRenderer(stamp=self.image_renderer.stamp)
 
         self.image = self.image_renderer.getImage(self.model)
         _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)

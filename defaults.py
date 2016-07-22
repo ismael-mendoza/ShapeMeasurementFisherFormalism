@@ -24,13 +24,13 @@ def getSteps(g_parameters, image_renderer):
         if 'flux' in param:
             steps[param] = fit_params[param] * .01
 
-        if 'hlr' in param:
+        elif 'hlr' in param:
             steps[param] = fit_params[param] * .05
 
-        if 'x' in param or 'y' in param:
+        elif 'x0' in param or 'y0' in param:
             steps[param] = image_renderer.pixel_scale/3.
 
-        if 'g1' in param or 'g2' in param:
+        elif 'g1' in param or 'g2' in param:
             steps[param] = .03
 
         else:

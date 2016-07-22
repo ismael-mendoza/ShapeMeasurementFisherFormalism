@@ -111,30 +111,31 @@ def main():
                         writer.writerow(row)
                 writer.writerow(row_to_write)
 
-        os.remove(tempname)
+        if os.path.isfile(tempname):        
+            os.remove(tempname)
 
 
-    #write image data to a filename
-    image_dict = {'pixel_scale':float(args.pixel_scale),
-                  'nx':float(args.nx),
-                  'ny':float(args.ny)
-                  }
+    # #write image data to a filename
+    # image_dict = {'pixel_scale':float(args.pixel_scale),
+    #               'nx':float(args.nx),
+    #               'ny':float(args.ny)
+    #               }
 
-    image_filename = os.path.join(args.project, defaults.IMAGE_FILENAME)
-    with open(image_filename,'w') as csvfile: 
-        writer = csv.DictWriter(csvfile, fieldnames=image_dict.keys())
-        writer.writeheader()
-        writer.writerow(image_dict)
+    # image_filename = os.path.join(args.project, defaults.IMAGE_FILENAME)
+    # with open(image_filename,'w') as csvfile: 
+    #     writer = csv.DictWriter(csvfile, fieldnames=image_dict.keys())
+    #     writer.writeheader()
+    #     writer.writerow(image_dict)
 
 
-    if(args.snr):
-        g_parameters = galfun.GParameters(args.project)
-        image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
-                                              nx=float(args.nx),ny=float(args.ny))
-        fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
-                             snr=float(args.snr))
-        information = info.Info(g_parameters, image_renderer, fish)
-        information.writeInfo(args.project)
+    # if(args.snr):
+    #     g_parameters = galfun.GParameters(args.project)
+    #     image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
+    #                                           nx=float(args.nx),ny=float(args.ny))
+    #     fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
+    #                          snr=float(args.snr))
+    #     information = info.Info(g_parameters, image_renderer, fish)
+    #     information.writeInfo(args.project)
 
 if __name__ == '__main__':
     main()
