@@ -57,6 +57,7 @@ class model(object):
             return gal.shear(g1=params['g1'],g2=params['g2'])
         elif 'eta1' in params and 'eta2' in params:
             return gal.shear(eta1=params['eta1'], eta2=params['eta2'])
+            
         elif 'q' in params and 'beta' in params:
             return gal.shear(q=params['q'], beta=(params['beta']*
                                                   galsim.radians))
@@ -86,7 +87,7 @@ class gaussian(model):
 
         'e1', 'e2',
         'eta1', 'eta2',
-        'e', 'beta',
+        'e', 'q', 'beta',
     ]
     omit_general = []
 

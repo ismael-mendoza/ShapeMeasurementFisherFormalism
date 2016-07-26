@@ -27,11 +27,18 @@ def getSteps(g_parameters, image_renderer):
         elif 'hlr' in param:
             steps[param] = fit_params[param] * .05
 
+        elif 'beta' in param:
+            steps[param] = .1 
+            
         elif 'x0' in param or 'y0' in param:
             steps[param] = image_renderer.pixel_scale/3.
 
         elif 'g1' in param or 'g2' in param:
             steps[param] = .03
+
+        elif 'e' in param: 
+            steps[param] = .03
+
 
         else:
             steps[param] = .01

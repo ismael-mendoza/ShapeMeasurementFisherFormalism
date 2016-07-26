@@ -37,12 +37,12 @@ def secondPartialDifferentiate(func, param1, param2, steps, **kwargs):
     return partialDifferentiate(Df, param2, steps)
 
 class Fisher(object):
-    """Produce fisher object(containing fisher analysis) for a given set of
+    """Produce fisher object (containing fisher analysis) for a given set of
     galaxy parameters.
 
     Given a galaxy image and the appropiate parameters that describe it,
     will produce a fisher object that contains the analysis of it using the
-    fisher formalism.
+    Fisher Formalism.
     """
 
     def __init__(self, g_parameters, image_renderer, snr):
@@ -53,13 +53,14 @@ class Fisher(object):
 
         #we do not want to mask or crop the images used to obtain the partials. 
         self.image_renderer_partials = galfun.ImageRenderer(stamp=self.image_renderer.stamp)
-
         self.image = self.image_renderer.getImage(self.model)
         _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
+
         self.steps = defaults.getSteps(self.g_parameters, self.image_renderer)
         self.param_names = g_parameters.ordered_fit_names
         self.num_params = len(self.param_names)
         self.num_galaxies = self.g_parameters.num_galaxies
+
         self.derivatives_images = self.derivativesImages()
         self.second_derivatives_images = self.secondDerivativesImages()
         self.fisher_matrix_images = self.fisherMatrixImages()
