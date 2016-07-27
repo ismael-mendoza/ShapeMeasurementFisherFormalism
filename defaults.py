@@ -39,7 +39,6 @@ def getSteps(g_parameters, image_renderer):
         elif 'e' in param: 
             steps[param] = .03
 
-
         else:
             steps[param] = .01
 
