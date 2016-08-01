@@ -164,14 +164,14 @@ BINS_PULL = 40
 SIG_DIGITS = 4
 FIT_DEVIATION = .00001
 SNR_NORM = 20.
-FANCY = False
-
+NX = 45
+NY = 45 
+PIXEL_SCALE = .2 
 
 # some default names for argparse and i/0 file management.
 PROJECT = 'project'
 PLOTS_DIR = 'plots'
 RESULTS_DIR = 'results'
-RESULTS_BASENAME = 'result'
 GALAXY_FILE = 'galaxies.csv'
 IMAGE_FILENAME = 'image.csv'
 PSF_FILE = 'psf.csv'

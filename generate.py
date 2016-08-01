@@ -111,11 +111,12 @@ def main():
                         writer.writerow(row)
                 writer.writerow(row_to_write)
 
+    os.remove(tempname)
+    
     # if os.path.isfile(tempname):
     #     print 'yes'
     #     exit(1)
     # print 'hello'
-    os.remove(tempname)
     # print 'hello'
 
 

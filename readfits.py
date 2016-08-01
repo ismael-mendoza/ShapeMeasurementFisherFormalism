@@ -11,29 +11,17 @@ most of the times.
 # 
 
 import csv
-
 import numpy as np
-
 import os
-
 import sys
-
 import triangle
-
 import math
-
 import matplotlib.pyplot as plt
-
 import matplotlib.mlab as mlab
-
 import matplotlib.patches as mpatch
-
 import defaults
-
 import galfun
-
 import fisher
-
 import copy
 
 def errorEllipseCor(centroid, cor_xy, alpha=1.52):

@@ -4,23 +4,18 @@ writes results to a csv file that can be read from readfits.py
 """
 
 import os
-
 import csv
-
 import defaults
-
 import sys
-
 import lmfit
-
 import math
-
 import galfun
+import fisher 
+from copy import deepcopy 
 
-
-def objFunc(fit_params, data, variance_noise, **kwargs):
-    model = galfun.drawGalaxies(fit_params=fit_params.valuesdict(),
-                                image=True, **kwargs)
+def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
+    gal_model = galfun.getGalaxiesModels(fit_params=fit_params.valuesdict(),**kwargs)
+    model = image_renderer.getImage(gal_model)
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
 
@@ -34,7 +29,9 @@ def main(argv):
         os.mkdir(os.path.join(project, defaults.RESULTS_DIR))
 
     g_parameters = galfun.GParameters(project)
-    orig_image = galfun.drawGalaxies(g_parameters=g_parameters, image=True)
+    image_renderer = galfun.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE,nx=defaults.NX,ny=defaults.NY)
+    fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, snr=snr)
+    orig_image = deepcopy(fish.image)
     mins = defaults.getMinimums(g_parameters, orig_image)
     maxs = defaults.getMaximums(g_parameters, orig_image)
     init_values = defaults.getInitialValuesFit(g_parameters)
@@ -48,12 +45,13 @@ def main(argv):
                        min=mins[param],
                        max=maxs[param])
 
-    results = lmfit.minimize(objFunc, fit_params, kws=dict(data=noisy_image,
-                                                           variance_noise=(
-                                                               variance_noise),
+    results = lmfit.minimize(objFunc, fit_params, kws=dict(image_renderer=image_renderer,
+                                                           data=noisy_image,
+                                                           variance_noise=(variance_noise),
                                                            **nfit_params))
-    # for now lets only worry about the actual fit values reported.
-    filename = ''.join([defaults.RESULTS_BASENAME, str(noise_seed), '.csv'])
+    
+
+    filename = ''.join([defaults.RESULTS_DIR, str(noise_seed), '.csv'])
     result_filename = os.path.join(project, defaults.RESULTS_DIR, filename)
 
     # write results of fits into a file,

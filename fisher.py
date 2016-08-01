@@ -8,34 +8,6 @@ import copy
 import galfun
 import defaults
 
-def partialDifferentiate(func, param, steps, **kwargs):
-    """Partially derive f with respect to param with a certain step.
-
-    We are assuming that the function has a certain structure, namely,
-    one of its arguments is a dictionary of variables that can be changed and
-    other (**kwargs) arguments are requisites or extra variables the
-    function needs to be evaluated. Assume steps is a dictionary.
-    """
-    def Dfunc(params):
-        """Evaluate the partial derivative at params."""
-        params_up = copy.deepcopy(params)  # avoids altering params later.
-        # increment the value of the parameter by step.
-        params_up[param] += steps[param]
-
-        params_down = copy.deepcopy(params)
-        params_down[param] -= steps[param]
-
-        return ((func(params_up, **kwargs) - func(params_down, **kwargs)) /
-                (2 * steps[param]))
-
-    return Dfunc
-
-
-def secondPartialDifferentiate(func, param1, param2, steps, **kwargs):
-    """Find second partial derivative of the given function"""
-    Df = partialDifferentiate(func, param1, steps, **kwargs)
-    return partialDifferentiate(Df, param2, steps)
-
 class Fisher(object):
     """Produce fisher object (containing fisher analysis) for a given set of
     galaxy parameters.

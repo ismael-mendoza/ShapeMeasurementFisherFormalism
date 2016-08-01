@@ -6,15 +6,10 @@ a triangle plot that summarizes this results and displays data points.
 """
 
 import argparse
-
 import os
-
 import info
-
 import galfun
-
 import fisher
-
 import defaults
 
 def main():
@@ -112,19 +107,19 @@ def main():
         os.system("python readfits.py " +  str(args.project) + " " +
                   str(snr) + " " + str(existing_fits))
 
-    #produce info file every time we run this program.
-    g_parameters = galfun.GParameters(args.project)
-    fish = fisher.Fisher(g_parameters, snr)
-    image = galfun.drawGalaxies(g_parameters=g_parameters, image=True)
-    init_values = defaults.getInitialValuesFit(g_parameters)
-    maximums = defaults.getMaximums(g_parameters, image)
-    minimums = defaults.getMinimums(g_parameters, image)
-    information = info.Info(g_parameters, fish,
-                            number_fits = existing_fits, minimums=minimums, maximums=maximums,init_values=init_values)
-    information.writeInfo(args.project)
+    # #produce info file every time we run this program.
+    # g_parameters = galfun.GParameters(args.project)
+    # fish = fisher.Fisher(g_parameters, snr)
+    # image = galfun.drawGalaxies(g_parameters=g_parameters, image=True)
+    # init_values = defaults.getInitialValuesFit(g_parameters)
+    # maximums = defaults.getMaximums(g_parameters, image)
+    # minimums = defaults.getMinimums(g_parameters, image)
+    # information = info.Info(g_parameters, fish,
+    #                         number_fits = existing_fits, minimums=minimums, maximums=maximums,init_values=init_values)
+    # information.writeInfo(args.project)
 
-    if args.verbose:
-        information.printInfo()
+    # if args.verbose:
+    #     information.printInfo()
 
 if __name__ == '__main__':
     main()
