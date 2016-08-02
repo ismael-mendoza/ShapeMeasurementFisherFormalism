@@ -256,7 +256,6 @@ def main(argv):
     ax.set_title('Reduced chi2 histogram from data.',
                  fontsize=defaults.FONTSIZE_TITLE)
 
-    plt.rc('text', usetex=True)
 
     figure1.savefig(os.path.join(project, defaults.TRIANGLE_NAME))
     figure2.savefig(os.path.join(project, defaults.REDCHI_HIST_NAME))
