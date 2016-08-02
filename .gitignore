@@ -1,2 +1,4 @@
 *.txt
 notebooks/
+data/
+project*/
