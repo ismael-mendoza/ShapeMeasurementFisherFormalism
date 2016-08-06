@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 """Some of the defaults that are used in the overall program."""
 
@@ -161,16 +160,6 @@ NX = 45
 NY = 45 
 PIXEL_SCALE = .2 
 
-# DPI = 600.  # resolution for pdf saving.
-# FONTSIZE_LABEL = 8
-# FONTSIZE_VALUE = 4
-# FONTSIZE_TITLE = 14
-# EXTENT_PULL = (-3, 3)
-# BINS_PULL = 40
-# SIG_DIGITS = 4
-
-
-
 
 # some default names for argparse and i/0 file management.
 PROJECT = 'project'
@@ -179,12 +168,3 @@ RESULTS_DIR = 'results'
 GALAXY_FILE = 'galaxies.csv'
 SNR_FILE = 'snr.txt'
 MODEL = 'gaussian'
-
-
-# IMAGE_FILENAME = 'image.csv'
-# PSF_FILE = 'psf.csv'
-# INFO_FILE = 'info.txt'
-# FIGURE_BASENAME = 'figure'
-# FIGURE_EXTENSION = '.pdf'
-# TRIANGLE_NAME = 'triangle.pdf'
-# REDCHI_HIST_NAME = 'redchi_hist.pdf'

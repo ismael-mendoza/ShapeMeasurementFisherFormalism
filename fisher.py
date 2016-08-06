@@ -13,8 +13,38 @@ class Fisher(object):
     galaxy parameters.
 
     Given a galaxy image and the appropiate parameters that describe it,
-    will produce a fisher object that contains the analysis of it using the
-    Fisher Formalism.
+    (in the form of :class:`GParameters` object) will produce a fisher object that contains the 
+    analysis of it using the Fisher Formalism.
+
+        Args:
+            g_parameters(:class:`GParameters`): String point to the directory specified by the user.
+            image_renderer(:class:`ImageRenderer`): See Attributes for details. Makes it possible to
+                             create a :class:`GParameters` object without
+                             galaxies.csv file.
+            snr(float): Value S/N ratio to use in the analysis. 
+
+        Attributes:
+            image_renderer_partials(dict): Dictionary defined in :mod:`names.py` containing
+                            the parameters that should not be included in the
+                            analysis for a particular galaxy model.
+            image(Galsim.image): Dictionary whose keys are the ids of each of the
+                             galaxies specified in galaxies.csv, and that map
+                             to another dictionary that can be taken in by
+                             :func:`drawGalaxy`
+            steps(dict): Dictionary that encodes the same information as
+                          id_params but in a different form. Combines each of
+                          the dictionaries contained in id_params into a
+                          single dictionary that contains all parameters but 
+                          in the form param_#.
+            fit_params(dict): Dictionary similar to the params attribute but
+                              without the parameters specified in omit_fit.
+            nfit_params(dict): Dictionary that contains all the parameters not
+                               contained in fit_params. Usually used for
+                               **kwargs in conjunction with fit_params to draw
+                               Galaxies.
+            ordered_fit_names(list): A list containing the keys of fit_params
+                                     in a desirable order.
+            num_galaxies(int): Number of galaxies specified.
     """
 
     def __init__(self, g_parameters, image_renderer, snr):
@@ -52,7 +82,6 @@ class Fisher(object):
         The partial differentiation includes each of the different parameters
         that describe the galaxy.
         """
-
         partials_images = {}
         for i in range(self.num_params):
             param = self.param_names[i]
@@ -232,5 +261,6 @@ class Fisher(object):
         }
 
     def fisherConditionNumber(self):
+        """The condition number will give a sense of how singular the matrix tends to be."""
         fisher_array = self.matrixToNumpyArray(self.fisher_matrix)
         return np.linalg.cond(fisher_array)

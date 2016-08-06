@@ -1,8 +1,8 @@
-###Todo-
-#change omit -> omit_fit for clarity? 
-
+"""
+This module contains the models that are used for galaxies and psfs for galsim, more 
+information of how to add your own models for both galaxies and psfs can be found in tutorial
+"""
 import galsim
-
 import sys 
 
 
@@ -388,7 +388,7 @@ def getPsfModelCls(model):
     raise NotImplementedError('Have not implemented that psf model')
 
 
-#just to display choices in generate.py
+#used to display choices in generate.py
 def getAllModels():
     gal_models = []
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
@@ -397,6 +397,7 @@ def getAllModels():
 
     return gal_models
 
+#used to display choices in generate.py
 def getAllPsfModels():
     psf_models = []
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]

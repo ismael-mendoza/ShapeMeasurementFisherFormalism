@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Generate a galaxy as specified by the user and save it to a csv file"""
+"""Generate a galaxy(ies) as specified by the user and saves it to a csv file."""
 import argparse
 import defaults
 import os
@@ -22,9 +22,6 @@ def csvIsEmpty(filename):
 
 
 def main():
-    # NEED TO DISPLAY information about models available for both psf and
-    # galaxy.
-
     parser = argparse.ArgumentParser(description=('Generate galaxies'
                                                   'specified by the user that'
                                                   'are added to a file.'),
@@ -53,17 +50,6 @@ def main():
     parser.add_argument('--snr', type=float,
                         help='Value of noise bias (standard deviation). If'
                         'given an info file with fisher analysis is created.')
-
-    parser.add_argument('--pixel_scale', type=float,
-                        help='Pixel scale to arcsecs to use.')
-
-
-    parser.add_argument('--nx', type=float,
-                        help='Width of pixel stamp to generate.')
-
-
-    parser.add_argument('--ny', type=float,
-                        help='Height of pixel stamp to generate.')
 
     # add all parameter arguments to the parser.
     for name in models.getAllParameters():
@@ -113,34 +99,5 @@ def main():
 
     os.remove(tempname)
     
-    # if os.path.isfile(tempname):
-    #     print 'yes'
-    #     exit(1)
-    # print 'hello'
-    # print 'hello'
-
-
-    # #write image data to a filename
-    # image_dict = {'pixel_scale':float(args.pixel_scale),
-    #               'nx':float(args.nx),
-    #               'ny':float(args.ny)
-    #               }
-
-    # image_filename = os.path.join(args.project, defaults.IMAGE_FILENAME)
-    # with open(image_filename,'w') as csvfile: 
-    #     writer = csv.DictWriter(csvfile, fieldnames=image_dict.keys())
-    #     writer.writeheader()
-    #     writer.writerow(image_dict)
-
-
-    # if(args.snr):
-    #     g_parameters = galfun.GParameters(args.project)
-    #     image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
-    #                                           nx=float(args.nx),ny=float(args.ny))
-    #     fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
-    #                          snr=float(args.snr))
-    #     information = info.Info(g_parameters, image_renderer, fish)
-    #     information.writeInfo(args.project)
-
 if __name__ == '__main__':
     main()

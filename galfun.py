@@ -1,3 +1,7 @@
+"""
+Contains important functions for managing parameters of generated galaxies and reading from 
+files. 
+"""
 import os
 import csv
 import defaults
@@ -7,21 +11,12 @@ import models
 import math
 import numpy as np 
 
-#Todo - 
-# remove drawGalaxies returning two different things. 
-#Check if other functions have side effects,better to do only one thing. 
-#drawGalaxies and Gparameters have different ways of initializing them? 
-#confusing, better to only 
-#have one way? 
-#condense drawGalaxy and getGalaxyModel functions
-
-
 def getGalaxyModel(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
     Look at :mod:`names.py` to figure out which galaxy models and psf
     models are supported as well as their corresponding implemented 
-    parameters.
+    parameters. You can even add your own galaxies if desired. 
 
     Args:
         params(dict): Dictionary containing the information of a single
@@ -59,7 +54,7 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
         :mod:`runfits.py`).
         id_params
         g_parameters (from which id_params is extracted.)
-    This function draws each of the galaxies specified in id_params and then
+    This function generates each of the galaxies specified in id_params and then
     sums them together to get a final galaxy.
 
     Args:
@@ -91,10 +86,6 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
     
     return galsim.Add(gals)
 
-
-#assume params_omit is a dictionary from gal_id to parameters to omit, 
-#must to the same.
-#for omit fit
 def getOmitFit(id_params, omit):
 
     omit_fit = {} 
@@ -278,14 +269,26 @@ class GParameters(object):
         return id_params
 
 class ImageRenderer(object):
-    """
-    Everything on how to produce the image of the galaxy. 
+    """Object used to produce the image of a galaxy. 
+
+    Args:
+        pixel_scale(float): Pixel_scale to use in the image (ratio of pixels to arcsecs)
+        nx(float): Width of the image in pixels.
+        ny(float): height of the image in pixels. 
+        stamp(int): optional, galsim.Image of appropiate dimensions to draw the image. does 
+                    not actually use whatever was originally in the stamp. 
+        bounds(tuple): When drawn, the image will be clipped to these bounds. 
+        mask(np.array): the pixels selected in this mask will be set to 0. 
+    
+    One of the the following must be specified:
+        *stamp
+        *nx,ny,pixel_scale
+
+    This object is made so it can be passsed in to a class :class:`Fisher` object. 
     """
 
     def __init__(self, pixel_scale=None,nx=None, ny=None,stamp=None, project=None,
                  bounds=None, mask=None):
-
-        #add possibility of obtaining nx, ny and pixel_scale from project. 
 
         self.pixel_scale = pixel_scale
         self.nx = nx 
@@ -293,16 +296,8 @@ class ImageRenderer(object):
         self.stamp = stamp 
         self.bounds = bounds 
         self.mask = mask
-        # self.mean_sky_level = mean_sky_level
-        # self.min_snr = min_snr
-        # self.truncate_radius = truncate_radius
-        # self.truncation_mask = None
 
         if self.stamp is None:
-
-            # if (self.pixel_scale is not None and self.mean_sky_level is not None 
-            #     and self.min_snr is not None and self.truncate_radius is not None):
-            #     self.getStamp()
 
             if self.nx is not None and self.ny is not None and self.pixel_scale is not None:
                 self.stamp = galsim.Image(self.nx, self.ny, scale=self.pixel_scale)
@@ -316,50 +311,6 @@ class ImageRenderer(object):
         if self.bounds is not None:
             self.stamp = self.stamp[bounds]
 
-    # def getStamp(self):
-    #     sky_noise = math.sqrt(self.mean_sky_level)
-    #     self.pixel_cut = self.min_snr*sky_noise
-    #     # We will render each source into a square stamp with width = height = 2*padding + 1.
-    #     self.padding = int(math.ceil(self.truncate_radius/self.pixel_scale - 0.5))
-    #     size = 2*self.padding + 1
-    #     self.stamp = galsim.Image(size,size,scale = self.pixel_scale, dtype = np.float32)
-        # # Prepare a truncation mask.
-        # pixel_grid = np.arange(-self.padding,self.padding+1)*self.pixel_scale
-        # pixel_x,pixel_y = np.meshgrid(pixel_grid,pixel_grid)
-        # pixel_radius = np.sqrt(pixel_x**2 + pixel_y**2)
-        # return (pixel_radius <= self.truncate_radius)
-
-    # def get_image_coordinates(image_width,dx_arcsecs,dy_arcsecs):
-    #     """Convert a physical offset from the image center into image coordinates.
-
-    #     Args:
-    #         dx_arcsecs(float): Offset from the image center in arcseconds.
-    #         dy_arcsecs(float): Offset from the image center in arcseconds.
-
-    #     Returns:
-    #         tuple: Corresponding floating-point image coordinates (x_pixels,y_pixels)
-    #             whose :func:`math.floor` value gives pixel indices and whose...
-    #     """
-    #     x_pixels = 0.5*self.image_width + dx_arcsecs/self.pixel_scale
-    #     y_pixels = 0.5*self.image_height + dy_arcsecs/self.pixel_scale
-    #     return x_pixels,y_pixels
-
-    # def getCroppedBounds(self):
-    #     keep_mask = (self.stamp.array*self.truncation_mask > self.pixel_cut)
-    #     if np.sum(keep_mask) == 0:
-    #         raise SourceNotVisible
-    #     self.stamp.array[np.logical_not(keep_mask)] = 0.
-
-    #     x_projection = (np.sum(keep_mask,axis=0) > 0)
-    #     y_projection = (np.sum(keep_mask,axis=1) > 0)
-    #     x_min_inset = np.argmax(x_projection)
-    #     x_max_inset = np.argmax(x_projection[::-1])
-    #     y_min_inset = np.argmax(y_projection)
-    #     y_max_inset = np.argmax(y_projection[::-1])
-    #     return galsim.BoundsI(
-    #            x_min+x_min_inset,x_max-x_max_inset,
-    #            y_min+y_min_inset,y_max-y_max_inset)
-
     def getImage(self, galaxy):
         img = copy.deepcopy(self.stamp)
         galaxy.drawImage(image=img,use_true_center=False)
@@ -369,4 +320,3 @@ class ImageRenderer(object):
         else: 
             img.array[mask] = 0.
             return img
-

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Interface that allows user to do N fittings of a galaxy produced in
 generate.py given a SNR and compare with the fisher formalism by
-displaying biases and correlation coefficients,etc. and also by displaying
-a triangle plot that summarizes this results and displays data points.
+displaying biases and correlation coefficients,etc. It writes the results into a folder 
+inside the project folder specified.
 """
 
 import argparse
@@ -44,15 +44,6 @@ def main():
     parser.add_argument('-rfs', '--run-fits-slac',
     metavar='SLAC_COMPUTER',
     help = 'Same as above but have to be logged in a SLAC computer.')
-
-    parser.add_argument('-pr', '--produce-results', action='store_true',
-    help=('Read each of the files produces from a fits trial in project'
-          'directory and creates a triangle plot comparing fisher to'
-          'residuals.'))
-
-    parser.add_argument('--verbose', action='store_true',
-    help=('Prints technical information about the galaxy and the defaults'
-            'used for the fitting'))
 
     args = parser.parse_args()
 
@@ -102,24 +93,6 @@ def main():
         if args.snr:
             with open(snr_file_name, 'w') as snrfile:
                 snrfile.write(str(snr))
-
-    elif args.produce_results:
-        os.system("python readfits.py " +  str(args.project) + " " +
-                  str(snr) + " " + str(existing_fits))
-
-    # #produce info file every time we run this program.
-    # g_parameters = galfun.GParameters(args.project)
-    # fish = fisher.Fisher(g_parameters, snr)
-    # image = galfun.drawGalaxies(g_parameters=g_parameters, image=True)
-    # init_values = defaults.getInitialValuesFit(g_parameters)
-    # maximums = defaults.getMaximums(g_parameters, image)
-    # minimums = defaults.getMinimums(g_parameters, image)
-    # information = info.Info(g_parameters, fish,
-    #                         number_fits = existing_fits, minimums=minimums, maximums=maximums,init_values=init_values)
-    # information.writeInfo(args.project)
-
-    # if args.verbose:
-    #     information.printInfo()
 
 if __name__ == '__main__':
     main()
