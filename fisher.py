@@ -8,6 +8,8 @@ import copy
 import galfun
 import defaults
 
+
+
 class Fisher(object):
     """Produce fisher object (containing fisher analysis) for a given set of
     galaxy parameters.
@@ -15,6 +17,8 @@ class Fisher(object):
     Given a galaxy image and the appropiate parameters that describe it,
     (in the form of :class:`GParameters` object) will produce a fisher object that contains the 
     analysis of it using the Fisher Formalism.
+    NOTE: The matrices are in dictionary form, use the function matrixToNumpyArray() to change them
+    to a matrix that is ordered according to param_names. 
 
         Args:
             g_parameters(:class:`GParameters`): String point to the directory specified by the user.
@@ -24,27 +28,35 @@ class Fisher(object):
             snr(float): Value S/N ratio to use in the analysis. 
 
         Attributes:
-            image_renderer_partials(dict): Dictionary defined in :mod:`names.py` containing
-                            the parameters that should not be included in the
-                            analysis for a particular galaxy model.
+            image_renderer(:class:`ImageRenderer`): Object used to render image of galaxy. 
+            image_renderer_partials(:class:`ImageRenderer`): Object used to render images of
+                                                             partial derivatives. 
             image(Galsim.image): Dictionary whose keys are the ids of each of the
                              galaxies specified in galaxies.csv, and that map
                              to another dictionary that can be taken in by
                              :func:`drawGalaxy`
-            steps(dict): Dictionary that encodes the same information as
-                          id_params but in a different form. Combines each of
-                          the dictionaries contained in id_params into a
-                          single dictionary that contains all parameters but 
-                          in the form param_#.
-            fit_params(dict): Dictionary similar to the params attribute but
-                              without the parameters specified in omit_fit.
-            nfit_params(dict): Dictionary that contains all the parameters not
-                               contained in fit_params. Usually used for
-                               **kwargs in conjunction with fit_params to draw
-                               Galaxies.
-            ordered_fit_names(list): A list containing the keys of fit_params
+            var_noise(float): Variance of noise of given S/N . 
+            steps(dict): Dictionary containing the step size used when 
+                         calculating partial derivatives. 
+            param_names(list): A list containing the keys of fit_params
                                      in a desirable order.
+            num_params(int): Number of parameters specified for the galaxy. 
             num_galaxies(int): Number of galaxies specified.
+            derivatives_images(dict): Dictionary containing np.array(s) that represent the 
+                                       derivative of the galaxy(ies) with respect to each parameter. 
+            second_derivatives_images(dict): Dictionary containing np.array(s) that represent the 
+                                              second derivatives of the galaxy(ies) with respect 
+                                              to its parameters.  
+            fisher_matrix_images(dict): Dictionary containing np.array(s) that represent the 
+                                         fisher matrix images of the galaxy(ies) with respect 
+                                         to its parameters.
+            fisher_matrix(dict): Dictionary containing fisher matrix elements. 
+            covariance_matrix(dict): Dictionary containing covariance matrix elements. 
+            correlation_matrix(dict): Dictionary containing correlation matrix elements. 
+            bias_matrix_images(dict): Dictionary containing bias matrix image elements.
+            bias_matrix(dict): Dictionary containing bias matrix elements.
+            bias_images(dict): Dictionary containing bias images elements.
+            biases(dict): Dictionary containing biases
     """
 
     def __init__(self, g_parameters, image_renderer, snr):
@@ -75,6 +87,28 @@ class Fisher(object):
         self.biases = self.getBiases()
 
         self.fisher_condition_number = self.fisherConditionNumber()
+
+
+    def matrixToNumpyArray(self, matrix):
+        """Convert matrix dictionary to a numpy array."""
+        array = np.zeros([self.num_params, self.num_params])
+        for i in range(self.num_params):
+            for j in range(self.num_params):
+                param_i = self.param_names[i]
+                param_j = self.param_names[j]
+                element = matrix[param_i, param_j]
+                array[i][j] = element
+        return array
+
+    def numpyArrayToMatrix(self, array):
+        """Convert numpy array to matrix dictionary."""
+        matrix = {}
+        for i in range(self.num_params):
+            for j in range(self.num_params):
+                param_i = self.param_names[i]
+                param_j = self.param_names[j]
+                matrix[param_i, param_j] = array[i][j]
+        return matrix
 
     def derivativesImages(self):
         """Return images of the partial derivatives of the galaxy.
@@ -162,27 +196,6 @@ class Fisher(object):
                     self.fisher_matrix_images[param_i, param_j].sum())
         return FisherM
 
-    def matrixToNumpyArray(self, matrix):
-        """Convert matrix dictionary to a numpy array"""
-        array = np.zeros([self.num_params, self.num_params])
-        for i in range(self.num_params):
-            for j in range(self.num_params):
-                param_i = self.param_names[i]
-                param_j = self.param_names[j]
-                element = matrix[param_i, param_j]
-                array[i][j] = element
-        return array
-
-    def numpyArrayToMatrix(self, array):
-        """Convert numpy array to matrix dictionary"""
-        matrix = {}
-        for i in range(self.num_params):
-            for j in range(self.num_params):
-                param_i = self.param_names[i]
-                param_j = self.param_names[j]
-                matrix[param_i, param_j] = array[i][j]
-        return matrix
-
     def covarianceMatrix(self):
         """Calculate the covariance matrix by inverting fisher matrix."""
         fisher_array = self.matrixToNumpyArray(self.fisher_matrix)
@@ -204,9 +217,8 @@ class Fisher(object):
 
         return correlation_matrix
 
-
     def biasMatrixImages(self):
-        """Produce images of each element of the bias matrix"""
+        """Produce images of each element of the bias matrix."""
         BiasM_images = {}
         for i in range(self.num_params):
             for j in range(self.num_params):
