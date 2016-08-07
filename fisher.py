@@ -21,14 +21,12 @@ class Fisher(object):
     to a matrix that is ordered according to param_names. 
 
         Args:
-            g_parameters(:class:`GParameters`): String point to the directory specified by the user.
-            image_renderer(:class:`ImageRenderer`): See Attributes for details. Makes it possible to
-                             create a :class:`GParameters` object without
-                             galaxies.csv file.
+            g_parameters(:class:`GParameters`): String point to the directory 
+                                                specified by the user.
+            image_renderer(:class:`ImageRenderer`): Object used to render image of galaxy. 
             snr(float): Value S/N ratio to use in the analysis. 
 
         Attributes:
-            image_renderer(:class:`ImageRenderer`): Object used to render image of galaxy. 
             image_renderer_partials(:class:`ImageRenderer`): Object used to render images of
                                                              partial derivatives. 
             image(Galsim.image): Dictionary whose keys are the ids of each of the
