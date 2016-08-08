@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Interface that allows user to do N fittings of a galaxy produced in
 generate.py given a SNR and compare with the fisher formalism by
 displaying biases and correlation coefficients,etc. It writes the results into a folder 
@@ -7,7 +6,6 @@ inside the project folder specified.
 
 import argparse
 import os
-import info
 import galfun
 import fisher
 import defaults

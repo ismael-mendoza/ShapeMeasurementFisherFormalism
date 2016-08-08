@@ -1,5 +1,24 @@
+*.pyc
+*.dat
+*.cat
+*.tgz
+*.gz
+*.png
+*.log
+*.pdf
 *.txt
-old/ 
+
+
+notes.txt
+
 notebooks/
 data/
-project*/
+old/ 
+jobs/
+objects/
+
+# Sphinx documentation
+docs/_build/
+
+# Python profiling output
+profile.out

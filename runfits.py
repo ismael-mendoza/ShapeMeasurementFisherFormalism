@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Runs a fit once in a given galaxy image from generate.py, and
 writes results to a csv file that can be read from readfits.py
 """

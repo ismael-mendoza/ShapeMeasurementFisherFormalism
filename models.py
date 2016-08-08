@@ -88,6 +88,7 @@ class gaussian(model):
         'e1', 'e2',
         'eta1', 'eta2',
         'e', 'q', 'beta',
+        'g1','g2'
     ]
     omit_general = []
 

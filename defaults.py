@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Some of the defaults that are used in the overall program."""
 
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Generate a galaxy(ies) as specified by the user and saves it to a csv file."""
 import argparse
 import defaults
@@ -7,7 +6,6 @@ import csv
 import shutil
 import galfun
 import fisher
-import info
 import models 
 
 def csvIsEmpty(filename):
