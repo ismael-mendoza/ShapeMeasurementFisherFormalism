@@ -68,12 +68,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.linkcode',
-    'sphinx.ext.extlinks',
     'sphinxcontrib.napoleon',
 ]
-
-extlinks = {'issue': ('https://github.com/sphinx-doc/sphinx/issues/%s',
-                      'issue ')}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
