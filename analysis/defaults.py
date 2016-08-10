@@ -1,6 +1,5 @@
 """Some of the defaults that are used in the overall program."""
 
-
 def getSteps(g_parameters, image_renderer):
     """Return a dictionary containing the steps to be used in the
     derivatives of each parameter.
@@ -10,11 +9,11 @@ def getSteps(g_parameters, image_renderer):
     Some parameter variations were copied from David's code suggestions. 
 
     Args:
-    g_parameters(:class:`GParameters`): An object containing different
-                                        forms of the galaxy parameters.
+    g_parameters(:class:`analysis.galfun.GParameters`): An object containing different
+        forms of the galaxy parameters.
 
     Returns:
-        A :py:dict.
+        A dict.
     """
     steps = dict()
     fit_params = g_parameters.fit_params
@@ -50,11 +49,11 @@ def getInitialValuesFit(g_parameters):
     The dictionary is of the form: 'parameter_name:initial_value'
 
     Args:
-    g_parameters(:class:`GParameters`): An object containing different
-                                        forms of the galaxy parameters.
+    g_parameters(:class:`analysis.galfun.GParameters`): An object containing different
+        forms of the galaxy parameters.
 
     Returns:
-        A :py:dict.
+        A dict.
     """
     initial_values = dict()
     fit_params = g_parameters.fit_params
@@ -74,11 +73,11 @@ def getMinimums(g_parameters, gal_image):
     The dictionary is of the form: 'parameter_name:initial_value'
 
     Args:
-    g_parameters(:class:`GParameters`): An object containing different
-                                        forms of the galaxy parameters.
+    g_parameters(:class:`analysis.galfun.GParameters`): An object containing different
+        forms of the galaxy parameters.
 
     Returns:
-        A :py:dict.
+        A dict.
     """
     minimums = dict()
     for param in g_parameters.fit_params:
@@ -116,11 +115,11 @@ def getMaximums(g_parameters, gal_image):
     The dictionary is of the form: 'parameter_name:maximum_value'
 
     Args:
-    g_parameters(:class:`GParameters`): An object containing different
-                                        forms of the galaxy parameters.
+    g_parameters(:class:`galfun.GParameters`): An object containing different
+        forms of the galaxy parameters.
 
     Returns:
-        A :py:dict.
+        A dict.
     """
     maximums = dict()
     for param in g_parameters.fit_params:

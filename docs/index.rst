@@ -20,6 +20,7 @@ The code is hosted on `github <https://github.com/ismael2395/WeakLensingFisherFo
    programs
    notebooks
    parameters 
+   products
    todo
    developer
    history

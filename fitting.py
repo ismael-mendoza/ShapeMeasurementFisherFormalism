@@ -6,9 +6,9 @@ inside the project folder specified.
 
 import argparse
 import os
-import galfun
-import fisher
-import defaults
+
+
+import analysis.defaults as defaults 
 
 def main():
 

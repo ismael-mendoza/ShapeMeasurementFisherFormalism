@@ -1,7 +1,7 @@
-descwl.analysis module
+analysis.fisher module
 ======================
 
-.. automodule:: descwl.analysis
+.. automodule:: analysis.fisher
     :members:
     :undoc-members:
     :show-inheritance:

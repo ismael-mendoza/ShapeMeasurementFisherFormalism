@@ -1,7 +1,7 @@
-descwl.catalog module
+analysis.galfun module
 =====================
 
-.. automodule:: descwl.catalog
+.. automodule:: analysis.galfun
     :members:
     :undoc-members:
     :show-inheritance:

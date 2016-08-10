@@ -1,7 +1,7 @@
-descwl.survey module
+analysis.models module
 ====================
 
-.. automodule:: descwl.survey
+.. automodule:: analysis.models
     :members:
     :undoc-members:
     :show-inheritance:

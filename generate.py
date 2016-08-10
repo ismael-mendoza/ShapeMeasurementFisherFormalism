@@ -1,12 +1,11 @@
 """Generate a galaxy(ies) as specified by the user and saves it to a csv file."""
 import argparse
-import defaults
 import os
 import csv
 import shutil
-import galfun
-import fisher
-import models 
+
+import analysis.defaults as defaults
+import analysis.models as models
 
 def csvIsEmpty(filename):
     """Check if a given csv file is empty by making sure each of the rows in

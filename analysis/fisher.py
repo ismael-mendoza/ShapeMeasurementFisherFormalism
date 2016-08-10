@@ -15,8 +15,9 @@ class Fisher(object):
     galaxy parameters.
 
     Given a galaxy image and the appropiate parameters that describe it,
-    (in the form of :class:`GParameters` object) will produce a fisher object that contains the 
-    analysis of it using the Fisher Formalism.
+    (in the form of :class:`analysis.galfun.GParameters` object) will produce a fisher object that 
+    contains the analysis of it using the Fisher Formalism.
+    
     NOTE: The matrices are in dictionary form, use the function matrixToNumpyArray() to change them
     to a matrix that is ordered according to param_names. 
 
@@ -27,27 +28,23 @@ class Fisher(object):
             snr(float): Value S/N ratio to use in the analysis. 
 
         Attributes:
-            image_renderer_partials(:class:`ImageRenderer`): Object used to render images of
-                                                             partial derivatives. 
-            image(Galsim.image): Dictionary whose keys are the ids of each of the
-                             galaxies specified in galaxies.csv, and that map
-                             to another dictionary that can be taken in by
-                             :func:`drawGalaxy`
+            image_renderer_partials(:class:`analysis.galfun.ImageRenderer`): Object used to render 
+            images of partial derivatives. 
+            image(:class:`Galsim.Image`): Dictionary whose keys are the ids of each of the
+                galaxies specified in galaxies.csv, and that map to another dictionary that can be taken in by :func:`analysis.galfun.getGalaxyModel`
             var_noise(float): Variance of noise of given S/N . 
             steps(dict): Dictionary containing the step size used when 
-                         calculating partial derivatives. 
+                calculating partial derivatives. 
             param_names(list): A list containing the keys of fit_params
-                                     in a desirable order.
+                in a desirable order.
             num_params(int): Number of parameters specified for the galaxy. 
             num_galaxies(int): Number of galaxies specified.
             derivatives_images(dict): Dictionary containing np.array(s) that represent the 
-                                       derivative of the galaxy(ies) with respect to each parameter. 
+                derivative of the galaxy(ies) with respect to each parameter. 
             second_derivatives_images(dict): Dictionary containing np.array(s) that represent the 
-                                              second derivatives of the galaxy(ies) with respect 
-                                              to its parameters.  
+                second derivatives of the galaxy(ies) with respect to its parameters.  
             fisher_matrix_images(dict): Dictionary containing np.array(s) that represent the 
-                                         fisher matrix images of the galaxy(ies) with respect 
-                                         to its parameters.
+                fisher matrix images of the galaxy(ies) with respect to its parameters.
             fisher_matrix(dict): Dictionary containing fisher matrix elements. 
             covariance_matrix(dict): Dictionary containing covariance matrix elements. 
             correlation_matrix(dict): Dictionary containing correlation matrix elements. 

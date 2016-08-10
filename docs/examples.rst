@@ -34,5 +34,7 @@ This command hides the output by default and saves all files in a pdf format.
 More complicated examples
 ------------------
 
-Please refer to the :doc:`tutorial notebooks </notebooks>`.
+It is not necessary to use the :ref:`prog-display` to display the images (and it can be a little limiting in terms of formatting the images to 
+your liking). It is possible to access the images directly from the fisher objects and use them. Please refer to the 
+:doc:`tutorial notebooks </notebooks>` for tutorials on how to do this and for other more complicated examples of how the package can be used. 
 

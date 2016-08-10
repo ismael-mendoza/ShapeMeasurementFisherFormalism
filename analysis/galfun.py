@@ -1,20 +1,20 @@
-"""
-Contains important functions for managing parameters of generated galaxies and reading from 
+"""Contains important functions for managing parameters of generated galaxies and reading from 
 files. 
 """
 import os
 import csv
-import defaults
 import galsim
 import copy
-import models
 import math
 import numpy as np 
+
+import models
+import defaults
 
 def getGalaxyModel(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
-    Look at :mod:`names.py` to figure out which galaxy models and psf
+    Look at :mod:`analysis.models` to figure out which galaxy models and psf
     models are supported as well as their corresponding implemented 
     parameters. You can even add your own galaxies if desired. 
 
@@ -24,7 +24,7 @@ def getGalaxyModel(params):
         values are the values of the parametes.
 
     Returns:
-        A galsim.GSObject
+        A :class:`galsim.GSObject`
     """
 
     galaxy_model = params['galaxy_model']
@@ -50,8 +50,7 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
     """Return the model of a set of galaxies.
 
     One of the the following must be specified:
-        fit_params (and nfit_params as **kwargs. Used specially in
-        :mod:`runfits.py`).
+        fit_params (and nfit_params as **kwargs. Used specially in :mod:`runfits.py`).
         id_params
         g_parameters (from which id_params is extracted.)
     This function generates each of the galaxies specified in id_params and then
@@ -69,7 +68,7 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
         returns a np.array
 
     Returns:
-        A galsim.GSObject
+        A :class:`galsim.GSObject`
     """
 
     if id_params is None and g_parameters is None:
@@ -104,14 +103,14 @@ def addNoise(image, snr, noise_seed=0):
     """Set gaussian noise to the given galsim.Image.
 
     Args:
-        image(galsim.Image): Galaxy image that noise is going to be added
+        image(:class:`galsim.Image`): Galaxy image that noise is going to be added
                              to.
         snr(float): Signal to noise ratio.
         noise_seed(int): Seed to set to galsim.BaseDeviate which
                          will create the galsim.noise instance.
 
     Returns:
-        A galsim.Image, variance_noise tuple. The image is the noisy version
+        A :class:`galsim.Image`, variance_noise tuple. The image is the noisy version
         of the original image and variance_noise is the noise variance on each
         pixel due to the added noise.
     """
@@ -119,8 +118,7 @@ def addNoise(image, snr, noise_seed=0):
     noisy_image = copy.deepcopy(image)  # do not alter original image.
     bd = galsim.BaseDeviate(noise_seed)
     noise = galsim.GaussianNoise(rng=bd)
-    variance_noise = noisy_image.addNoiseSNR(noise, snr,
-                                             preserve_flux=True)
+    variance_noise = noisy_image.addNoiseSNR(noise, snr, preserve_flux=True)
     return noisy_image, variance_noise
 
 
@@ -133,31 +131,30 @@ class GParameters(object):
 
         Args:
             project(str): String point to the directory specified by the user.
-            id_params(dict): See Attributes for details. Makes it possible to
-                             create a :class:`GParameters` object without
-                             galaxies.csv file.
+            id_params(dict): See Attributes for details. Makes it possible to 
+            create a :class:`GParameters` object without
+            galaxies.csv file.
 
         Attributes:
-            omit_fit(dict): Dictionary defined in :mod:`names.py` containing
-                            the parameters that should not be included in the
-                            analysis for a particular galaxy model.
+            omit_fit(dict): Dictionary defined in containing
+                the parameters that should not be included in the
+                analysis for a particular galaxy model but could be 
+                ecessary for drawing the galaxy. 
             id_params(dict): Dictionary whose keys are the ids of each of the
-                             galaxies specified in galaxies.csv, and that map
-                             to another dictionary that can be taken in by
-                             :func:`drawGalaxy`
+                galaxies specified in galaxies.csv, and that map
+                to another dictionary that can be taken in by
+                :func:`getGalaxyModel`
             params(dict): Dictionary that encodes the same information as
-                          id_params but in a different form. Combines each of
-                          the dictionaries contained in id_params into a
-                          single dictionary that contains all parameters but 
-                          in the form param_#.
+                id_params but in a different form. Combines each of
+                the dictionaries contained in id_params into a
+                single dictionary that contains all parameters but 
+                in the form param_#.
             fit_params(dict): Dictionary similar to the params attribute but
-                              without the parameters specified in omit_fit.
+                without the parameters specified in omit_fit.
             nfit_params(dict): Dictionary that contains all the parameters not
-                               contained in fit_params. Usually used for
-                               **kwargs in conjunction with fit_params to draw
-                               Galaxies.
+                contained in fit_params. Usually used for kwargs in conjunction with fit_params to draw Galaxies.
             ordered_fit_names(list): A list containing the keys of fit_params
-                                     in a desirable order.
+                in a desirable order.
             num_galaxies(int): Number of galaxies specified.
     """
 
@@ -202,7 +199,7 @@ class GParameters(object):
         self.num_galaxies = len(self.id_params.keys())
 
     def getNFitParams(self):
-        """Extract :attr:`nfit_params from :attr:`params` by noticing which
+        """Extract :attr:`nfit_params` from :attr:`params` by noticing which
         parameters are in fit_params.
         """
         nfit_params = dict()
@@ -237,7 +234,7 @@ class GParameters(object):
                                 :attr:`omit_fit`
 
             Returns:
-                A dictionary params(dict).
+                A dictionary of params (dict).
         """
         params = {}
         for gal_id in id_params:
@@ -278,13 +275,13 @@ class ImageRenderer(object):
         stamp(int): optional, galsim.Image of appropiate dimensions to draw the image. does 
                     not actually use whatever was originally in the stamp. 
         bounds(tuple): When drawn, the image will be clipped to these bounds. 
-        mask(np.array): the pixels selected in this mask will be set to 0. 
+        mask(:class:`np.array`): the pixels selected in this mask will be set to 0. 
     
     One of the the following must be specified:
         *stamp
         *nx,ny,pixel_scale
 
-    This object is made so it can be passsed in to a class :class:`Fisher` object. 
+    This object is made so it can be passsed in to a class :class:`analysis.fisher.Fisher` object. 
     """
 
     def __init__(self, pixel_scale=None,nx=None, ny=None,stamp=None, project=None,

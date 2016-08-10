@@ -1,7 +1,7 @@
-descwl.trace module
+analysis.defaults module
 ===================
 
-.. automodule:: descwl.trace
+.. automodule:: analysis.defaults
     :members:
     :undoc-members:
     :show-inheritance:

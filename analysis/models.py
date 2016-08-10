@@ -6,18 +6,17 @@ import galsim
 import sys 
 
 
-#referencing own module
+#referencing itself. 
 curr_module = sys.modules[__name__] 
 
 def getExtra():
     return ['id', 'galaxy_model', 'psf_model']
 
 #make sure names of model class is the same name as the one to generate.
-#write down this class in all galaxy modules.
 class model(object):
     
     parameters = []
-    omit_general = [] #omit always for all instances. 
+    omit_general = [] #omit always for all instances of this class. 
 
     def __init__(self, params=None, params_omit=None):
 
@@ -371,8 +370,8 @@ def getFieldnames():
     return getExtra() + getGalParameters() + getPsfParameters()
 
 
-#return the corresponding class to the model specified in params
 def getModelCls(model):
+    """Return the corresponding class to the model specified in params"""
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
     for cls in subclasses:
         if(cls.__name__ == model):
@@ -380,8 +379,8 @@ def getModelCls(model):
     raise NotImplementedError('Have not implemented that galaxy model')
 
 
-#return the corresponding psf class specified in params.
 def getPsfModelCls(model):
+    """Return the corresponding psf class specified in params."""
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
     for cls in subclasses:
         if(cls.__name__ == model):
@@ -389,8 +388,8 @@ def getPsfModelCls(model):
     raise NotImplementedError('Have not implemented that psf model')
 
 
-#used to display choices in generate.py
 def getAllModels():
+    """Used to display choices in generate.py"""
     gal_models = []
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
     for cls in subclasses:
@@ -398,8 +397,9 @@ def getAllModels():
 
     return gal_models
 
-#used to display choices in generate.py
+
 def getAllPsfModels():
+    """Used to display choices in genearte.py"""
     psf_models = []
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
     for cls in subclasses:
