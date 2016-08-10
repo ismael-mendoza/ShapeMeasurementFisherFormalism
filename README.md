@@ -1,7 +1,7 @@
 Software for Weak Lensing Fisher Formalism Studies
 ============================================
 
-Fast simulations and analysis for the Weak Lensing Working Group of the LSST `Dark Energy Science Collaboration <http://www.lsst-desc.org>`_.
+Fast simulations and analysis for the Weak Lensing Working Group of the LSST [Dark Energy Science Collaboration](http://www.lsst-desc.org).
 
 This software was primarily developed to study the effects of overlapping sources on shear estimation using the Fisher Formalism. 
 
