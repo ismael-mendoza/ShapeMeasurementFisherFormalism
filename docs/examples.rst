@@ -9,13 +9,6 @@ Print out usage info for command-line options::
 	./generate.py --help
 	./fitting.py --help
 
-Survey Parameters
------------------
-
-Print default camera and observing condition parameters for each supported (survey,filter) combination::
-
-	./simulate.py --survey-defaults
-
 Quick Simulation Demo
 ---------------------
 
@@ -32,7 +25,7 @@ Display a fisher matrix elements without showing it when the command is executed
 	python display.py -p project --fisher --snr 20. --hide
 
 It is important to always specificy the project that is being run as well as the signal to noise ratio to be used. . 
-Finally one can also save all the possible outputs to the current project folder with: 
+Finally one can also save all the possible outputs to the current project folder with::
 
 	python display.py -p project --all --snr 20.
 
@@ -41,5 +34,5 @@ This command hides the output by default and saves all files in a pdf format.
 More complicated examples
 ------------------
 
-Please refer to the `tutorial notebooks <INSERT URL/>`_.
+Please refer to the :doc:`tutorial notebooks </notebooks>`.
 

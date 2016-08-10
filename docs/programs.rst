@@ -7,9 +7,6 @@ All programs are configured by passing command-line options. Pass the `--help` o
 
 	python generate.py --help
 
-.. This document provides an introduction to each of the available programs. Examples of running the programs are :doc:`documented elsewhere </examples>`. The flowchart below shows the main processing steps and relationships between these programs.
-
-image:: img/programs.*
 
 Executable Programs
 ===================
@@ -17,20 +14,20 @@ Executable Programs
 generate
 --------
 
-The `generate` program writes to a CSV file that can be later be read by the :mod:`galfun.py` or by :mod:`galfun.py` to generate galaxy images and their analysis. Fast image rendering with `galsim <https://github.com/GalSim-developers/GalSim>`_.
+The `generate` program writes to a CSV file that can be later be read by the `galfun.py <https://github.com/ismael2395/WeakLensingFisherFormalism/blob/master/galfun.py>`_. or by :mod:`galfun.py` to generate galaxy images and their analysis. Fast image rendering with `galsim <https://github.com/GalSim-developers/GalSim>`_.
 
 The user specifies the arguments of the galaxy and the psf in the following way:: 
 
-python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... 
+    python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... 
 
 The project name, the galaxy model, the snr value, and the galaxy ID (in this case 1) should always be specified. One can optionally add a psf for 
 the galaxy to be convolved with::
 
-python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
+    python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
 
 The psf and the galaxy are treated differently in the package. If you want to generate two galaxies just use the procedure above changing the id:: 
 
-python generate.py -p PROJECT_NAME -gal 2 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
+    python generate.py -p PROJECT_NAME -gal 2 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
 
 Then the csv file should contain information about both galaxies (one row per galaxy). It is recommended you use specify the same psf for both galaxies.
 
@@ -63,15 +60,25 @@ Other Programs
 
 
 models
--------
+------
 
+The :mod:`models.py` module contains the galaxy and psf models that can be produced by :mod:`generate.py` and analyzed by :mod:`fisher.py`. It 
+specifies the commands that GALSIM should use to produce them. 
 
 fisher
 -------
+
+The :mod:`analysis.fisher` module contains the analysis by the Fisher Formalism which is made on the galaxy that :mod:`generate.py` produced. 
+Please refer to the tutorials in :doc:`tutorial notebooks </notebooks>` for specific instructions on how to use this module efficiently 
+in conjunction with :mod:`galfun.py` module. 
 
 
 galfun
 -------
 
+The :mod:`galfun.py` module manages the parameters of the galaxies to have the correct format and is then used by the :mod:`fisher.py`. 
+
+
 default
 -------
+The :mod:`default.py` module stores defaults parameter values for different parts of the package. 
