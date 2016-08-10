@@ -9,6 +9,7 @@ Submodules
    analysis.fisher
    analysis.galfun
    analysis.models
+   analysis.draw
    analysis.defaults
 
 Module contents

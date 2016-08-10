@@ -9,7 +9,7 @@ Galaxy Models
 ============= ====================================================================================
 Name           Description
 ============= ====================================================================================
-gaussian      Guassian galaxy profile, :py:class:`galsim.Gaussian`. 
+gaussian      Gaussian galaxy profile, :py:class:`galsim.Gaussian`. 
 exponential   Exponential galaxy profile, :py:class:`galsim.Exponential`. 
 deVaucouleurs DeVaucouleurs galaxy profile, :py:class:`galsim.DeVaucouleurs`.
 bulgeDisk     Combined exponential (disk) and deVaucouleurs (bulge) profile. 
@@ -61,10 +61,10 @@ PSF Models
 ============= ====================================================================================
 Name          Description
 ============= ====================================================================================
-psf_gaussian  Guassian galaxy profile, :py:class:`galsim.Gaussian`. 
+psf_gaussian  Gaussian galaxy profile, :py:class:`galsim.Gaussian`. 
 psf_moffat    Moffat galaxy profile, :py:class:`galsim.Moffat`. 
 ============= ====================================================================================
 
 PSF Parameters 
 --------------
-For the psf, the parameters have the same significance as in the table of parameters sabove. 
+For the PSF, the parameters have the same significance as in the table of parameters as above. 

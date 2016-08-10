@@ -5,15 +5,13 @@ plots) for the galaxies generated in generate.py
 
 import argparse
 
-import fisher
+import analysis.fisher as fisher
 
-import draw
+import analysis.draw as draw
 
-import defaults
+import analysis.defaults as defaults
 
-import galfun
-
-import info
+import analysis.galfun as galfun
 
 #import pickle 
 
@@ -75,8 +73,8 @@ def main():
         args.hide = True
 
     g_parameters = galfun.GParameters(args.project)
-    image_renderer = galfun.ImageRenderer(pixel_scale=float(args.pixel_scale),
-                                          nx=float(args.nx),ny=float(args.ny))
+    image_renderer = galfun.ImageRenderer(pixel_scale=float(defaults.PIXEL_SCALE),
+                                          nx=float(defaults.NX),ny=float(defaults.NY))
     fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, 
                          snr=float(args.snr))
     #pickle.dump(fish.image,open("model_repo.p","wb"))
@@ -106,12 +104,6 @@ def main():
         plots.biasMatrix()
     if args.biases and not args.values or args.all:
         plots.biases()
-
-    information = info.Info(g_parameters, fish)
-    information.writeInfo(args.project)
-
-    if args.verbose:
-        information.printInfo()
 
 if __name__ == '__main__':
     main()

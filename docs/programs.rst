@@ -15,22 +15,35 @@ Executable Programs
 
 generate
 ~~~~~~~~
-The `generate` program writes to a CSV file that can be later be read by the :mod:`analysis.galfun` or by :mod:`analysis.fisher` modules to generate galaxy images and their analysis. Fast image rendering with `galsim <https://github.com/GalSim-developers/GalSim>`_.
+The :ref:`prog-generate` program writes to a CSV file that can be later be read by the :mod:`analysis.galfun` or by :mod:`analysis.fisher` modules to generate galaxy images and their analysis. Fast image rendering with `galsim <https://github.com/GalSim-developers/GalSim>`_.
 
-The user specifies the arguments of the galaxy and the psf in the following way:: 
+The user specifies the arguments of the galaxy and the PSF in the following way:: 
 
     python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... 
 
-The project name, the galaxy model, the snr value, and the galaxy ID (in this case 1) should always be specified. One can optionally add a psf for 
+For a given galaxy model at least the following parameters should always be specified: 
+
+========================================
+Required parameters name          
+========================================
+x0  
+y0
+flux
+measure of size (sigma,hlr,fwhm)
+measure of ellipticity ((g1,g2),(e1,e2))
+========================================
+
+You can look up what the different parameters mean exactly in this :doc:`section </parameters>`. The project name, the galaxy model, the snr value, and the galaxy ID (in the case when you draw 1 you only need one galaxy ID) should also always be specified. One can optionally add a PSF for 
 the galaxy to be convolved with::
 
     python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
 
-The psf and the galaxy are treated differently in the package. If you want to generate two galaxies just use the procedure above changing the id:: 
+A PSF always needs a model name, a measure of size, and a flux (which should be 1). The PSF and the galaxy are treated differently in the package. 
+If you want to generate two galaxies just use the procedure above changing the id:: 
 
     python generate.py -p PROJECT_NAME -gal 2 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... --psf_model PSF_MODEL_NAME --PSF_PARAM1 PSF_PARAM1_VALUE ... 
 
-Then the csv file should contain information about both galaxies (one row per galaxy). It is recommended you use specify the same psf for both galaxies.
+Then the .csv file should contain information about both galaxies (one row per galaxy). It is recommended you use specify the same PSF for both galaxies.
 
 .. _prog-display:
 
@@ -49,17 +62,21 @@ For the different images that can be produced and some explanations for them. Mo
 fitting
 ~~~~~~~
 
-The :mod:`analysis.fitting` program runs fits using `lmfit <https://lmfit.github.io/lmfit-py/>`_. as an alternative way of estimating the noise bias and error in order to compare it to the Fisher Formalism. 
+The :ref:`prog-fitting` program runs fits using `lmfit <https://lmfit.github.io/lmfit-py/>`_. as an alternative way of estimating the noise bias and error in order to compare it to the Fisher Formalism. 
 
 In order to run a certain number N of fits, make sure you already created a galaxy with the `generate` program and then run:: 
 
 	fitting.py -p EXISTING_PROJECT_NAME -rf -n N --snr SNR_VALUE
 
-If you are Stanford SLAC afilliated and want send N batch jobs to SLAC, then log in to SLAC and then run:: 
+If you are Stanford SLAC affiliated and want send N batch jobs to SLAC, then log in to SLAC and then run:: 
 
 	fitting.py -p EXISTING_PROJECT_NAME -rfs short -n N --snr SNR_VALUE
 
-The method use to 
+This :ref:`prog-fitting` module internally calls another module named :ref:`prog-runfits` *N* times which produces the results from a single fits 
+and then writes them to a .csv file. The correct way to read the data produced from this process is to use the :func:`analysis.galfun.read_results` 
+function which returns the results in a convenient format. For more specific information about the output of this function please consult the 
+docstring. To see how these process can be used to produce interesting fits and their plots please take a look at the fits_anlaysis :doc:'tutorial 
+notebook </notebooks>'.
 
 Other Modules
 --------------
@@ -69,7 +86,7 @@ Other Modules
 models
 ~~~~~~
 
-The :mod:`analysis.models` module contains the galaxy and psf models that can be produced by :ref:`prog-generate` and 
+The :mod:`analysis.models` module contains the galaxy and PSF models that can be produced by :ref:`prog-generate` and 
 analyzed by :mod:`analysis.fisher`. It specifies the commands that `galsim <https://github.com/GalSim-developers/GalSim>`_ 
 should use to produce them. 
 
@@ -87,16 +104,18 @@ in conjunction with :mod:`analysis.galfun` module.
 galfun
 ~~~~~~
 
-The :mod:`analysis.galfun` module manages the parameters of the galaxies to and stores them in a convenient format that is then used 
-by the :mod:`analysis.galfun`. 
+The :mod:`analysis.galfun` is a multipurpose module that contains important functions ranging from managing parameters of 
+generated galaxies to extracting information from relevant files. 
 
 .. _prog-default:
 
-default
-~~~~~~~
-The :mod:`analysis.default` module stores defaults parameter values for different parts of the package. 
+defaults
+~~~~~~~~
+The :mod:`analysis.defaults` module stores defaults parameter values for different parts of the package. 
+
+.. _prog-runfits:
 
 runfits
 ~~~~~~~
-The :mod:`analysis.runfits` module run :mod:`lmfit` to do the fittings on several noisy instantiations on a given galaxy model and produces 
+The :ref:`prog-runfits` module runs :mod:`lmfit` to do the fits on several noisy instantiations of a given galaxy model and produces 
 results in the form of .csv files inside the "results" folder that will be inside your corresponding project folder (depends on what you decided to name it).

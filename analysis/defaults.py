@@ -157,7 +157,11 @@ SNR_NORM = 20.
 NX = 45
 NY = 45 
 PIXEL_SCALE = .2 
-
+SIG_DIGITS = 4
+DPI = 300
+FONTSIZE_LABEL = 8
+FONTSIZE_VALUE = 4
+FONTSIZE_TITLE = 14
 
 # some default names for argparse and i/0 file management.
 PROJECT = 'project'
@@ -166,3 +170,5 @@ RESULTS_DIR = 'results'
 GALAXY_FILE = 'galaxies.csv'
 SNR_FILE = 'snr.txt'
 MODEL = 'gaussian'
+FIGURE_BASENAME = 'figure'
+FIGURE_EXTENSION = '.pdf'

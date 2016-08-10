@@ -9,16 +9,10 @@
 *.txt
 
 
-notes.txt
-
-notebooks/
+mynotebooks/
 data/
 old/ 
-jobs/
-objects/
+
 
 # Sphinx documentation
 docs/_build/
-
-# Python profiling output
-profile.out

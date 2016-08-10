@@ -1,5 +1,5 @@
 analysis.galfun module
-=====================
+======================
 
 .. automodule:: analysis.galfun
     :members:

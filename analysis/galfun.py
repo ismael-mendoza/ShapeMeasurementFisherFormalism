@@ -1,5 +1,5 @@
-"""Contains important functions for managing parameters of generated galaxies and reading from 
-files. 
+"""Multipurpose module that contains important functions ranging from managing parameters of 
+generated galaxies to extracing information from relevant files. 
 """
 import os
 import csv
@@ -25,6 +25,7 @@ def getGalaxyModel(params):
 
     Returns:
         A :class:`galsim.GSObject`
+        
     """
 
     galaxy_model = params['galaxy_model']
@@ -69,6 +70,7 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
 
     Returns:
         A :class:`galsim.GSObject`
+
     """
 
     if id_params is None and g_parameters is None:
@@ -113,6 +115,7 @@ def addNoise(image, snr, noise_seed=0):
         A :class:`galsim.Image`, variance_noise tuple. The image is the noisy version
         of the original image and variance_noise is the noise variance on each
         pixel due to the added noise.
+
     """
 
     noisy_image = copy.deepcopy(image)  # do not alter original image.
@@ -120,6 +123,48 @@ def addNoise(image, snr, noise_seed=0):
     noise = galsim.GaussianNoise(rng=bd)
     variance_noise = noisy_image.addNoiseSNR(noise, snr, preserve_flux=True)
     return noisy_image, variance_noise
+
+def read_results(project,g_parameters, fish):
+    orig_image = fish.image
+    mins = defaults.getMinimums(g_parameters, orig_image)
+    maxs = defaults.getMaximums(g_parameters, orig_image)
+    
+    residuals = {}
+    pulls = {}
+    redchis = [] #list containing values of reduced chi2 for each fit.
+    rltsdir = os.path.join(project, defaults.RESULTS_DIR)
+
+    # read results from rltsdir's files.
+    for filename in os.listdir(rltsdir):
+        with open(os.path.join(rltsdir, filename)) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for i,row in enumerate(reader):
+                print i,row
+                redchis.append(float(row['redchi']))
+                for param in g_parameters.fit_params:
+                    if param not in residuals:
+                        residuals[param] = []
+                    if param not in pulls:
+                        pulls[param] = []
+                    residual = (float(row[param]) -
+                                float(g_parameters.params[param]))
+                    pull = (residual /
+                            math.sqrt(fish.covariance_matrix[param, param]))
+
+                    residuals[param].append(residual)
+                    pulls[param].append(pull)
+
+    biases = {param: np.mean(residuals[param]) for param in residuals}
+    pull_means = {param: np.mean(pulls[param]) for param in residuals}
+    res_stds = {param: np.std(residuals[param]) for param in residuals}
+    pull_mins = {param: ((mins[param] - float(g_parameters.params[param])) /
+                         math.sqrt(fish.covariance_matrix[param, param])) for
+                 param in residuals}
+    pull_maxs = {param: ((maxs[param] - float(g_parameters.params[param])) /
+                         math.sqrt(fish.covariance_matrix[param, param])) for
+                 param in residuals}
+
+    return pulls,residuals,biases,pull_means,res_stds,pull_mins,pull_maxs,redchis
 
 
 class GParameters(object):
@@ -152,10 +197,12 @@ class GParameters(object):
             fit_params(dict): Dictionary similar to the params attribute but
                 without the parameters specified in omit_fit.
             nfit_params(dict): Dictionary that contains all the parameters not
-                contained in fit_params. Usually used for kwargs in conjunction with fit_params to draw Galaxies.
+                contained in fit_params. Usually used for kwargs in conjunction with fit_params to 
+                draw Galaxies.
             ordered_fit_names(list): A list containing the keys of fit_params
                 in a desirable order.
             num_galaxies(int): Number of galaxies specified.
+
     """
 
     def __init__(self, project=None, id_params=None, omit={}):
@@ -273,7 +320,7 @@ class ImageRenderer(object):
         nx(float): Width of the image in pixels.
         ny(float): height of the image in pixels. 
         stamp(int): optional, galsim.Image of appropiate dimensions to draw the image. does 
-                    not actually use whatever was originally in the stamp. 
+            not actually use whatever was originally in the stamp. 
         bounds(tuple): When drawn, the image will be clipped to these bounds. 
         mask(:class:`np.array`): the pixels selected in this mask will be set to 0. 
     

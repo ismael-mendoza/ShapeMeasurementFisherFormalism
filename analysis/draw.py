@@ -44,13 +44,12 @@ def drawImage(ax, plot, title="", xlabel="", ylabel=""):
     ax.set_xlabel(xlabel, fontsize=defaults.FONTSIZE_LABEL)
     ax.set_ylabel(ylabel, fontsize=defaults.FONTSIZE_LABEL)
 
-    ax.imshow(plot, cmap='jet', interpolation='nearest', rasterized=False, origin='lower',
-              extent=[-defaults.NX, defaults.NX, -defaults.NY, defaults.NY])
-              #vmax=abs(plot).max(), vmin=-abs(plot).max())
+    ax.imshow(plot, cmap='RdYlGn', interpolation='nearest', 
+        extent=[-defaults.NX, defaults.NX, -defaults.NY, defaults.NY],
+        vmax=abs(plot).max(), vmin=-abs(plot).max())
 
 
 class Plots(object):
-
     """Produce plots for a fish object and displays them, in a given
     plots_dir that is in a given project. Hide if just save images but not
     display them.

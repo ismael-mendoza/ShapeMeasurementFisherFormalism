@@ -1,10 +1,10 @@
-.. WeakLensingDeblending documentation master file, created by
-   sphinx-quickstart on Wed Dec  3 17:14:11 2014.
+.. WeakLensingFisherFormalism documentation master file, created by
+   sphinx-quickstart on Wed Dec 3 17:14:11 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-DESC Weak Lensing Deblending Package
-====================================
+Weak Lensing Fisher Formalism Package
+=====================================
 
 Fast simulations and analysis for the Weak Lensing Working Group of the LSST `Dark Energy Science Collaboration <http://www.lsst-desc.org>`_.
 
@@ -18,8 +18,8 @@ The code is hosted on `github <https://github.com/ismael2395/WeakLensingFisherFo
    install
    examples
    programs
-   notebooks
    parameters 
+   notebooks
    products
    todo
    developer
