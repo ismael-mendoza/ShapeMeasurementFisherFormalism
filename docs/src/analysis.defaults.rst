@@ -1,5 +1,5 @@
 analysis.defaults module
-===================
+========================
 
 .. automodule:: analysis.defaults
     :members:

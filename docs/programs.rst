@@ -22,16 +22,12 @@ The user specifies the arguments of the galaxy and the PSF in the following way:
     python generate.py -p PROJECT_NAME -gal 1 --galaxy-model MODEL_NAME --snr VALUE --PARAM1_NAME PARAM1_VALUE ... 
 
 For a given galaxy model at least the following parameters should always be specified: 
-
-========================================
-Required parameters name          
-========================================
-x0  
-y0
-flux
-measure of size (sigma,hlr,fwhm)
-measure of ellipticity ((g1,g2),(e1,e2))
-========================================
+         
+* x0 
+* y0
+* flux
+* measure of size (sigma,hlr,fwhm)
+* measure of ellipticity ((g1,g2),(e1,e2))
 
 You can look up what the different parameters mean exactly in this :doc:`section </parameters>`. The project name, the galaxy model, the snr value, and the galaxy ID (in the case when you draw 1 you only need one galaxy ID) should also always be specified. One can optionally add a PSF for 
 the galaxy to be convolved with::
