@@ -7,4 +7,4 @@ This software was primarily developed to study the effects of overlapping source
 
 User and reference documentation is hosted at http://weaklensingdeblending.readthedocs.org/ and also available as a [single pdf document](https://readthedocs.org/projects/weaklensingfisherformalism/downloads/pdf/latest/).
 
-[![Documentation Status](http://weaklensingfisherformalism.readthedocs.io/en/latest/)](https://readthedocs.org/projects/weaklensingdeblending/?badge=latest)
+[![Documentation Status](http://weaklensingfisherformalism.readthedocs.io/en/latest/)](https://readthedocs.org/projects/weaklensingfisherformalism/?badge=latest)

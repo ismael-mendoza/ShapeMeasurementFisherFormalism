@@ -4,7 +4,7 @@ This document describes the galaxy parameters and models that are implemented in
 take a look into :mod:`analysis.models` and the `galsim <https://github.com/GalSim-developers/GalSim>`_ documentation. 
 
 Galaxy Models
------------------
+--------------
 
 ============= ====================================================================================
 Name           Description
@@ -16,7 +16,7 @@ bulgeDisk     Combined exponential (disk) and deVaucouleurs (bulge) profile.
 ============= ====================================================================================
 
 Galaxy Parameters
------------------
+------------------
 
 ======== ======= ====================================================================================
 Name     Type    Description
@@ -56,7 +56,7 @@ R_r      float32 hlr for the bulge component of the :class:`analysis.models.bulg
 ======== ======= ====================================================================================
 
 PSF Models
-----------
+-----------
 
 ============= ====================================================================================
 Name          Description
