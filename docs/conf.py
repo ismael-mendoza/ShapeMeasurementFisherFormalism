@@ -367,4 +367,4 @@ def linkcode_resolve(domain, info):
     # Could use version,release declared above here but for now we
     # just link to the latest code on the master branch.
     github = 'https://github.com/ismael2395/ShapeMeasurementFisherFormalism'
-    return '%s/blob/master/%s%s' % (github,fn,linespec)
+    return '%s/blob/master/analysis/%s%s' % (github,fn,linespec)
