@@ -6,8 +6,8 @@ Command-line Options
 
 Print out usage info for command-line options::
 
-	./generate.py --help
-	./fitting.py --help
+	python generate.py --help
+	python fitting.py --help
 
 Quick Simulation Demo
 ---------------------
