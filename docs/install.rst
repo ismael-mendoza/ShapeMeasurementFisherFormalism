@@ -4,22 +4,22 @@ Installation
 Install with GIT
 ----------------
 
-The code is hosted on `github <https://github.com/ismael2395/WeakLensingFisherFormalism>`_ so the easiest method to perform an initial installation is with `git <http://git-scm.com>`_::
+The code is hosted on `github <https://github.com/ismael2395/ShapeMeasurementFisherFormalism>`_ so the easiest method to perform an initial installation is with `git <http://git-scm.com>`_::
 
-	git clone https://github.com/ismael2395/WeakLensingFisherFormalism.git
+	git clone https://github.com/ismael2395/ShapeMeasurementFisherFormalism.git
 
-This will create a new subdirectory `WeakLensingFisherFormalism` containing the latest stable version of the complete package.
+This will create a new subdirectory `ShapeMeasurementFisherFormalism` containing the latest stable version of the complete package.
 
 Experts who already have a `correctly configured github account <https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh>`_ might prefer this alternative::
 
-	git clone git@github.com:ismael2395/WeakLensingFisherFormalism.git
+	git clone git@github.com:ismael2395/ShapeMeasurementFisherFormalism.git
 
 Update with GIT
 ---------------
 
 You can update your local copy of the package at any time using::
 
-	cd WeakLensingFisherFormalism
+	cd ShapeMeasurementFisherFormalism
 	git update
 
 Getting Started
@@ -27,7 +27,7 @@ Getting Started
 
 Programs can be run directly from the top-level directory as long as you have the required packages already installed, e.g.::
 
-	cd WeakLensingFisherFormalism
+	cd ShapeMeasurementFisherFormalism
 	python generate.py --help
 
 For an introduction to the available programs, see :doc:`here </programs>` and for examples of running these programs see :doc:`here </examples>`.
