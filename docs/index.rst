@@ -20,7 +20,6 @@ The code is hosted on `github <https://github.com/ismael2395/ShapeMeasurementFis
    programs
    parameters 
    notebooks
-   products
    todo
    developer
    history
