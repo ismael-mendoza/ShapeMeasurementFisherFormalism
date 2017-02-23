@@ -124,7 +124,7 @@ def addNoise(image, snr, noise_seed=0):
     variance_noise = noisy_image.addNoiseSNR(noise, snr, preserve_flux=True)
     return noisy_image, variance_noise
 
-def read_results(project,g_parameters, fish):
+def read_results(project,g_parameters, fish,limit=None):
     orig_image = fish.image
     mins = defaults.getMinimums(g_parameters, orig_image)
     maxs = defaults.getMaximums(g_parameters, orig_image)
@@ -134,8 +134,12 @@ def read_results(project,g_parameters, fish):
     redchis = [] #list containing values of reduced chi2 for each fit.
     rltsdir = os.path.join(project, defaults.RESULTS_DIR)
 
+    files = os.listdir(rltsdir)
+    if limit!=None: 
+        files = files[:limit]
+
     # read results from rltsdir's files.
-    for filename in os.listdir(rltsdir):
+    for filename in files:
         with open(os.path.join(rltsdir, filename)) as csvfile:
             reader = csv.DictReader(csvfile)
             for i,row in enumerate(reader):
