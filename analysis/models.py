@@ -76,9 +76,9 @@ class model(object):
 class gaussian(model):
 
     parameters = [
-        'x0', 'y0',
-
         'flux',
+
+        'x0', 'y0',
 
         'hlr',
         'fwhm',

@@ -154,7 +154,7 @@ def getMaximums(g_parameters, gal_image):
 # general global(module-level) constants.
 FIT_DEVIATION = .00001
 SNR_NORM = 20.
-NX = 45
+NX = 45 #number of pixels. 
 NY = 45 
 PIXEL_SCALE = .2 
 SIG_DIGITS = 4

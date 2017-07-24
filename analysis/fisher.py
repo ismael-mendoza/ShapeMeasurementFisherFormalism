@@ -8,7 +8,8 @@ import copy
 import galfun
 import defaults
 
-
+def getSNR(img, var_noise): 
+    return np.sqrt(np.sum(img.array**2)/var_noise)
 
 class Fisher(object):
     """Produce fisher object (containing fisher analysis) for a given set of
@@ -54,21 +55,41 @@ class Fisher(object):
             biases(dict): Dictionary containing biases
     """
 
-    def __init__(self, g_parameters, image_renderer, snr):
+    def __init__(self, g_parameters, image_renderer, snr, var_noise=None):
         self.g_parameters = g_parameters
         self.snr = snr
         self.model = galfun.getGalaxiesModels(g_parameters=self.g_parameters)
         self.image_renderer = image_renderer
+        self.num_galaxies = self.g_parameters.num_galaxies
+
 
         #we do not want to mask or crop the images used to obtain the partials. 
         self.image_renderer_partials = galfun.ImageRenderer(stamp=self.image_renderer.stamp)
         self.image = self.image_renderer.getImage(self.model)
-        _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
+
+        if var_noise == None: 
+            if self.num_galaxies == 1: 
+                _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
+            else: 
+                #obtain the image of only the first galaxy 
+                model_galaxy1 = galfun.getGalaxyModel(self.g_parameters.id_params['1'])
+                image_galaxy1 = self.image_renderer.getImage(model_galaxy1)
+                _,self.var_noise = galfun.addNoise(image_galaxy1, snr)
+
+                #also obtain the snr for the rest of the galaxies and put them in a list
+                self.snrs = [] 
+                self.snrs.append(self.snr) #the first entry is the snr of the first galaxy 
+                for id_gal in self.g_parameters.id_params.keys()[1:]: 
+                    model_galaxy = galfun.getGalaxyModel(self.g_parameters.id_params[id_gal])
+                    image_galaxy = self.image_renderer.getImage(model_galaxy)
+                    self.snrs.append(getSNR(image_galaxy,self.var_noise))
+
+        else:  
+            self.var_noise = var_noise
 
         self.steps = defaults.getSteps(self.g_parameters, self.image_renderer)
         self.param_names = g_parameters.ordered_fit_names
         self.num_params = len(self.param_names)
-        self.num_galaxies = self.g_parameters.num_galaxies
 
         self.derivatives_images = self.derivativesImages()
         self.second_derivatives_images = self.secondDerivativesImages()
