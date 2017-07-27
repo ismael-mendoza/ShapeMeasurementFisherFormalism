@@ -1,6 +1,6 @@
 """
 This module contains the models that are used for galaxies and psfs for galsim, more 
-information of how to add your own models for both galaxies and psfs can be found in tutorial
+information of how to add your own models for both galaxies and psfs can be found in the corresponding tutorial. 
 """
 import galsim
 import sys 
