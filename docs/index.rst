@@ -12,6 +12,8 @@ This software was primarily developed to study the effects of overlapping source
 
 The code is hosted on `github <https://github.com/ismael2395/ShapeMeasurementFisherFormalism>`_.  Please use the `issue tracker <https://github.com/ismael2395/ShapeMeasurementFisherFormalism/issues>`_ to let us know about any issues you have with installing or running this code, or to request new features.
 
+This work was conducted by Ismael Mendoza, in collaboration with Pat Burchat and Josh Meyers, at Stanford University in 2015-2017. Work was supported by the National Science Foundation and by LSST.
+
 .. toctree::
    :maxdepth: 2
 
