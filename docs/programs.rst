@@ -71,8 +71,7 @@ If you are Stanford SLAC affiliated and want send N batch jobs to SLAC, then log
 This :ref:`prog-fitting` module internally calls another module named :ref:`prog-runfits` *N* times which produces the results from a single fits 
 and then writes them to a .csv file. The correct way to read the data produced from this process is to use the :func:`analysis.galfun.read_results` 
 function which returns the results in a convenient format. For more specific information about the output of this function please consult the 
-docstring. To see how these process can be used to produce interesting fits and their plots please take a look at the fits_anlaysis :doc:'tutorial 
-notebook </notebooks>'.
+docstring. To see how these process can be used to produce interesting fits and their plots please take a look at the fits_anlaysis :doc:`tutorial notebooks </notebooks>`.
 
 Other Modules
 --------------
