@@ -4,13 +4,15 @@ writes results to a csv file that can be read from readfits.py
 
 import os
 import csv
-import defaults
 import sys
 import lmfit
 import math
-import galfun
-import fisher 
 from copy import deepcopy 
+
+#import from inside this package 
+import analysis.defaults as defaults 
+import analysis.fisher as fisher
+import analysis.galfun as galfun
 
 def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
     gal_model = galfun.getGalaxiesModels(fit_params=fit_params.valuesdict(),**kwargs)
@@ -53,9 +55,14 @@ def main(argv):
     filename = ''.join([defaults.RESULTS_DIR, str(noise_seed), '.csv'])
     result_filename = os.path.join(project, defaults.RESULTS_DIR, filename)
 
+    #obtain dictionary of the result values that can be written to the csv file. 
+    results_values = dict()
+    for param in results.params: 
+        results_values[param] = results.params[param].value 
+
     # write results of fits into a file,
     with open(result_filename, 'w') as csvfile:
-        row_to_write = fit_params.valuesdict()
+        row_to_write = results_values
         row_to_write['chi2'] = results.chisqr
         row_to_write['success'] = results.success
         row_to_write['errorbars'] = results.errorbars
@@ -64,7 +71,7 @@ def main(argv):
         row_to_write['ndata'] = results.ndata
         row_to_write['nfree'] = results.nfree
         row_to_write['redchi'] = results.redchi
-        writer = csv.DictWriter(csvfile, fieldnames=row_to_write.keys())
+        writer = csv.DictWriter(csvfile, fieldnames=list(row_to_write.keys()))
         writer.writeheader()
         writer.writerow(row_to_write)
 

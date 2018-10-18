@@ -5,8 +5,8 @@ the fisher formalism from a given galaxy.
 import math
 import numpy as np
 import copy
-import galfun
-import defaults
+import analysis.galfun as galfun
+import analysis.defaults as defaults 
 
 def getSNR(img, var_noise): 
     return np.sqrt(np.sum(img.array**2)/var_noise)
@@ -79,7 +79,7 @@ class Fisher(object):
                 #also obtain the snr for the rest of the galaxies and put them in a list
                 self.snrs = [] 
                 self.snrs.append(self.snr) #the first entry is the snr of the first galaxy 
-                for id_gal in self.g_parameters.id_params.keys()[1:]: 
+                for id_gal in list(self.g_parameters.id_params.keys())[1:]: 
                     model_galaxy = galfun.getGalaxyModel(self.g_parameters.id_params[id_gal])
                     image_galaxy = self.image_renderer.getImage(model_galaxy)
                     self.snrs.append(getSNR(image_galaxy,self.var_noise))

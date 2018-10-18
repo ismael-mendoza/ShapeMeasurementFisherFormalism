@@ -77,7 +77,7 @@ def main():
         args_dict = vars(args)
 
         # extract appropiate entries from dictionary of args.
-        row_to_write = {k: v for (k, v) in args_dict.iteritems()
+        row_to_write = {k: v for (k, v) in args_dict.items()
                         if k in models.getFieldnames()}
         
         if csvIsEmpty(tempname):

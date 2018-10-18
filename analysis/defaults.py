@@ -88,10 +88,10 @@ def getMinimums(g_parameters, gal_image):
             minimums[param] = 0.
 
         elif 'x0' in param:
-            minimums[param] = - gal_image.getXMax() * PIXEL_SCALE / 2
+            minimums[param] = - gal_image.xmax * PIXEL_SCALE / 2
 
         elif 'y0' in param:
-            minimums[param] = - gal_image.getYMax() * PIXEL_SCALE / 2
+            minimums[param] = - gal_image.ymax * PIXEL_SCALE / 2
 
         elif 'eta1' in param:
             minimums[param] = g_parameters.params[param] - 2.5
@@ -99,10 +99,10 @@ def getMinimums(g_parameters, gal_image):
         elif 'eta2' in param:
             minimums[param] = g_parameters.params[param] - 2.5
 
-        elif 'e1' in param:
+        elif 'e1' in param or 'g1' in param:
             minimums[param] = -.7
 
-        elif 'e2' in param:
+        elif 'e2' in param or 'g2' in param:
             minimums[param] = -.7
 
     return minimums
@@ -131,10 +131,10 @@ def getMaximums(g_parameters, gal_image):
             maximums[param] = float('Inf')
 
         elif 'x0' in param:
-            maximums[param] = gal_image.getXMax() * PIXEL_SCALE / 2
+            maximums[param] = gal_image.xmax * PIXEL_SCALE / 2
 
         elif 'y0' in param:
-            maximums[param] = gal_image.getYMax() * PIXEL_SCALE / 2
+            maximums[param] = gal_image.ymax * PIXEL_SCALE / 2
 
         elif 'eta1' in param:
             maximums[param] = g_parameters.params[param] + 2.5
@@ -142,10 +142,10 @@ def getMaximums(g_parameters, gal_image):
         elif 'eta2' in param:
             maximums[param] = g_parameters.params[param] + 2.5
 
-        elif 'e1' in param:
+        elif 'e1' in param or 'g1' in param:
             maximums[param] = .7
 
-        elif 'e2' in param:
+        elif 'e2' in param or 'g2' in param:
             maximums[param] = .7
 
     return maximums
@@ -154,8 +154,8 @@ def getMaximums(g_parameters, gal_image):
 # general global(module-level) constants.
 FIT_DEVIATION = .00001
 SNR_NORM = 20.
-NX = 45 #number of pixels. 
-NY = 45 
+NX = 40 #number of pixels. 
+NY = 40 
 PIXEL_SCALE = .2 
 SIG_DIGITS = 4
 DPI = 300

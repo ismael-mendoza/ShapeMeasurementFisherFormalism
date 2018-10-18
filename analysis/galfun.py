@@ -8,8 +8,8 @@ import copy
 import math
 import numpy as np 
 
-import models
-import defaults
+import analysis.models as models
+import analysis.defaults as defaults 
 
 def getGalaxyModel(params):
     """Return the image of a single galaxy optionally drawn with a psf.
@@ -133,30 +133,34 @@ def read_results(project,g_parameters, fish,limit=None):
     pulls = {}
     redchis = [] #list containing values of reduced chi2 for each fit.
     rltsdir = os.path.join(project, defaults.RESULTS_DIR)
-
     files = os.listdir(rltsdir)
     if limit!=None: 
         files = files[:limit]
 
+
     # read results from rltsdir's files.
     for filename in files:
-        with open(os.path.join(rltsdir, filename)) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for i,row in enumerate(reader):
-                print i,row
-                redchis.append(float(row['redchi']))
-                for param in g_parameters.fit_params:
-                    if param not in residuals:
-                        residuals[param] = []
-                    if param not in pulls:
-                        pulls[param] = []
-                    residual = (float(row[param]) -
-                                float(g_parameters.params[param]))
-                    pull = (residual /
-                            math.sqrt(fish.covariance_matrix[param, param]))
+        if 'results' in filename: 
+            with open(os.path.join(rltsdir, filename)) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for i,row in enumerate(reader):
+                    redchis.append(float(row['redchi']))
+                    for param in g_parameters.fit_params:
+                        if param not in residuals:
+                            residuals[param] = []
+                        if param not in pulls:
+                            pulls[param] = []
 
-                    residuals[param].append(residual)
-                    pulls[param].append(pull)
+                        if 'x0' in param or 'y0' in param: 
+                            row[param] = str(float(row[param]) + .1 ) #adjust to account for small bug in old galsim from AEGIS. 
+
+                        residual = (float(row[param]) -
+                                    float(g_parameters.params[param]))
+                        pull = (residual /
+                                math.sqrt(fish.covariance_matrix[param, param]))
+
+                        residuals[param].append(residual)
+                        pulls[param].append(pull)
 
     biases = {param: np.mean(residuals[param]) for param in residuals}
     pull_means = {param: np.mean(pulls[param]) for param in residuals}
@@ -234,7 +238,7 @@ class GParameters(object):
 
             # convert all appropiate values to floats,
             for gal_id in id_params:
-                for key, value in id_params[gal_id].iteritems():
+                for key, value in id_params[gal_id].items():
                     try:
                         id_params[gal_id][key] = float(value)
                     except ValueError:
@@ -247,7 +251,7 @@ class GParameters(object):
                                                        self.omit_fit)
         self.nfit_params = self.getNFitParams()
         self.ordered_fit_names = self.sortModelParamsNames()
-        self.num_galaxies = len(self.id_params.keys())
+        self.num_galaxies = len(list(self.id_params.keys()))
 
     def getNFitParams(self):
         """Extract :attr:`nfit_params` from :attr:`params` by noticing which

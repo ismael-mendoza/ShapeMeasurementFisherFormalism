@@ -54,6 +54,7 @@ class model(object):
 
         elif 'g1' in params and 'g2' in params:
             return gal.shear(g1=params['g1'],g2=params['g2'])
+            
         elif 'eta1' in params and 'eta2' in params:
             return gal.shear(eta1=params['eta1'], eta2=params['eta2'])
             
@@ -399,7 +400,7 @@ def getAllModels():
 
 
 def getAllPsfModels():
-    """Used to display choices in genearte.py"""
+    """Used to display choices in generate.py"""
     psf_models = []
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
     for cls in subclasses:
