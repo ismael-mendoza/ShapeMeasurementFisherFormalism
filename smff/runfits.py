@@ -7,12 +7,12 @@ import csv
 import sys
 import lmfit
 import math
-from copy import deepcopy 
 
-#import from inside this package 
-import analysis.defaults as defaults 
+
+import analysis.defaults as defaults
 import analysis.fisher as fisher
 import analysis.galfun as galfun
+
 
 def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
     gal_model = galfun.getGalaxiesModels(fit_params=fit_params.valuesdict(),**kwargs)
@@ -21,6 +21,8 @@ def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
 
 
 def main(argv):
+    #import ipdb; ipdb.set_trace() 
+
     current_fit_number, snr, project, existing_fits = (
         int(argv[1]), float(argv[2]), argv[3], int(argv[4]))
 
@@ -32,7 +34,8 @@ def main(argv):
     g_parameters = galfun.GParameters(project)
     image_renderer = galfun.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE,nx=defaults.NX,ny=defaults.NY)
     fish = fisher.Fisher(g_parameters=g_parameters,image_renderer=image_renderer, snr=snr)
-    orig_image = deepcopy(fish.image)
+    #orig_image = copy.deepcopy(fish.image)
+    orig_image = fish.model.drawImage(nx = defaults.NX, ny = defaults.NX, scale = defaults.PIXEL_SCALE)
     mins = defaults.getMinimums(g_parameters, orig_image)
     maxs = defaults.getMaximums(g_parameters, orig_image)
     init_values = defaults.getInitialValuesFit(g_parameters)
@@ -74,6 +77,7 @@ def main(argv):
         writer = csv.DictWriter(csvfile, fieldnames=list(row_to_write.keys()))
         writer.writeheader()
         writer.writerow(row_to_write)
+
 
 if __name__ == '__main__':
     main(sys.argv)

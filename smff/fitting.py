@@ -69,6 +69,8 @@ def main():
     for filename in os.listdir(rltsdir):
         existing_fits += 1
 
+    # print(existing_fits)
+
     if args.run_fits:
         for i in range(args.number_fits):
             os.system("python runfits.py " + str(i+1) + " " +
@@ -81,7 +83,7 @@ def main():
                 snrfile.write(str(snr))
 
     elif args.run_fits_slac:
-        os.system("bsub -q " + str(args.run_fits_slac) + " -J \"name[1"
+        os.system("bsub -o output1.txt -q " + str(args.run_fits_slac) + " -J \"name[1"
                   + "-" + str(args.number_fits) +
                   "]\" \"python runfits.py \$LSB_JOBINDEX "
                   + str(snr) + " " + str(args.project) + " " +

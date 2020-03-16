@@ -11,7 +11,8 @@ import numpy as np
 import analysis.models as models
 import analysis.defaults as defaults 
 
-def getGalaxyModel(params):
+
+def get_galaxy_model(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
     Look at :mod:`analysis.models` to figure out which galaxy models and psf
@@ -21,7 +22,7 @@ def getGalaxyModel(params):
     Args:
         params(dict): Dictionary containing the information of a single
         galaxy where the keys is the name(str) of the parameter and the
-        values are the values of the parametes.
+        values are the values of the parameters.
 
     Returns:
         A :class:`galsim.GSObject`
@@ -83,7 +84,7 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
     gals = []
 
     for gal_id in id_params:
-        gals.append(getGalaxyModel(id_params[gal_id]))
+        gals.append(get_galaxy_model(id_params[gal_id]))
     
     return galsim.Add(gals)
 
@@ -133,34 +134,33 @@ def read_results(project,g_parameters, fish,limit=None):
     pulls = {}
     redchis = [] #list containing values of reduced chi2 for each fit.
     rltsdir = os.path.join(project, defaults.RESULTS_DIR)
+
     files = os.listdir(rltsdir)
     if limit!=None: 
         files = files[:limit]
 
-
     # read results from rltsdir's files.
     for filename in files:
-        if 'results' in filename: 
-            with open(os.path.join(rltsdir, filename)) as csvfile:
-                reader = csv.DictReader(csvfile)
-                for i,row in enumerate(reader):
-                    redchis.append(float(row['redchi']))
-                    for param in g_parameters.fit_params:
-                        if param not in residuals:
-                            residuals[param] = []
-                        if param not in pulls:
-                            pulls[param] = []
+        with open(os.path.join(rltsdir, filename)) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for i,row in enumerate(reader):
+                redchis.append(float(row['redchi']))
+                for param in g_parameters.fit_params:
+                    if param not in residuals:
+                        residuals[param] = []
+                    if param not in pulls:
+                        pulls[param] = []
+                    residual = (float(row[param]) -
+                                float(g_parameters.params[param]))
 
-                        if 'x0' in param or 'y0' in param: 
-                            row[param] = str(float(row[param]) + .1 ) #adjust to account for small bug in old galsim from AEGIS. 
+                    # if param in ['x0_1', 'y0_1']:
+                    #     residual +=0.1 
 
-                        residual = (float(row[param]) -
-                                    float(g_parameters.params[param]))
-                        pull = (residual /
-                                math.sqrt(fish.covariance_matrix[param, param]))
+                    pull = (residual /
+                            math.sqrt(fish.covariance_matrix[param, param]))
 
-                        residuals[param].append(residual)
-                        pulls[param].append(pull)
+                    residuals[param].append(residual)
+                    pulls[param].append(pull)
 
     biases = {param: np.mean(residuals[param]) for param in residuals}
     pull_means = {param: np.mean(pulls[param]) for param in residuals}
@@ -196,7 +196,7 @@ class GParameters(object):
             id_params(dict): Dictionary whose keys are the ids of each of the
                 galaxies specified in galaxies.csv, and that map
                 to another dictionary that can be taken in by
-                :func:`getGalaxyModel`
+                :func:`get_galaxy_model`
             params(dict): Dictionary that encodes the same information as
                 id_params but in a different form. Combines each of
                 the dictionaries contained in id_params into a
@@ -333,8 +333,8 @@ class ImageRenderer(object):
         mask(:class:`np.array`): the pixels selected in this mask will be set to 0. 
     
     One of the the following must be specified:
-        *stamp
-        *nx,ny,pixel_scale
+        * stamp
+        * nx,ny,pixel_scale
 
     This object is made so it can be passsed in to a class :class:`analysis.fisher.Fisher` object. 
     """

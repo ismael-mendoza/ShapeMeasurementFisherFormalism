@@ -32,7 +32,7 @@ class Fisher(object):
             image_renderer_partials(:class:`analysis.galfun.ImageRenderer`): Object used to render 
             images of partial derivatives. 
             image(:class:`Galsim.Image`): Dictionary whose keys are the ids of each of the
-                galaxies specified in galaxies.csv, and that map to another dictionary that can be taken in by :func:`analysis.galfun.getGalaxyModel`
+                galaxies specified in galaxies.csv, and that map to another dictionary that can be taken in by :func:`analysis.galfun.get_galaxy_model`
             var_noise(float): Variance of noise of given S/N . 
             steps(dict): Dictionary containing the step size used when 
                 calculating partial derivatives. 
@@ -72,7 +72,7 @@ class Fisher(object):
                 _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
             else: 
                 #obtain the image of only the first galaxy 
-                model_galaxy1 = galfun.getGalaxyModel(self.g_parameters.id_params['1'])
+                model_galaxy1 = galfun.get_galaxy_model(self.g_parameters.id_params['1'])
                 image_galaxy1 = self.image_renderer.getImage(model_galaxy1)
                 _,self.var_noise = galfun.addNoise(image_galaxy1, snr)
 
@@ -80,7 +80,7 @@ class Fisher(object):
                 self.snrs = [] 
                 self.snrs.append(self.snr) #the first entry is the snr of the first galaxy 
                 for id_gal in list(self.g_parameters.id_params.keys())[1:]: 
-                    model_galaxy = galfun.getGalaxyModel(self.g_parameters.id_params[id_gal])
+                    model_galaxy = galfun.get_galaxy_model(self.g_parameters.id_params[id_gal])
                     image_galaxy = self.image_renderer.getImage(model_galaxy)
                     self.snrs.append(getSNR(image_galaxy,self.var_noise))
 
