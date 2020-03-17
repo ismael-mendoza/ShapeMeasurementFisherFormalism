@@ -2,48 +2,47 @@
 This module contains the models that are used for galaxies and psfs for galsim, more 
 information of how to add your own models for both galaxies and psfs can be found in the corresponding tutorial. 
 """
+import sys
+
 import galsim
-import sys 
 
+# referencing itself.
+curr_module = sys.modules[__name__]
 
-#referencing itself. 
-curr_module = sys.modules[__name__] 
 
 def getExtra():
     return ['id', 'galaxy_model', 'psf_model']
 
-#make sure names of model class is the same name as the one to generate.
+
+# make sure names of model class is the same name as the one to generate.
 class model(object):
-    
     parameters = []
-    omit_general = [] #omit always for all instances of this class. 
+    omit_general = []  # omit always for all instances of this class.
 
     def __init__(self, params=None, params_omit=None):
 
         self.omit_fit = self.getOmitFit()
-        
-        if(params_omit):
+
+        if (params_omit):
             self.setOmitSpecific(params_omit)
-        if(params):
+        if (params):
             self.gal = self.getGal(params)
 
     def getOmitFit(self):
-        #remove redundancy. 
-        omit = list(set(getExtra() + getPsfParameters() + self.omit_general)) 
+        # remove redundancy.
+        omit = list(set(getExtra() + getPsfParameters() + self.omit_general))
         return omit
 
-    #pass in a list if you want to omit specific parameters 
-    #for that instance. 
+    # pass in a list if you want to omit specific parameters
+    # for that instance.
     def setOmitSpecific(self, params_omit):
         self.omit_fit = list(set(params_omit + self.omit_fit))
-
 
     def getGal(self, params):
         gal = self.getProfile(params)
         gal = self.shear(gal, params)
         gal = self.shift(gal, params)
         return gal
-
 
     def getProfile(self, params):
         pass
@@ -53,13 +52,13 @@ class model(object):
             return gal.shear(e1=params['e1'], e2=params['e2'])
 
         elif 'g1' in params and 'g2' in params:
-            return gal.shear(g1=params['g1'],g2=params['g2'])
-            
+            return gal.shear(g1=params['g1'], g2=params['g2'])
+
         elif 'eta1' in params and 'eta2' in params:
             return gal.shear(eta1=params['eta1'], eta2=params['eta2'])
-            
+
         elif 'q' in params and 'beta' in params:
-            return gal.shear(q=params['q'], beta=(params['beta']*
+            return gal.shear(q=params['q'], beta=(params['beta'] *
                                                   galsim.radians))
         elif 'e' in params and 'beta' in params:
             return gal.shear(e=params['e'], beta=(params['beta'] *
@@ -75,7 +74,6 @@ class model(object):
 
 
 class gaussian(model):
-
     parameters = [
         'flux',
 
@@ -88,7 +86,7 @@ class gaussian(model):
         'e1', 'e2',
         'eta1', 'eta2',
         'e', 'q', 'beta',
-        'g1','g2'
+        'g1', 'g2'
     ]
     omit_general = []
 
@@ -98,7 +96,7 @@ class gaussian(model):
     def getProfile(self, params):
         if 'flux' not in params:
             raise ValueError('Did not specify flux')
-            
+
         if 'hlr' in params:
             return galsim.Gaussian(flux=params['flux'],
                                    half_light_radius=params['hlr'])
@@ -110,7 +108,6 @@ class gaussian(model):
 
 
 class exponential(model):
-
     parameters = [
         'x0', 'y0',
 
@@ -120,16 +117,15 @@ class exponential(model):
         'fwhm',
         'sigma',
 
-        'e1', 'e2', 
+        'e1', 'e2',
         'g1', 'g2',
         'eta1', 'eta2',
-        'q','beta'
+        'q', 'beta'
     ]
     omit_general = []
-    
+
     def __init__(self, params=None, params_omit=None):
         model.__init__(self, params, params_omit)
-
 
     def getProfile(self, params):
         if 'flux' not in params:
@@ -144,7 +140,6 @@ class exponential(model):
 
 
 class deVaucouleurs(model):
-
     parameters = [
         'x0', 'y0',
 
@@ -160,7 +155,6 @@ class deVaucouleurs(model):
 
     omit_general = []
 
-
     def __init__(self, params=None, params_omit=None):
         model.__init__(self, params, params_omit)
 
@@ -170,20 +164,19 @@ class deVaucouleurs(model):
 
 
 class bulgeDisk(model):
-
     parameters = [
-    'x0', 'y0',
+        'x0', 'y0',
 
-    'flux_b', 'flux_d', 'flux_b/flux_total',
+        'flux_b', 'flux_d', 'flux_b/flux_total',
 
-    'hlr_d', 'hlr_b', 'R_r',
+        'hlr_d', 'hlr_b', 'R_r',
 
-    'e1', 'e2',
-    'eta1', 'eta2',
+        'e1', 'e2',
+        'eta1', 'eta2',
 
-    'delta_e', 'delta_theta',
+        'delta_e', 'delta_theta',
 
-    'n_d', 'n_b'
+        'n_d', 'n_b'
     ]
 
     omit_general = ['delta_e', 'delta_theta', 'n_d', 'n_b']
@@ -210,7 +203,7 @@ class bulgeDisk(model):
             hlr_d = params['hlr_d']
             hlr_b = params['R_r'] * hlr_d
 
-        else: 
+        else:
             raise ValueError('Size was not specified.')
 
         bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr_b,
@@ -223,21 +216,21 @@ class bulgeDisk(model):
             raise NotImplementedError('Need to implement delta_e or '
                                       'delta_theta.')
 
-        return (bulge+disk)
+        return (bulge + disk)
+
 
 class bulgeDisk6(model):
-
     parameters = [
-    'x0', 'y0',
+        'x0', 'y0',
 
-    'flux',
+        'flux',
 
-    'hlr',
+        'hlr',
 
-    'e1', 'e2',
-    'eta1', 'eta2',
+        'e1', 'e2',
+        'eta1', 'eta2',
 
-    'n_d', 'n_b'
+        'n_d', 'n_b'
     ]
 
     omit_general = ['n_d', 'n_b']
@@ -255,7 +248,7 @@ class bulgeDisk6(model):
         if 'hlr' in params:
             hlr = params['hlr']
 
-        else: 
+        else:
             raise ValueError('Size was not specified.')
 
         bulge = galsim.Sersic(n=params['n_b'], half_light_radius=hlr,
@@ -264,27 +257,25 @@ class bulgeDisk6(model):
         disk = galsim.Sersic(n=params['n_d'], half_light_radius=hlr,
                              flux=flux)
 
-        return (bulge+disk)
+        return (bulge + disk)
+
 
 class psf_model(object):
-
     parameters = []
 
     def __init__(self, params=None):
-        if(params):
-            self.psf = self.getProfile(params) #ignore shear for now.
+        if (params):
+            self.psf = self.getProfile(params)  # ignore shear for now.
 
     def getProfile(self, params):
         pass
 
     def shearPsf(psf, params):
-        return  psf.shear(e1=params.get('psf_e1', 0),
-                          e2=params.get('psf_e2', 0))
-
+        return psf.shear(e1=params.get('psf_e1', 0),
+                         e2=params.get('psf_e2', 0))
 
 
 class psf_gaussian(psf_model):
-    
     parameters = [
         'psf_flux',
 
@@ -294,7 +285,7 @@ class psf_gaussian(psf_model):
     ]
 
     def __init__(self, params=None):
-         psf_model.__init__(self, params)
+        psf_model.__init__(self, params)
 
     def getProfile(self, params):
         if 'psf_hlr' in params:
@@ -312,17 +303,17 @@ class psf_gaussian(psf_model):
             raise ValueError('Size of PSF was not specified.')
         return psf
 
+
 class psf_moffat(psf_model):
-
     parameters = [
-       'psf_flux',
+        'psf_flux',
 
-       'psf_fwhm',
-       'psf_hlr',
+        'psf_fwhm',
+        'psf_hlr',
 
-       'psf_beta',
+        'psf_beta',
 
-       'psf_e1', 'psf_e2'
+        'psf_e1', 'psf_e2'
     ]
 
     def __init__(self, params=None):
@@ -339,16 +330,16 @@ class psf_moffat(psf_model):
                                  flux=params['psf_flux'])
 
 
-#iterate over all subclasses to get fieldnames.
-#instantiate each subclass and get self.parameters from each and add to
-#fieldnames.
+# iterate over all subclasses to get fieldnames.
+# instantiate each subclass and get self.parameters from each and add to
+# fieldnames.
 def getGalParameters():
     gal_parameters = []
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
     for cls in subclasses:
         gal_parameters += cls.parameters
 
-    #remove duplicates
+    # remove duplicates
     gal_parameters = list(set(gal_parameters))
 
     return gal_parameters
@@ -361,11 +352,13 @@ def getPsfParameters():
         psf_parameters += cls.parameters
 
     psf_parameters = list(set(psf_parameters))
-        
+
     return psf_parameters
+
 
 def getAllParameters():
     return getGalParameters() + getPsfParameters()
+
 
 def getFieldnames():
     return getExtra() + getGalParameters() + getPsfParameters()
@@ -375,7 +368,7 @@ def getModelCls(model):
     """Return the corresponding class to the model specified in params"""
     subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
     for cls in subclasses:
-        if(cls.__name__ == model):
+        if (cls.__name__ == model):
             return cls
     raise NotImplementedError('Have not implemented that galaxy model')
 
@@ -384,7 +377,7 @@ def getPsfModelCls(model):
     """Return the corresponding psf class specified in params."""
     subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
     for cls in subclasses:
-        if(cls.__name__ == model):
+        if (cls.__name__ == model):
             return cls
     raise NotImplementedError('Have not implemented that psf model')
 
@@ -407,5 +400,3 @@ def getAllPsfModels():
         psf_models.append(cls.__name__)
 
     return psf_models
-
-

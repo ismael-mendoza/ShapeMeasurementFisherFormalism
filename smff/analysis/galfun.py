@@ -1,17 +1,18 @@
 """Multipurpose module that contains important functions ranging from managing parameters of 
 generated galaxies to extracting information from relevant files.
 """
-import os
-import csv
-import galsim
 import copy
+import csv
 import math
-import numpy as np 
+import os
 
+import galsim
+import numpy as np
+
+import analysis.defaults as defaults
 import analysis.models as models
-import analysis.defaults as defaults 
 
-
+# ToDo: Better name for galfun?
 def get_galaxy_model(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
@@ -85,15 +86,15 @@ def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwar
 
     for gal_id in id_params:
         gals.append(get_galaxy_model(id_params[gal_id]))
-    
+
     return galsim.Add(gals)
 
-def getOmitFit(id_params, omit):
 
-    omit_fit = {} 
+def getOmitFit(id_params, omit):
+    omit_fit = {}
 
     for gal_id in id_params:
-        params_omit = omit.get(gal_id,[])
+        params_omit = omit.get(gal_id, [])
         params = id_params[gal_id]
         galaxy_model = params['galaxy_model']
         cls = models.getModelCls(galaxy_model)
@@ -101,6 +102,7 @@ def getOmitFit(id_params, omit):
         omit_fit[gal_id] = obj.omit_fit
 
     return omit_fit
+
 
 def addNoise(image, snr, noise_seed=0):
     """Set gaussian noise to the given galsim.Image.
@@ -125,25 +127,26 @@ def addNoise(image, snr, noise_seed=0):
     variance_noise = noisy_image.addNoiseSNR(noise, snr, preserve_flux=True)
     return noisy_image, variance_noise
 
-def read_results(project,g_parameters, fish,limit=None):
+
+def read_results(project, g_parameters, fish, limit=None):
     orig_image = fish.image
-    mins = defaults.getMinimums(g_parameters, orig_image)
+    mins = defaults.get_minimums(g_parameters, orig_image)
     maxs = defaults.getMaximums(g_parameters, orig_image)
-    
+
     residuals = {}
     pulls = {}
-    redchis = [] #list containing values of reduced chi2 for each fit.
+    redchis = []  # list containing values of reduced chi2 for each fit.
     rltsdir = os.path.join(project, defaults.RESULTS_DIR)
 
     files = os.listdir(rltsdir)
-    if limit!=None: 
+    if limit != None:
         files = files[:limit]
 
     # read results from rltsdir's files.
     for filename in files:
         with open(os.path.join(rltsdir, filename)) as csvfile:
             reader = csv.DictReader(csvfile)
-            for i,row in enumerate(reader):
+            for i, row in enumerate(reader):
                 redchis.append(float(row['redchi']))
                 for param in g_parameters.fit_params:
                     if param not in residuals:
@@ -172,11 +175,10 @@ def read_results(project,g_parameters, fish,limit=None):
                          math.sqrt(fish.covariance_matrix[param, param])) for
                  param in residuals}
 
-    return pulls,residuals,biases,pull_means,res_stds,pull_mins,pull_maxs,redchis
+    return pulls, residuals, biases, pull_means, res_stds, pull_mins, pull_maxs, redchis
 
 
 class GParameters(object):
-
     """Class that manages galaxies parameters obtained from galaxies.csv
 
     This class reads a galaxies.csv file located in the specified project
@@ -320,6 +322,7 @@ class GParameters(object):
 
         return id_params
 
+# ToDo: Get rid of the image renderer
 class ImageRenderer(object):
     """Object used to produce the image of a galaxy. 
 
@@ -339,14 +342,14 @@ class ImageRenderer(object):
     This object is made so it can be passsed in to a class :class:`analysis.fisher.Fisher` object. 
     """
 
-    def __init__(self, pixel_scale=None,nx=None, ny=None,stamp=None, project=None,
+    def __init__(self, pixel_scale=None, nx=None, ny=None, stamp=None, project=None,
                  bounds=None, mask=None):
 
         self.pixel_scale = pixel_scale
-        self.nx = nx 
+        self.nx = nx
         self.ny = ny
-        self.stamp = stamp 
-        self.bounds = bounds 
+        self.stamp = stamp
+        self.bounds = bounds
         self.mask = mask
 
         if self.stamp is None:
@@ -355,7 +358,7 @@ class ImageRenderer(object):
                 self.stamp = galsim.Image(self.nx, self.ny, scale=self.pixel_scale)
 
 
-        else: 
+        else:
             self.nx = self.stamp.array.shape[0]
             self.ny = self.stamp.array.shape[1]
             self.pixel_scale = self.stamp.scale
@@ -365,10 +368,10 @@ class ImageRenderer(object):
 
     def getImage(self, galaxy):
         img = copy.deepcopy(self.stamp)
-        galaxy.drawImage(image=img,use_true_center=False)
+        galaxy.drawImage(image=img, use_true_center=False)
 
         if self.mask is None:
             return img
-        else: 
+        else:
             img.array[mask] = 0.
             return img

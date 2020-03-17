@@ -2,14 +2,18 @@
 the fisher formalism from a given galaxy.
 """
 
-import math
-import numpy as np
 import copy
-import analysis.galfun as galfun
-import analysis.defaults as defaults 
+import math
 
-def getSNR(img, var_noise): 
-    return np.sqrt(np.sum(img.array**2)/var_noise)
+import numpy as np
+
+import analysis.defaults as defaults
+import analysis.galfun as galfun
+
+
+def getSNR(img, var_noise):
+    return np.sqrt(np.sum(img.array ** 2) / var_noise)
+
 
 class Fisher(object):
     """Produce fisher object (containing fisher analysis) for a given set of
@@ -62,32 +66,31 @@ class Fisher(object):
         self.image_renderer = image_renderer
         self.num_galaxies = self.g_parameters.num_galaxies
 
-
-        #we do not want to mask or crop the images used to obtain the partials. 
+        # we do not want to mask or crop the images used to obtain the partials.
         self.image_renderer_partials = galfun.ImageRenderer(stamp=self.image_renderer.stamp)
         self.image = self.image_renderer.getImage(self.model)
 
-        if var_noise == None: 
-            if self.num_galaxies == 1: 
+        if var_noise == None:
+            if self.num_galaxies == 1:
                 _, self.var_noise = galfun.addNoise(self.image, self.snr, 0)
-            else: 
-                #obtain the image of only the first galaxy 
+            else:
+                # obtain the image of only the first galaxy
                 model_galaxy1 = galfun.get_galaxy_model(self.g_parameters.id_params['1'])
                 image_galaxy1 = self.image_renderer.getImage(model_galaxy1)
-                _,self.var_noise = galfun.addNoise(image_galaxy1, snr)
+                _, self.var_noise = galfun.addNoise(image_galaxy1, snr)
 
-                #also obtain the snr for the rest of the galaxies and put them in a list
-                self.snrs = [] 
-                self.snrs.append(self.snr) #the first entry is the snr of the first galaxy 
-                for id_gal in list(self.g_parameters.id_params.keys())[1:]: 
+                # also obtain the snr for the rest of the galaxies and put them in a list
+                self.snrs = []
+                self.snrs.append(self.snr)  # the first entry is the snr of the first galaxy
+                for id_gal in list(self.g_parameters.id_params.keys())[1:]:
                     model_galaxy = galfun.get_galaxy_model(self.g_parameters.id_params[id_gal])
                     image_galaxy = self.image_renderer.getImage(model_galaxy)
-                    self.snrs.append(getSNR(image_galaxy,self.var_noise))
+                    self.snrs.append(getSNR(image_galaxy, self.var_noise))
 
-        else:  
+        else:
             self.var_noise = var_noise
 
-        self.steps = defaults.getSteps(self.g_parameters, self.image_renderer)
+        self.steps = defaults.get_steps(self.g_parameters, self.image_renderer)
         self.param_names = g_parameters.ordered_fit_names
         self.num_params = len(self.param_names)
 
@@ -103,7 +106,6 @@ class Fisher(object):
         self.biases = self.getBiases()
 
         self.fisher_condition_number = self.fisherConditionNumber()
-
 
     def matrixToNumpyArray(self, matrix):
         """Convert matrix dictionary to a numpy array."""
@@ -143,9 +145,8 @@ class Fisher(object):
             gal_down = galfun.getGalaxiesModels(params_down)
             img_up = self.image_renderer_partials.getImage(gal_up)
             img_down = self.image_renderer_partials.getImage(gal_down)
-            partials_images[param] =  ((img_up - img_down)/(2 * self.steps[param])).array
+            partials_images[param] = ((img_up - img_down) / (2 * self.steps[param])).array
         return partials_images
-
 
     def secondDerivativesImages(self):
         """Return the images for the second derivatives of the given galaxy."""
@@ -161,12 +162,11 @@ class Fisher(object):
 
                 params_idown_jup = copy.deepcopy(self.g_parameters.params)
                 params_idown_jup[param_i] -= self.steps[param_i]
-                params_idown_jup[param_j] += self.steps[param_j]   
+                params_idown_jup[param_j] += self.steps[param_j]
 
                 params_iup_jdown = copy.deepcopy(self.g_parameters.params)
                 params_iup_jdown[param_i] += self.steps[param_i]
-                params_iup_jdown[param_j] -= self.steps[param_j] 
-
+                params_iup_jdown[param_j] -= self.steps[param_j]
 
                 params_idown_jdown = copy.deepcopy(self.g_parameters.params)
                 params_idown_jdown[param_i] -= self.steps[param_i]
@@ -182,9 +182,9 @@ class Fisher(object):
                 img_iup_jdown = self.image_renderer_partials.getImage(gal_iup_jdown)
                 img_idown_jdown = self.image_renderer_partials.getImage(gal_idown_jdown)
 
-                secondDs_gal[param_i, param_j] = ((img_iup_jup + img_idown_jdown - 
-                                                   img_idown_jup - img_iup_jdown)/
-                                                   (4*self.steps[param_i]*self.steps[param_j])).array
+                secondDs_gal[param_i, param_j] = ((img_iup_jup + img_idown_jdown -
+                                                   img_idown_jup - img_iup_jdown) /
+                                                  (4 * self.steps[param_i] * self.steps[param_j])).array
 
         return secondDs_gal
 
@@ -198,7 +198,7 @@ class Fisher(object):
                 derivative1 = self.derivatives_images[param_i]
                 derivative2 = self.derivatives_images[param_j]
                 FisherM_images[param_i, param_j] = (
-                    derivative1 * derivative2 / self.var_noise)
+                        derivative1 * derivative2 / self.var_noise)
         return FisherM_images
 
     def fisherMatrix(self):
@@ -229,7 +229,7 @@ class Fisher(object):
                 sigma_i = math.sqrt(self.covariance_matrix[param_i, param_i])
                 sigma_j = math.sqrt(self.covariance_matrix[param_j, param_j])
                 correlation_matrix[param_i, param_j] = (sigma_ij /
-                                                       (sigma_i*sigma_j))
+                                                        (sigma_i * sigma_j))
 
         return correlation_matrix
 
@@ -243,9 +243,9 @@ class Fisher(object):
                     param_j = self.param_names[j]
                     param_k = self.param_names[k]
                     BiasM_images[param_i, param_j, param_k] = (
-                        self.derivatives_images[param_i] *
-                        self.second_derivatives_images[param_j, param_k] /
-                        self.var_noise)
+                            self.derivatives_images[param_i] *
+                            self.second_derivatives_images[param_j, param_k] /
+                            self.var_noise)
 
         return BiasM_images
 

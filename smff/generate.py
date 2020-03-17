@@ -1,11 +1,12 @@
 """Generate a galaxy(ies) as specified by the user and saves it to a csv file."""
 import argparse
-import os
 import csv
+import os
 import shutil
 
 import analysis.defaults as defaults
 import analysis.models as models
+
 
 def csvIsEmpty(filename):
     """Check if a given csv file is empty by making sure each of the rows in
@@ -23,7 +24,7 @@ def main():
                                                   'specified by the user that'
                                                   'are added to a file.'),
                                      formatter_class=(
-                                     argparse.ArgumentDefaultsHelpFormatter))
+                                         argparse.ArgumentDefaultsHelpFormatter))
 
     parser.add_argument('-p', '--project', default=defaults.PROJECT,
                         type=str,
@@ -46,7 +47,7 @@ def main():
 
     parser.add_argument('--snr', type=float,
                         help='Value of noise bias (standard deviation). If'
-                        'given an info file with fisher analysis is created.')
+                             'given an info file with fisher analysis is created.')
 
     # add all parameter arguments to the parser.
     for name in models.getAllParameters():
@@ -70,7 +71,6 @@ def main():
     # creat a copy to read from and compare.
     shutil.copyfile(filename, tempname)
 
-
     # write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=models.getFieldnames())
@@ -79,7 +79,7 @@ def main():
         # extract appropiate entries from dictionary of args.
         row_to_write = {k: v for (k, v) in args_dict.items()
                         if k in models.getFieldnames()}
-        
+
         if csvIsEmpty(tempname):
             writer.writeheader()
             writer.writerow(row_to_write)
@@ -95,6 +95,7 @@ def main():
                 writer.writerow(row_to_write)
 
     os.remove(tempname)
-    
+
+
 if __name__ == '__main__':
     main()

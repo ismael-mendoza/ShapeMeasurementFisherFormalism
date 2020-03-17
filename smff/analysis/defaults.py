@@ -1,6 +1,7 @@
 """Some of the defaults that are used in the overall program."""
 
-def getSteps(g_parameters, image_renderer):
+
+def get_steps(g_parameters, image_renderer):
     """Return a dictionary containing the steps to be used in the
     derivatives of each parameter.
 
@@ -25,15 +26,15 @@ def getSteps(g_parameters, image_renderer):
             steps[param] = fit_params[param] * .05
 
         elif 'beta' in param:
-            steps[param] = .1 
-            
+            steps[param] = .1
+
         elif 'x0' in param or 'y0' in param:
-            steps[param] = image_renderer.pixel_scale/3.
+            steps[param] = image_renderer.pixel_scale / 3.
 
         elif 'g1' in param or 'g2' in param:
             steps[param] = .03
 
-        elif 'e' in param: 
+        elif 'e' in param:
             steps[param] = .03
 
         else:
@@ -42,7 +43,7 @@ def getSteps(g_parameters, image_renderer):
     return steps
 
 
-def getInitialValuesFit(g_parameters):
+def get_initial_values_fit(g_parameters):
     """Return a dictionary containing the initial values to be used in the
     in the fitting of the parameters.
 
@@ -66,7 +67,7 @@ def getInitialValuesFit(g_parameters):
     return initial_values
 
 
-def getMinimums(g_parameters, gal_image):
+def get_minimums(g_parameters, gal_image):
     """Return a dictionary containing the minimum values to be used in the
     in the fitting of the parameters.
 
@@ -154,9 +155,9 @@ def getMaximums(g_parameters, gal_image):
 # general global(module-level) constants.
 FIT_DEVIATION = .00001
 SNR_NORM = 20.
-NX = 40 #number of pixels. 
-NY = 40 
-PIXEL_SCALE = .2 
+NX = 40  # number of pixels.
+NY = 40
+PIXEL_SCALE = .2
 SIG_DIGITS = 4
 DPI = 300
 FONTSIZE_LABEL = 8
