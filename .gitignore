@@ -8,8 +8,8 @@
 *.pdf
 *-checkpoint.ipynb
 project*/*.txt
+*.ipynb_checkpoints
 
-mynotebooks/
 data/
 old/ 
 

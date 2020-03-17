@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 
-import matplotlib.cm as cm
-
 import defaults
 
 import os

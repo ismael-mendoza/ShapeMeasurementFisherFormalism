@@ -1,5 +1,5 @@
 """Multipurpose module that contains important functions ranging from managing parameters of 
-generated galaxies to extracing information from relevant files. 
+generated galaxies to extracting information from relevant files.
 """
 import os
 import csv
@@ -17,7 +17,7 @@ def get_galaxy_model(params):
 
     Look at :mod:`analysis.models` to figure out which galaxy models and psf
     models are supported as well as their corresponding implemented 
-    parameters. You can even add your own galaxies if desired. 
+    parameters. You can customize these files add your own galaxies if desired.
 
     Args:
         params(dict): Dictionary containing the information of a single
