@@ -1,7 +1,7 @@
 """Runs a fit once in a given galaxy image from generate.py, and
 writes results to a csv file that can be read from using galfun.py
 """
-
+# ToDo: move to analysis
 import csv
 import math
 import os
@@ -11,7 +11,7 @@ import lmfit
 
 import analysis.defaults as defaults
 import analysis.fisher as fisher
-import analysis.galfun as galfun
+import analysis.readfits as galfun
 
 
 def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):

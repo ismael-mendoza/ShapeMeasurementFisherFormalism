@@ -8,7 +8,7 @@ import math
 import numpy as np
 
 import analysis.defaults as defaults
-import analysis.galfun as galfun
+import analysis.readfits as galfun
 
 
 def getSNR(img, var_noise):
