@@ -19,7 +19,7 @@ def get_galaxy_model(params):
     """
 
     galaxy_model = params['galaxy_model']
-    gal_cls = models.getModelCls(galaxy_model)
+    gal_cls = models.get_model_cls(galaxy_model)
     gal_model = gal_cls(params)
 
     final = gal_model.gal
@@ -29,7 +29,7 @@ def get_galaxy_model(params):
         if params.get('psf_flux', 1) != 1:
             raise ValueError('I do not think you want a psf of flux not 1')
 
-        psf_cls = models.getPsfModelCls(params['psf_model'])
+        psf_cls = models.get_psf_model_cls(params['psf_model'])
         psf_model = psf_cls(params)
 
         final = galsim.Convolve([final, psf_model.psf])
@@ -173,7 +173,7 @@ class GParameters(object):
         param_names = []
         for gal_id in self.id_params:
             galaxy_model = self.id_params[gal_id]['galaxy_model']
-            cls = models.getModelCls(galaxy_model)
+            cls = models.get_model_cls(galaxy_model)
             for name in cls.parameters:
                 for param in self.id_params[gal_id]:
                     if param not in self.omit_fit.get(gal_id, []):

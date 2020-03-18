@@ -1,26 +1,24 @@
 """Multipurpose module that contains important functions ranging from managing parameters of 
 generated galaxies to extracting information from relevant files.
 """
-import copy
 import csv
 import math
 import os
 
-import galsim
 import numpy as np
 
 from src.analysis import defaults
 from src.analysis import models
-from src.analysis import gparameters
 
-def getOmitFit(id_params, omit):
+
+def get_omit_fit(id_params, omit):
     omit_fit = {}
 
     for gal_id in id_params:
         params_omit = omit.get(gal_id, [])
         params = id_params[gal_id]
         galaxy_model = params['galaxy_model']
-        cls = models.getModelCls(galaxy_model)
+        cls = models.get_model_cls(galaxy_model)
         obj = cls(params_omit=params_omit)
         omit_fit[gal_id] = obj.omit_fit
 
@@ -35,15 +33,16 @@ def read_results(project, g_parameters, fish, limit=None):
     residuals = {}
     pulls = {}
     redchis = []  # list containing values of reduced chi2 for each fit.
-    rltsdir = os.path.join(project, defaults.RESULTS_DIR)
+    results_dir = os.path.join(project, defaults.RESULTS_DIR)
 
-    files = os.listdir(rltsdir)
-    if limit != None:
+    files = os.listdir(results_dir)
+
+    if limit is not None:
         files = files[:limit]
 
-    # read results from rltsdir's files.
+    # read results from results_dir's files.
     for filename in files:
-        with open(os.path.join(rltsdir, filename)) as csvfile:
+        with open(os.path.join(results_dir, filename)) as csvfile:
             reader = csv.DictReader(csvfile)
             for i, row in enumerate(reader):
                 redchis.append(float(row['redchi']))
@@ -54,9 +53,6 @@ def read_results(project, g_parameters, fish, limit=None):
                         pulls[param] = []
                     residual = (float(row[param]) -
                                 float(g_parameters.params[param]))
-
-                    # if param in ['x0_1', 'y0_1']:
-                    #     residual +=0.1 
 
                     pull = (residual /
                             math.sqrt(fish.covariance_matrix[param, param]))

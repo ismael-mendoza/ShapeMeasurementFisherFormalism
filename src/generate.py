@@ -8,7 +8,7 @@ import analysis.defaults as defaults
 import analysis.models as models
 
 
-def csvIsEmpty(filename):
+def csv_is_empty(filename):
     """Check if a given csv file is empty by making sure each of the rows in
     the file does not have a string on it.
     """
@@ -38,11 +38,11 @@ def main():
                               'file.'))
 
     parser.add_argument('--galaxy-model', required=True,
-                        type=str, choices=models.getAllModels(),
+                        type=str, choices=models.get_all_models(),
                         help='Change the galaxy\'s model.')
 
     parser.add_argument('--psf_model',
-                        type=str, choices=models.getAllPsfModels(),
+                        type=str, choices=models.get_all_psf_models(),
                         help='Change the psf model.')
 
     parser.add_argument('--snr', type=float,
@@ -50,7 +50,7 @@ def main():
                              'given an info file with fisher analysis is created.')
 
     # add all parameter arguments to the parser.
-    for name in models.getAllParameters():
+    for name in models.get_all_parameters():
         parser.add_argument('--' + name, default=None,
                             type=float,
                             help='Add a value for the parameter ' + name + '.')
@@ -73,14 +73,14 @@ def main():
 
     # write galaxy data to a filename.
     with open(filename, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=models.getFieldnames())
+        writer = csv.DictWriter(csvfile, fieldnames=models.get_fieldnames())
         args_dict = vars(args)
 
         # extract appropiate entries from dictionary of args.
         row_to_write = {k: v for (k, v) in args_dict.items()
-                        if k in models.getFieldnames()}
+                        if k in models.get_fieldnames()}
 
-        if csvIsEmpty(tempname):
+        if csv_is_empty(tempname):
             writer.writeheader()
             writer.writerow(row_to_write)
 
