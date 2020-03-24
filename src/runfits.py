@@ -1,7 +1,6 @@
 """Runs a fit once in a given galaxy image from generate.py, and
-writes results to a csv file that can be read from using galfun.py
+writes results to a csv file that can be read from using gparameters.py
 """
-# ToDo: move to analysis
 import csv
 import math
 import os
@@ -9,13 +8,14 @@ import sys
 
 import lmfit
 
-import analysis.defaults as defaults
-import analysis.fisher as fisher
-import analysis.readfits as galfun
+import defaults
+from analysis import fisher
+from analysis import images
+from analysis import gparameters
 
 
 def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
-    gal_model = galfun.getGalaxiesModels(fit_params=fit_params.valuesdict(), **kwargs)
+    gal_model = gparameters.get_galaxies_models(fit_params=fit_params.valuesdict(), **kwargs)
     model = image_renderer.getImage(gal_model)
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
@@ -31,8 +31,8 @@ def main(argv):
     if not os.path.isdir(os.path.join(project, defaults.RESULTS_DIR)):
         os.mkdir(os.path.join(project, defaults.RESULTS_DIR))
 
-    g_parameters = galfun.GParameters(project)
-    image_renderer = galfun.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
+    g_parameters = gparameters.GParameters(project)
+    image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
     fish = fisher.Fisher(g_parameters=g_parameters, image_renderer=image_renderer, snr=snr)
     # orig_image = copy.deepcopy(fish.image)
     orig_image = fish.model.drawImage(nx=defaults.NX, ny=defaults.NX, scale=defaults.PIXEL_SCALE)
@@ -40,7 +40,7 @@ def main(argv):
     maxs = defaults.getMaximums(g_parameters, orig_image)
     init_values = defaults.get_initial_values_fit(g_parameters)
     nfit_params = g_parameters.nfit_params
-    noisy_image, variance_noise = galfun.addNoise(orig_image, snr, noise_seed)
+    noisy_image, variance_noise = images.addNoise(orig_image, snr, noise_seed)
 
     fit_params = lmfit.Parameters()
     for param in g_parameters.fit_params:

@@ -1,7 +1,7 @@
 import galsim
 import os
 
-import analysis.models as models
+from . import models
 
 
 def get_galaxy_model(params):

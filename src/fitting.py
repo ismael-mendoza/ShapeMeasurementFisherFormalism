@@ -7,7 +7,7 @@ inside the project folder specified.
 import argparse
 import os
 
-import analysis.defaults as defaults
+import defaults as defaults
 
 
 def main():

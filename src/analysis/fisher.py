@@ -7,9 +7,9 @@ import math
 
 import numpy as np
 
-import analysis.defaults as defaults
-import analysis.gparameters as gparameters
-import analysis.images as images
+from .. import defaults
+from . import gparameters
+from . import images
 
 
 def get_snr(img, var_noise):
@@ -85,7 +85,7 @@ class Fisher(object):
                 for id_gal in list(self.g_parameters.id_params.keys())[1:]:
                     model_galaxy = gparameters.get_galaxy_model(self.g_parameters.id_params[id_gal])
                     image_galaxy = self.image_renderer.get_image(model_galaxy)
-                    self.snrs.append(getSNR(image_galaxy, self.var_noise))
+                    self.snrs.append(get_snr(image_galaxy, self.var_noise))
 
         else:
             self.var_noise = var_noise

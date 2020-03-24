@@ -5,8 +5,8 @@ import os
 import shutil
 from pathlib import Path
 
-import analysis.defaults as defaults
-import analysis.models as models
+import defaults
+from analysis import models
 
 
 def csv_is_empty(filename):

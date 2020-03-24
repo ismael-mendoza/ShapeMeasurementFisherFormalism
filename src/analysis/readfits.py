@@ -6,8 +6,8 @@ import math
 import os
 import numpy as np
 
-import analysis.defaults as defaults
-import analysis.models as models
+from .. import defaults
+from . import models
 
 
 def get_omit_fit(id_params, omit):
