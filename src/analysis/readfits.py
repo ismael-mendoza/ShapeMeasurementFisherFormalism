@@ -4,11 +4,10 @@ generated galaxies to extracting information from relevant files.
 import csv
 import math
 import os
-
 import numpy as np
 
-from src.analysis import defaults
-from src.analysis import models
+import analysis.defaults as defaults
+import analysis.models as models
 
 
 def get_omit_fit(id_params, omit):

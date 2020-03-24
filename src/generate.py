@@ -3,6 +3,7 @@ import argparse
 import csv
 import os
 import shutil
+from pathlib import Path
 
 import analysis.defaults as defaults
 import analysis.models as models
@@ -57,44 +58,43 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.isdir(args.project):
-        os.mkdir(args.project)
+    project_path = Path(args.project)
+    if project_path.exists():
+        project_path.rmdir()
+    project_path.mkdir()
 
     # create file for galaxies if it does not exist.
-    filename = os.path.join(args.project, defaults.GALAXY_FILE)
-    if not os.path.isfile(filename):
-        f = open(filename, 'w+')
-        f.close()
+    galaxy_file = project_path.joinpath(defaults.GALAXY_FILE)
+    temp_file = project_path.joinpath('temp.csv')
 
-    tempname = os.path.join(args.project, 'temp' + '.csv')
-
-    # creat a copy to read from and compare.
-    shutil.copyfile(filename, tempname)
+    if galaxy_file.exists():
+        # creat a copy to read from and compare.
+        shutil.copyfile(galaxy_file, temp_file)
 
     # write galaxy data to a filename.
-    with open(filename, 'w') as csvfile:
+    with open(galaxy_file, 'w') as csvfile:
+
         writer = csv.DictWriter(csvfile, fieldnames=models.get_fieldnames())
         args_dict = vars(args)
 
-        # extract appropiate entries from dictionary of args.
+        # extract appropriate entries from dictionary of args.
         row_to_write = {k: v for (k, v) in args_dict.items()
                         if k in models.get_fieldnames()}
 
-        if csv_is_empty(tempname):
+        if not temp_file.exists():
             writer.writeheader()
             writer.writerow(row_to_write)
 
         # otherwise more complicated comparison with previous entry.
         else:
-            with open(tempname, 'r') as tempfile:
+            with open(temp_file, 'r') as tempfile:
                 reader = csv.DictReader(tempfile)
                 writer.writeheader()
                 for row in reader:
                     if int(row['id']) != args.id:
                         writer.writerow(row)
                 writer.writerow(row_to_write)
-
-    os.remove(tempname)
+            os.remove(temp_file)
 
 
 if __name__ == '__main__':

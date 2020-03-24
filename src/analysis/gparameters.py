@@ -1,6 +1,9 @@
-from src.analysis import models
+import galsim
+import os
 
-# ToDo: Better name for galfun?
+import analysis.models as models
+
+
 def get_galaxy_model(params):
     """Return the image of a single galaxy optionally drawn with a psf.
 
@@ -29,7 +32,7 @@ def get_galaxy_model(params):
         if params.get('psf_flux', 1) != 1:
             raise ValueError('I do not think you want a psf of flux not 1')
 
-        psf_cls = models.get_psf_model_cls(params['psf_model'])
+        psf_cls = models.get_model_cls(params['psf_model'])
         psf_model = psf_cls(params)
 
         final = galsim.Convolve([final, psf_model.psf])
@@ -37,7 +40,7 @@ def get_galaxy_model(params):
     return final
 
 
-def getGalaxiesModels(fit_params=None, id_params=None, g_parameters=None, **kwargs):
+def get_galaxies_models(fit_params=None, id_params=None, g_parameters=None, **kwargs):
     """Return the model of a set of galaxies.
 
     One of the the following must be specified:

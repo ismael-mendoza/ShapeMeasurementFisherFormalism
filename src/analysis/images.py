@@ -1,3 +1,7 @@
+from copy import deepcopy
+import galsim
+
+
 class ImageRenderer(object):
     """Object used to produce the image of a galaxy.
 
@@ -5,7 +9,7 @@ class ImageRenderer(object):
         pixel_scale(float): Pixel_scale to use in the image (ratio of pixels to arcsecs)
         nx(float): Width of the image in pixels.
         ny(float): height of the image in pixels.
-        stamp(int): optional, galsim.Image of appropiate dimensions to draw the image. does
+        stamp(galsim.Image): optional, galsim.Image of appropiate dimensions to draw the image. does
             not actually use whatever was originally in the stamp.
         bounds(tuple): When drawn, the image will be clipped to these bounds.
         mask(:class:`np.array`): the pixels selected in this mask will be set to 0.
@@ -23,14 +27,13 @@ class ImageRenderer(object):
         self.pixel_scale = pixel_scale
         self.nx = nx
         self.ny = ny
-        self.stamp = stamp
         self.bounds = bounds
         self.mask = mask
+        self.stamp = stamp
 
         if self.stamp is None:
-
             if self.nx is not None and self.ny is not None and self.pixel_scale is not None:
-                self.stamp = galsim.Image(self.nx, self.ny, scale=self.pixel_scale)
+                self.stamp = galsim.Image(nx=self.nx, ny=self.ny, scale=self.pixel_scale)
 
         else:
             self.nx = self.stamp.array.shape[0]
@@ -41,7 +44,7 @@ class ImageRenderer(object):
             self.stamp = self.stamp[bounds]
 
     def get_image(self, galaxy):
-        img = copy.deepcopy(self.stamp)
+        img = deepcopy(self.stamp)
         galaxy.drawImage(image=img, use_true_center=False)
 
         if self.mask is None:
@@ -51,7 +54,7 @@ class ImageRenderer(object):
             return img
 
 
-def addNoise(image, snr, noise_seed=0):
+def add_noise(image, snr, noise_seed=0):
     """Set gaussian noise to the given galsim.Image.
 
     Args:
@@ -68,8 +71,9 @@ def addNoise(image, snr, noise_seed=0):
 
     """
 
-    noisy_image = copy.deepcopy(image)  # do not alter original image.
+    noisy_image = deepcopy(image)  # do not alter original image.
     bd = galsim.BaseDeviate(noise_seed)
     noise = galsim.GaussianNoise(rng=bd)
     variance_noise = noisy_image.addNoiseSNR(noise, snr, preserve_flux=True)
     return noisy_image, variance_noise
+

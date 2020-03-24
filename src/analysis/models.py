@@ -2,9 +2,10 @@
 This module contains the models that are used for galaxies and psfs for galsim, more 
 information of how to add your own models for both galaxies and psfs can be found in the corresponding tutorial. 
 """
-import sys
-
 import galsim
+import sys
+import inspect
+
 
 # referencing itself.
 curr_module = sys.modules[__name__]
@@ -65,6 +66,7 @@ class Model(object):
                                                   galsim.radians))
         else:
             raise ValueError('The shear for the galaxy was not specified.')
+
 
     def shift(self, gal, params):
         if 'x0' and 'y0' in params:
@@ -280,7 +282,7 @@ class GaussianPsf(PsfModel):
         return psf
 
 
-class psf_moffat(PsfModel):
+class MoffatPsf(PsfModel):
     parameters = [
         'psf_flux',
 
@@ -314,9 +316,10 @@ def get_gal_parameters():
 
     """
     gal_parameters = []
-    subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
-    for cls in subclasses:
-        gal_parameters += cls.parameters
+    classes = [obj for name, obj in inspect.getmembers(sys.modules[__name__]) if inspect.isclass(obj)]
+    for cls in classes:
+        if 'Psf' not in cls.__name__:
+            gal_parameters += cls.parameters
 
     # remove duplicates
     gal_parameters = list(set(gal_parameters))
@@ -326,9 +329,10 @@ def get_gal_parameters():
 
 def get_psf_parameters():
     psf_parameters = []
-    subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
-    for cls in subclasses:
-        psf_parameters += cls.parameters
+    classes = [obj for name, obj in inspect.getmembers(sys.modules[__name__]) if inspect.isclass(obj)]
+    for cls in classes:
+        if 'Psf' in cls.__name__ and cls.__name__ != 'PsfModel':
+            psf_parameters += cls.parameters
 
     psf_parameters = list(set(psf_parameters))
 
@@ -345,37 +349,29 @@ def get_fieldnames():
 
 def get_model_cls(model):
     """Return the corresponding class to the model specified in params"""
-    subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
-    for cls in subclasses:
-        if cls.__name__ == model:
+    classes = [obj for name, obj in inspect.getmembers(sys.modules[__name__]) if inspect.isclass(obj)]
+    for cls in classes:
+        if cls.__name__.lower() == model:
             return cls
     raise NotImplementedError('Have not implemented that galaxy model')
 
 
-def get_psf_model_cls(model):
-    """Return the corresponding psf class specified in params."""
-    subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
-    for cls in subclasses:
-        if cls.__name__ == model:
-            return cls
-    raise NotImplementedError('Have not implemented that psf model')
-
-
 def get_all_models():
     """Used to display choices in generate.py"""
+    classes = [obj for name, obj in inspect.getmembers(sys.modules[__name__]) if inspect.isclass(obj)]
     gal_models = []
-    subclasses = [cls for cls in vars(curr_module)['model'].__subclasses__()]
-    for cls in subclasses:
-        gal_models.append(cls.__name__)
-
+    for cls in classes:
+        if 'Psf' not in cls.__name__ and 'Model' != cls.__name__:
+            gal_models.append(cls.__name__.lower())
     return gal_models
 
 
 def get_all_psf_models():
     """Used to display choices in generate.py"""
+    classes = [obj for name, obj in inspect.getmembers(sys.modules[__name__]) if inspect.isclass(obj)]
     psf_models = []
-    subclasses = [cls for cls in vars(curr_module)['psf_model'].__subclasses__()]
-    for cls in subclasses:
-        psf_models.append(cls.__name__)
+    for cls in classes:
+        if 'Psf' in cls.__name__ and cls.__name__ != 'PsfModel':
+            psf_models.append(cls.__name__.lower())
 
     return psf_models
