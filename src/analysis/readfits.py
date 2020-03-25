@@ -10,20 +10,6 @@ from .. import defaults
 from . import models
 
 
-def get_omit_fit(id_params, omit):
-    omit_fit = {}
-
-    for gal_id in id_params:
-        params_omit = omit.get(gal_id, [])
-        params = id_params[gal_id]
-        galaxy_model = params['galaxy_model']
-        cls = models.get_model_cls(galaxy_model)
-        obj = cls(params_omit=params_omit)
-        omit_fit[gal_id] = obj.omit_fit
-
-    return omit_fit
-
-
 def read_results(project, g_parameters, fish, limit=None):
     orig_image = fish.image
     mins = defaults.get_minimums(g_parameters, orig_image)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Interface that allows user to do N fittings of a galaxy produced in
 generate.py given a SNR and compare with the fisher formalism by
 displaying biases and correlation coefficients,etc. It writes the results into a folder 
@@ -7,7 +9,7 @@ inside the project folder specified.
 import argparse
 import os
 
-import defaults as defaults
+from . import defaults
 
 
 def main():
@@ -71,7 +73,7 @@ def main():
 
     if args.run_fits:
         for i in range(args.number_fits):
-            os.system("python runfits.py " + str(i + 1) + " " +
+            os.system("./runfits.py " + str(i + 1) + " " +
                       str(snr) + " " + str(args.project) + " "
                       + str(existing_fits))
 
@@ -83,7 +85,7 @@ def main():
     elif args.run_fits_slac:
         os.system("bsub -o output1.txt -q " + str(args.run_fits_slac) + " -J \"name[1"
                   + "-" + str(args.number_fits) +
-                  "]\" \"python runfits.py \$LSB_JOBINDEX "
+                  "]\" \"./runfits.py \$LSB_JOBINDEX "
                   + str(snr) + " " + str(args.project) + " " +
                   str(existing_fits) + "\"")
 

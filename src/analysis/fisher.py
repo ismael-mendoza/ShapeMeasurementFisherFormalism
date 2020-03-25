@@ -15,6 +15,7 @@ from . import images
 def get_snr(img, var_noise):
     return np.sqrt(np.sum(img.array ** 2) / var_noise)
 
+
 class Fisher(object):
     """Produce fisher object (containing fisher analysis) for a given set of
     galaxy parameters.

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Generate a galaxy(ies) as specified by the user and saves it to a csv file."""
 import argparse
 import csv
@@ -5,8 +7,8 @@ import os
 import shutil
 from pathlib import Path
 
-import defaults
-from analysis import models
+from . import defaults
+from .analysis import models
 
 
 def csv_is_empty(filename):
@@ -60,7 +62,7 @@ def main():
 
     project_path = Path(args.project)
     if project_path.exists():
-        project_path.rmdir()
+        shutil.rmtree(project_path.as_posix())
     project_path.mkdir()
 
     # create file for galaxies if it does not exist.
@@ -78,8 +80,7 @@ def main():
         args_dict = vars(args)
 
         # extract appropriate entries from dictionary of args.
-        row_to_write = {k: v for (k, v) in args_dict.items()
-                        if k in models.get_fieldnames()}
+        row_to_write = {k: v for (k, v) in args_dict.items() if k in models.get_fieldnames()}
 
         if not temp_file.exists():
             writer.writeheader()

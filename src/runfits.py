@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Runs a fit once in a given galaxy image from generate.py, and
 writes results to a csv file that can be read from using gparameters.py
 """
@@ -9,9 +11,9 @@ import sys
 import lmfit
 
 import defaults
-from analysis import fisher
-from analysis import images
-from analysis import gparameters
+from .analysis import fisher
+from .analysis import images
+from .analysis import gparameters
 
 
 def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):

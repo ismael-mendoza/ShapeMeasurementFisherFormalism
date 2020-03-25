@@ -1,7 +1,24 @@
 import galsim
 import os
+import csv
+from copy import deepcopy
 
 from . import models
+from .. import defaults
+
+
+def _get_omit_fit(id_params, omit):
+    omit_fit = {}
+
+    for gal_id in id_params:
+        params_omit = omit.get(gal_id, [])
+        params = id_params[gal_id]
+        galaxy_model = params['galaxy_model']
+        cls = models.get_model_cls(galaxy_model)
+        obj = cls(params_omit=params_omit)
+        omit_fit[gal_id] = obj.omit_fit
+
+    return omit_fit
 
 
 def get_galaxy_model(params):
@@ -118,7 +135,9 @@ class GParameters(object):
 
     """
 
-    def __init__(self, project=None, id_params=None, omit={}):
+    def __init__(self, project=None, id_params=None, omit=None):
+        if omit is None:
+            omit = {}
         if project:
             if not os.path.isdir(project):
                 raise OSError('Directory given does not exist.')
@@ -133,7 +152,7 @@ class GParameters(object):
                 reader = csv.DictReader(csvfile)
                 id_params = {}
                 for row in reader:
-                    row_to_store = copy.deepcopy(row)
+                    row_to_store = deepcopy(row)
                     gal_id = row['id']
                     for param in row:
                         if not row[param]:
@@ -141,7 +160,7 @@ class GParameters(object):
                     row_to_store.pop('id')  # avoid redundancy
                     id_params[gal_id] = row_to_store
 
-            # convert all appropiate values to floats,
+            # convert all appropriate values to floats,
             for gal_id in id_params:
                 for key, value in id_params[gal_id].items():
                     try:
@@ -151,7 +170,7 @@ class GParameters(object):
 
         self.id_params = id_params
         self.params = GParameters.convert_id_params(self.id_params)
-        self.omit_fit = getOmitFit(id_params, omit)
+        self.omit_fit = _get_omit_fit(id_params, omit)
         self.fit_params = GParameters.convert_id_params(self.id_params,
                                                         self.omit_fit)
         self.nfit_params = self.get_nfit_params()
