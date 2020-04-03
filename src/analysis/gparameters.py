@@ -75,14 +75,12 @@ def get_galaxies_models(fit_params=None, id_params=None, g_parameters=None, **kw
                          parameters. For details, :class:`GParameters`
         g_parameters(:class:`GParameters`): An object containing different
                                             forms of the galaxy parameters.
-        image(bool): If :bool:True returns an galsim.Image otherwise it
-        returns a np.array
 
     Returns:
         A :class:`galsim.GSObject`
 
     """
-
+    # ToDo: Check if we need to convolve first and then add?
     if id_params is None and g_parameters is None:
         fit_params.update(kwargs)
         id_params = GParameters.convert_params_id(fit_params)

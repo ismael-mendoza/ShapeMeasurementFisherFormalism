@@ -59,11 +59,12 @@ def main():
                             help='Add a value for the parameter ' + name + '.')
 
     args = parser.parse_args()
+    assert args.id == 1 or args.id == 2, "Only support two galaxies. "
 
     project_path = Path(args.project)
-    if project_path.exists():
+    if project_path.exists() and args.id == 1:
         shutil.rmtree(project_path.as_posix())
-    project_path.mkdir()
+    project_path.mkdir(exist_ok=True)
 
     # create file for galaxies if it does not exist.
     galaxy_file = project_path.joinpath(defaults.GALAXY_FILE)

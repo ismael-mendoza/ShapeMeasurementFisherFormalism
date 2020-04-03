@@ -21,7 +21,7 @@ class ImageRenderer(object):
     This object is made so it can be passsed in to a class :class:`analysis.fisher.Fisher` object.
     """
 
-    def __init__(self, pixel_scale=None, nx=None, ny=None, stamp=None, project=None,
+    def __init__(self, pixel_scale=None, nx=None, ny=None, stamp=None,
                  bounds=None, mask=None):
 
         self.pixel_scale = pixel_scale
@@ -33,7 +33,7 @@ class ImageRenderer(object):
 
         if self.stamp is None:
             if self.nx is not None and self.ny is not None and self.pixel_scale is not None:
-                self.stamp = galsim.Image(nx=self.nx, ny=self.ny, scale=self.pixel_scale)
+                self.stamp = galsim.Image(self.nx, self.ny, scale=self.pixel_scale)
 
         else:
             self.nx = self.stamp.array.shape[0]
@@ -50,7 +50,7 @@ class ImageRenderer(object):
         if self.mask is None:
             return img
         else:
-            img.array[mask] = 0.
+            img.array[self.mask] = 0.
             return img
 
 
