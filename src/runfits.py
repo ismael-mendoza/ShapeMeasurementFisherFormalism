@@ -10,21 +10,19 @@ import sys
 
 import lmfit
 
-import defaults
+from . import defaults
 from .analysis import fisher
-from .analysis import images
 from .analysis import gparameters
+from .analysis import images
 
 
-def objFunc(fit_params, image_renderer, data, variance_noise, **kwargs):
+def obj_func(fit_params, image_renderer, data, variance_noise, **kwargs):
     gal_model = gparameters.get_galaxies_models(fit_params=fit_params.valuesdict(), **kwargs)
-    model = image_renderer.getImage(gal_model)
+    model = image_renderer.get_image(gal_model)
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
 
 def main(argv):
-    # import ipdb; ipdb.set_trace()
-
     current_fit_number, snr, project, existing_fits = (
         int(argv[1]), float(argv[2]), argv[3], int(argv[4]))
 
@@ -36,13 +34,12 @@ def main(argv):
     g_parameters = gparameters.GParameters(project)
     image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
     fish = fisher.Fisher(g_parameters=g_parameters, image_renderer=image_renderer, snr=snr)
-    # orig_image = copy.deepcopy(fish.image)
     orig_image = fish.model.drawImage(nx=defaults.NX, ny=defaults.NX, scale=defaults.PIXEL_SCALE)
     mins = defaults.get_minimums(g_parameters, orig_image)
-    maxs = defaults.getMaximums(g_parameters, orig_image)
+    maxs = defaults.get_maximums(g_parameters, orig_image)
     init_values = defaults.get_initial_values_fit(g_parameters)
     nfit_params = g_parameters.nfit_params
-    noisy_image, variance_noise = images.addNoise(orig_image, snr, noise_seed)
+    noisy_image, variance_noise = images.add_noise(orig_image, snr, noise_seed)
 
     fit_params = lmfit.Parameters()
     for param in g_parameters.fit_params:
@@ -51,10 +48,10 @@ def main(argv):
                        min=mins[param],
                        max=maxs[param])
 
-    results = lmfit.minimize(objFunc, fit_params, kws=dict(image_renderer=image_renderer,
-                                                           data=noisy_image,
-                                                           variance_noise=(variance_noise),
-                                                           **nfit_params))
+    results = lmfit.minimize(obj_func, fit_params, kws=dict(image_renderer=image_renderer,
+                                                            data=noisy_image,
+                                                            variance_noise=variance_noise,
+                                                            **nfit_params))
 
     filename = ''.join([defaults.RESULTS_DIR, str(noise_seed), '.csv'])
     result_filename = os.path.join(project, defaults.RESULTS_DIR, filename)

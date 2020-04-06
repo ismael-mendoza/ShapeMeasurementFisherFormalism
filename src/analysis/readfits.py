@@ -3,31 +3,25 @@ generated galaxies to extracting information from relevant files.
 """
 import csv
 import math
-import os
+
 import numpy as np
 
 from .. import defaults
-from . import models
 
 
-def read_results(project, g_parameters, fish, limit=None):
+def read_results(project_path, g_parameters, fish):
     orig_image = fish.image
     mins = defaults.get_minimums(g_parameters, orig_image)
-    maxs = defaults.getMaximums(g_parameters, orig_image)
+    maxs = defaults.get_maximums(g_parameters, orig_image)
 
     residuals = {}
     pulls = {}
     redchis = []  # list containing values of reduced chi2 for each fit.
-    results_dir = os.path.join(project, defaults.RESULTS_DIR)
-
-    files = os.listdir(results_dir)
-
-    if limit is not None:
-        files = files[:limit]
+    results_dir = project_path.joinpath(defaults.RESULTS_DIR)
 
     # read results from results_dir's files.
-    for filename in files:
-        with open(os.path.join(results_dir, filename)) as csvfile:
+    for fit_file in results_dir.iterdir():
+        with open(fit_file) as csvfile:
             reader = csv.DictReader(csvfile)
             for i, row in enumerate(reader):
                 redchis.append(float(row['redchi']))

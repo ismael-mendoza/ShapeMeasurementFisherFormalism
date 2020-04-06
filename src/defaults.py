@@ -109,7 +109,7 @@ def get_minimums(g_parameters, gal_image):
     return minimums
 
 
-def getMaximums(g_parameters, gal_image):
+def get_maximums(g_parameters, gal_image):
     """Return a dictionary containing the minimum values to be used in the
     in the fitting of the parameters.
 

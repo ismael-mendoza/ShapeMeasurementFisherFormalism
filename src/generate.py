@@ -62,7 +62,7 @@ def main():
     assert args.id == 1 or args.id == 2, "Only support two galaxies. "
 
     project_path = Path(args.project)
-    if project_path.exists() and args.id == 1:
+    if project_path.exists() and args.id == 1:  # overwrite folder if only plotting one galaxy again.
         shutil.rmtree(project_path.as_posix())
     project_path.mkdir(exist_ok=True)
 

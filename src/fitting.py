@@ -7,7 +7,9 @@ inside the project folder specified.
 """
 
 import argparse
-import os
+import shutil
+import subprocess
+from pathlib import Path
 
 from . import defaults
 
@@ -45,52 +47,52 @@ def main():
 
     args = parser.parse_args()
 
-    results_dir = os.path.join(args.project, defaults.RESULTS_DIR)
-    snr_file_name = os.path.join(args.project, defaults.SNR_FILE)
+    project_path = Path(args.project)
+    assert project_path.exists(), "There should be a project folder with a galaxy in the args.project specified."
 
-    # delete results_dir if it exsits and if snr is specified.
+    results_dir = project_path.joinpath(defaults.RESULTS_DIR)
+    snr_file = project_path.joinpath(defaults.SNR_FILE)
+
+    # delete results_dir if it exists and if snr is specified.
     if args.snr:
         snr = args.snr
-        if os.path.isdir(results_dir):
-            os.system('rm -r ' + results_dir)
+        if results_dir.exists():
+            shutil.rmtree(results_dir.as_posix())
 
-    elif not args.snr and os.path.isfile(snr_file_name):
-        with open(snr_file_name, 'r') as snrfile:
+    elif not args.snr and snr_file.exists():
+        with open(snr_file, 'r') as snrfile:
             snr = float(snrfile.readline())
 
     else:
         raise ValueError('SNR was not specified.')
 
-    if not os.path.isdir(results_dir):
-        os.mkdir(results_dir)
+    results_dir.mkdir(exist_ok=True)
 
-    # count number of existing results in rltsdir.
+    # count number of existing results in results_dir.
     existing_fits = 0
-    for filename in os.listdir(results_dir):
+    for _ in results_dir.iterdir():
         existing_fits += 1
-
-    # print(existing_fits)
 
     if args.run_fits:
         for i in range(args.number_fits):
-            os.system("./runfits.py " + str(i + 1) + " " +
-                      str(snr) + " " + str(args.project) + " "
-                      + str(existing_fits))
+            subprocess.run(f"python -m src.runfits {i + 1} {snr} {project_path} {existing_fits}",
+                           shell=True)
 
         # write snr to file, so no confusion as to what snr we have later.
         if args.snr:
-            with open(snr_file_name, 'w') as snrfile:
+            with open(snr_file, 'w') as snrfile:
                 snrfile.write(str(snr))
 
     elif args.run_fits_slac:
-        os.system("bsub -o output1.txt -q " + str(args.run_fits_slac) + " -J \"name[1"
-                  + "-" + str(args.number_fits) +
-                  "]\" \"./runfits.py \$LSB_JOBINDEX "
-                  + str(snr) + " " + str(args.project) + " " +
-                  str(existing_fits) + "\"")
+        subprocess.run("bsub -o output1.txt -q " + str(args.run_fits_slac) + " -J \"name[1"
+                       + "-" + str(args.number_fits) +
+                       "]\" \"./runfits.py \$LSB_JOBINDEX "
+                       + str(snr) + " " + str(args.project) + " " +
+                       str(existing_fits) + "\"",
+                       shell=True)
 
         if args.snr:
-            with open(snr_file_name, 'w') as snrfile:
+            with open(snr_file, 'w') as snrfile:
                 snrfile.write(str(snr))
 
 
