@@ -1,5 +1,7 @@
 """Some of the defaults that are used in the overall program."""
 
+import numpy as np
+
 
 def get_steps(g_parameters, image_renderer):
     """Return a dictionary containing the steps to be used in the
@@ -59,11 +61,7 @@ def get_initial_values_fit(g_parameters):
     initial_values = dict()
     fit_params = g_parameters.fit_params
     for param in fit_params:
-        if fit_params[param] == 0:
-            initial_values[param] = FIT_DEVIATION
-        else:
-            initial_values[param] = fit_params[param]
-
+        initial_values[param] = fit_params[param] + abs(np.random.uniform()) * (fit_params[param] / 10 + 0.2)
     return initial_values
 
 

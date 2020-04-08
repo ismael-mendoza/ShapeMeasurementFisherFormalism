@@ -2,10 +2,10 @@
 This module contains the models that are used for galaxies and psfs for galsim, more 
 information of how to add your own models for both galaxies and psfs can be found in the corresponding tutorial. 
 """
-import galsim
-import sys
 import inspect
+import sys
 
+import galsim
 
 # referencing itself.
 curr_module = sys.modules[__name__]
@@ -66,7 +66,6 @@ class Model(object):
                                                   galsim.radians))
         else:
             raise ValueError('The shear for the galaxy was not specified.')
-
 
     def shift(self, gal, params):
         if 'x0' and 'y0' in params:
@@ -194,7 +193,7 @@ class BulgeDisk(Model):
             raise NotImplementedError('Need to implement delta_e or '
                                       'delta_theta.')
 
-        return bulge+disk
+        return bulge + disk
 
 
 class BulgeDisk6(Model):

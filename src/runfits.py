@@ -9,6 +9,7 @@ import os
 import sys
 
 import lmfit
+import numpy as np
 
 from . import defaults
 from .analysis import fisher
@@ -22,19 +23,13 @@ def obj_func(fit_params, image_renderer, data, variance_noise, **kwargs):
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
 
-def main(argv):
-    current_fit_number, snr, project, existing_fits = (
-        int(argv[1]), float(argv[2]), argv[3], int(argv[4]))
+def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None):
+    if noise_seed is None:
+        noise_seed = np.random.randint(99999999999999)
 
-    noise_seed = current_fit_number + existing_fits
-
-    if not os.path.isdir(os.path.join(project, defaults.RESULTS_DIR)):
-        os.mkdir(os.path.join(project, defaults.RESULTS_DIR))
-
-    g_parameters = gparameters.GParameters(project)
-    image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
     fish = fisher.Fisher(g_parameters=g_parameters, image_renderer=image_renderer, snr=snr)
     orig_image = fish.model.drawImage(nx=defaults.NX, ny=defaults.NX, scale=defaults.PIXEL_SCALE)
+
     mins = defaults.get_minimums(g_parameters, orig_image)
     maxs = defaults.get_maximums(g_parameters, orig_image)
     init_values = defaults.get_initial_values_fit(g_parameters)
@@ -52,6 +47,21 @@ def main(argv):
                                                             data=noisy_image,
                                                             variance_noise=variance_noise,
                                                             **nfit_params))
+    return results
+
+
+def main(argv):
+    current_fit_number, snr, project, existing_fits = (
+        int(argv[1]), float(argv[2]), argv[3], int(argv[4]))
+
+    noise_seed = existing_fits + current_fit_number
+
+    if not os.path.isdir(os.path.join(project, defaults.RESULTS_DIR)):
+        os.mkdir(os.path.join(project, defaults.RESULTS_DIR))
+
+    g_parameters = gparameters.GParameters(project)
+    image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
+    results = perform_fit(g_parameters, image_renderer, snr=snr)
 
     filename = ''.join([defaults.RESULTS_DIR, str(noise_seed), '.csv'])
     result_filename = os.path.join(project, defaults.RESULTS_DIR, filename)
