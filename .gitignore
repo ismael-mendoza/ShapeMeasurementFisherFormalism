@@ -9,7 +9,9 @@
 *-checkpoint.ipynb
 project*/*.txt
 *.ipynb_checkpoints
-*.idea 
+*.idea
+
+my_notebooks
 
 data/
 old/ 

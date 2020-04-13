@@ -23,7 +23,7 @@ def obj_func(fit_params, image_renderer, data, variance_noise, **kwargs):
     return ((model - data).array.ravel()) / math.sqrt(variance_noise)
 
 
-def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None):
+def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None, method='leastsq'):
     if noise_seed is None:
         noise_seed = np.random.randint(99999999999999)
 
@@ -43,10 +43,10 @@ def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None):
                        min=mins[param],
                        max=maxs[param])
 
-    results = lmfit.minimize(obj_func, fit_params, kws=dict(image_renderer=image_renderer,
-                                                            data=noisy_image,
-                                                            variance_noise=variance_noise,
-                                                            **nfit_params))
+    results = lmfit.minimize(obj_func, fit_params, method=method, kws=dict(image_renderer=image_renderer,
+                                                                           data=noisy_image,
+                                                                           variance_noise=variance_noise,
+                                                                           **nfit_params))
     return results
 
 

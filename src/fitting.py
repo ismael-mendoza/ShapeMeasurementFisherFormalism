@@ -84,11 +84,8 @@ def main():
                 snrfile.write(str(snr))
 
     elif args.run_fits_slac:
-        subprocess.run("bsub -o output1.txt -q " + str(args.run_fits_slac) + " -J \"name[1"
-                       + "-" + str(args.number_fits) +
-                       "]\" \"./runfits.py \$LSB_JOBINDEX "
-                       + str(snr) + " " + str(args.project) + " " +
-                       str(existing_fits) + "\"",
+        subprocess.run(f'bsub -o data/output.txt -q {args.run_fits_slac} -J "name[1-{args.number_fits}]"'
+                       f' "python -m src.runfits \$LSB_JOBINDEX {snr} {args.project} {existing_fits}"',
                        shell=True)
 
         if args.snr:
