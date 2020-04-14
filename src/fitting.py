@@ -32,6 +32,10 @@ def main():
                         help=('Specify signal to noise ratio of the run. No need to specify'
                               'it twice between doing fits and producing results.'))
 
+    parser.add_argument('--slen', default=None,
+                        type=int,
+                        help='The size to use for the image in which to draw the galaxy model.')
+
     parser.add_argument('-n', '--number-fits', default=1,
                         type=int,
                         help='Specify how many fits to run.')
@@ -75,7 +79,7 @@ def main():
 
     if args.run_fits:
         for i in range(args.number_fits):
-            subprocess.run(f"python -m src.runfits {i + 1} {snr} {project_path} {existing_fits}",
+            subprocess.run(f"python -m src.runfits {i + 1} {snr} {project_path} {existing_fits} {args.slen}",
                            shell=True)
 
         # write snr to file, so no confusion as to what snr we have later.
@@ -85,7 +89,7 @@ def main():
 
     elif args.run_fits_slac:
         subprocess.run(f'bsub -o data/output.txt -q {args.run_fits_slac} -J "name[1-{args.number_fits}]"'
-                       f' "python -m src.runfits \$LSB_JOBINDEX {snr} {args.project} {existing_fits}"',
+                       f' "python -m src.runfits \$LSB_JOBINDEX {snr} {args.project} {existing_fits} {args.slen}"',
                        shell=True)
 
         if args.snr:

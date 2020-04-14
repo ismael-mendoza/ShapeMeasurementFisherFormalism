@@ -28,7 +28,7 @@ def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None, method='
         noise_seed = np.random.randint(99999999999999)
 
     fish = fisher.Fisher(g_parameters=g_parameters, image_renderer=image_renderer, snr=snr)
-    orig_image = fish.model.drawImage(nx=defaults.NX, ny=defaults.NX, scale=defaults.PIXEL_SCALE)
+    orig_image = fish.image
 
     mins = defaults.get_minimums(g_parameters, orig_image)
     maxs = defaults.get_maximums(g_parameters, orig_image)
@@ -51,8 +51,10 @@ def perform_fit(g_parameters, image_renderer, snr=20., noise_seed=None, method='
 
 
 def main(argv):
-    current_fit_number, snr, project, existing_fits = (
-        int(argv[1]), float(argv[2]), argv[3], int(argv[4]))
+    current_fit_number, snr, project, existing_fits, slen = (
+        int(argv[1]), float(argv[2]), argv[3], int(argv[4]), int(argv[5]))
+
+    assert slen % 2 == 1, "slen should be odd otherwise fit will fail. "
 
     noise_seed = existing_fits + current_fit_number
 
@@ -60,7 +62,7 @@ def main(argv):
         os.mkdir(os.path.join(project, defaults.RESULTS_DIR))
 
     g_parameters = gparameters.GParameters(project)
-    image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=defaults.NX, ny=defaults.NY)
+    image_renderer = images.ImageRenderer(pixel_scale=defaults.PIXEL_SCALE, nx=slen, ny=slen)
     results = perform_fit(g_parameters, image_renderer, snr=snr)
 
     filename = ''.join([defaults.RESULTS_DIR, str(noise_seed), '.csv'])
