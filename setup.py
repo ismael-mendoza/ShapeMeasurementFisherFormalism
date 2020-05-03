@@ -23,5 +23,5 @@ setup(
     package_dir={'smff': 'smff'},
     scripts=[],
     install_requires=requirements,  # requirements,
-    license='MIT',
+    license='',
 )
