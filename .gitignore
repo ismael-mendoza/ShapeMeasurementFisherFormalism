@@ -9,6 +9,6 @@ project*/*.txt
 *.ipynb_checkpoints
 *.idea
 
-my_notebooks
 project-*/
 old/
+/my_notebooks/
