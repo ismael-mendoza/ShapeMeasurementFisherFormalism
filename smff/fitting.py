@@ -15,11 +15,11 @@ from . import defaults
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=('Displays a triangle plot comparing the expected'
-                     'noise bias calculation with the fisher matrix'
-                     'formalism for a given file of galaxies.'),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description=
+                                     'Displays a triangle plot comparing the expected'
+                                     'noise bias calculation with the fisher matrix'
+                                     'formalism for a given file of galaxies.',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-p', '--project', default=defaults.PROJECT,
                         type=str,
@@ -79,7 +79,7 @@ def main():
 
     if args.run_fits:
         for i in range(args.number_fits):
-            subprocess.run(f"python -m src.runfits {i + 1} {snr} {project_path} {existing_fits} {args.slen}",
+            subprocess.run(f"python -m smff.runfits {i + 1} {snr} {project_path} {existing_fits} {args.slen}",
                            shell=True)
 
         # write snr to file, so no confusion as to what snr we have later.
@@ -89,7 +89,7 @@ def main():
 
     elif args.run_fits_slac:
         subprocess.run(f'bsub -o data/output.txt -q {args.run_fits_slac} -J "name[1-{args.number_fits}]"'
-                       f' "python -m src.runfits \$LSB_JOBINDEX {snr} {args.project} {existing_fits} {args.slen}"',
+                       f' "python -m smff.runfits \$LSB_JOBINDEX {snr} {args.project} {existing_fits} {args.slen}"',
                        shell=True)
 
         if args.snr:
