@@ -1,7 +1,8 @@
-import galsim
-import os
 import csv
+import os
 from copy import deepcopy
+
+import galsim
 
 from . import models
 from .. import defaults

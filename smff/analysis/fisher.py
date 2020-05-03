@@ -7,9 +7,9 @@ import math
 
 import numpy as np
 
-from .. import defaults
 from . import gparameters
 from . import images
+from .. import defaults
 
 
 def get_snr(img, var_noise):
