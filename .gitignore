@@ -1,8 +1,6 @@
 *.pyc
 *.dat
 *.cat
-*.tgz
-*.gz
 *.png
 *.log
 *.pdf
@@ -12,11 +10,5 @@ project*/*.txt
 *.idea
 
 my_notebooks
-
-data/
-old/ 
-
-
-# Sphinx documentation
-docs/_build/
-
+project-*/
+old/
