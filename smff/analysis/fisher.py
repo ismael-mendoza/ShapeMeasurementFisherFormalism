@@ -267,7 +267,7 @@ class Fisher(object):
         """Construct the bias of each parameter per pixel."""
         bias_images = {}
         for i in range(self.num_params):
-            sumation = 0
+            summation = 0
             for j in range(self.num_params):
                 for k in range(self.num_params):
                     for l in range(self.num_params):
@@ -275,11 +275,11 @@ class Fisher(object):
                         param_j = self.param_names[j]
                         param_k = self.param_names[k]
                         param_l = self.param_names[l]
-                        sumation += (self.covariance_matrix[param_i, param_j] *
-                                     self.covariance_matrix[param_k, param_l] *
-                                     self.bias_matrix_images[param_j, param_k,
-                                                             param_l])
-            bias_images[self.param_names[i]] = (-.5) * sumation
+                        summation += (self.covariance_matrix[param_i, param_j] *
+                                      self.covariance_matrix[param_k, param_l] *
+                                      self.bias_matrix_images[param_j, param_k,
+                                                              param_l])
+            bias_images[self.param_names[i]] = (-.5) * summation
         return bias_images
 
     def get_biases(self):
