@@ -12,3 +12,4 @@ project*/*.txt
 project-*/
 old/
 /my_notebooks/
+.vscode/
